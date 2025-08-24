@@ -217,6 +217,8 @@ function App() {
       setUrlCategory('');
       setUrlPriority('medium');
       setUrlNotes('');
+      
+      // Update data WITHOUT changing tabs
       fetchSavedUrls();
       fetchStats();
     } catch (error) {
