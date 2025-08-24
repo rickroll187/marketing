@@ -848,6 +848,10 @@ function App() {
         description: scheduleDate ? "Email campaign scheduled" : "Email campaign sent"
       });
       
+      // Track email campaign
+      const recipientCount = recipients.length;
+      trackEmailCampaign(emailSubject, recipientCount);
+      
       // Reset form
       setEmailSubject('');
       setEmailContent('');
