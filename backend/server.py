@@ -588,7 +588,7 @@ async def send_email_campaign(campaign: EmailCampaign):
         return False
 
 # Social Media Export Functions
-def generate_social_media_export(content_list: List[GeneratedContent], platform: str) -> str:
+async def generate_social_media_export(content_list: List[GeneratedContent], platform: str) -> str:
     """Generate CSV export for social media posting tools"""
     output = io.StringIO()
     
