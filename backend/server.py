@@ -1238,12 +1238,34 @@ async def get_product(product_id: str):
         raise HTTPException(status_code=404, detail="Product not found")
     return Product(**product)
 
-@api_router.post("/products", response_model=Product)
-async def create_product(product: ProductCreate):
-    """Manually add a product"""
-    product_obj = Product(**product.dict())
-    await db.products.insert_one(product_obj.dict())
-    return product_obj
+@api_router.put("/products/{product_id}/price")
+async def update_product_price(product_id: str, price_data: dict):
+    """Update product price manually when scraping fails"""
+    try:
+        update_fields = {}
+        if 'price' in price_data:
+            update_fields['price'] = float(price_data['price'])
+        if 'original_price' in price_data:
+            update_fields['original_price'] = float(price_data['original_price']) if price_data['original_price'] else None
+        if 'name' in price_data:
+            update_fields['name'] = price_data['name']
+        
+        result = await db.products.update_one(
+            {"id": product_id},
+            {"$set": update_fields}
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="Product not found")
+        
+        # Get updated product
+        updated_product = await db.products.find_one({"id": product_id})
+        return Product(**updated_product)
+        
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid price format")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/generate-content")
 async def generate_content(request: ContentGenerationRequest):
