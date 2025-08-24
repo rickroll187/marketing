@@ -421,7 +421,7 @@ class AffiliateMarketingAPITester:
 
     def run_comprehensive_test(self):
         """Run all tests in sequence"""
-        print("🚀 Starting Comprehensive API Testing for Affiliate Marketing Platform")
+        print("🚀 Starting Comprehensive API Testing for Advanced Affiliate Marketing Platform")
         print(f"🌐 Testing against: {self.base_url}")
         print("=" * 80)
         
@@ -429,7 +429,7 @@ class AffiliateMarketingAPITester:
         
         # Basic endpoint tests
         self.test_root_endpoint()
-        self.test_stats_endpoint()
+        self.test_enhanced_stats()
         
         # Product tests
         existing_products = self.test_get_products()
@@ -445,10 +445,14 @@ class AffiliateMarketingAPITester:
         test_product_id = created_product_id or (existing_products[0]['id'] if existing_products else None)
         
         if test_product_id:
+            # Test basic content generation
             generated_content = self.test_generate_content(test_product_id)
             
+            # Test advanced content generation with all 8 types
+            advanced_content = self.test_advanced_content_generation(test_product_id)
+            
             # Wait a bit for content to be saved
-            time.sleep(2)
+            time.sleep(3)
             
             # Content retrieval tests
             all_content = self.test_get_content()
@@ -456,11 +460,24 @@ class AffiliateMarketingAPITester:
             # Test content filtering
             self.test_content_filtering()
             
-            # Test single content retrieval and deletion
+            # Test content scheduling
             if self.created_content:
                 content_id = self.created_content[0]
+                self.test_content_scheduling(content_id)
                 self.test_get_single_content(content_id)
-                self.test_delete_content(content_id)
+            
+            # Test social media export
+            self.test_social_media_export()
+            
+            # Test performance metrics
+            self.test_performance_metrics()
+            
+            # Test email campaigns
+            self.test_email_campaigns()
+            
+            # Test content deletion (do this last)
+            if len(self.created_content) > 1:
+                self.test_delete_content(self.created_content[-1])
         else:
             print("⚠️ Skipping content generation tests - no products available")
         
@@ -477,8 +494,13 @@ class AffiliateMarketingAPITester:
         print(f"❌ Tests Failed: {self.tests_run - self.tests_passed}")
         print(f"📈 Success Rate: {(self.tests_passed/self.tests_run)*100:.1f}%")
         
+        # Print summary of created resources
+        print(f"\n📋 CREATED RESOURCES:")
+        print(f"   Products: {len(self.created_products)}")
+        print(f"   Content Items: {len(self.created_content)}")
+        
         if self.tests_passed == self.tests_run:
-            print("\n🎉 ALL TESTS PASSED! The API is working correctly.")
+            print("\n🎉 ALL TESTS PASSED! The Advanced Affiliate Marketing Platform API is working correctly.")
             return 0
         else:
             print(f"\n⚠️ {self.tests_run - self.tests_passed} tests failed. Check the details above.")
