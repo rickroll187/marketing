@@ -2,6 +2,20 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import axios from 'axios';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { 
+  initGA, 
+  initFacebookPixel, 
+  trackProductView, 
+  trackProductClick, 
+  trackContentGeneration,
+  trackEmailCampaign,
+  trackSocialPost,
+  trackPriceAlert,
+  trackCompetitorAnalysis,
+  trackPageView,
+  trackConversion
+} from './analytics';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
