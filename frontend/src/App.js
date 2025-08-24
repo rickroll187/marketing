@@ -54,7 +54,26 @@ import {
   ArrowRight,
   AlertCircle,
   CheckCircle,
-  Loader
+  Loader,
+  DollarSign,
+  LineChart,
+  Share2,
+  Mic,
+  Camera,
+  Briefcase,
+  Settings,
+  Brain,
+  Activity,
+  Monitor,
+  Megaphone,
+  Shield,
+  Network,
+  Bot,
+  Headphones,
+  Play,
+  PieChart,
+  Radar,
+  Workflow
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
