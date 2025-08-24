@@ -774,9 +774,9 @@ async def get_saved_urls(
     priority: Optional[str] = None,
     scraped: Optional[bool] = None,
     selected: Optional[bool] = None,
-    limit: int = 100
+    limit: int = 1000  # Increased from 100 to 1000
 ):
-    """Get saved URLs with optional filters"""
+    """Get saved URLs with optional filters - NO LIMITS!"""
     query = {}
     if category:
         query["category"] = category
@@ -787,7 +787,8 @@ async def get_saved_urls(
     if selected is not None:
         query["selected"] = selected
     
-    urls = await db.saved_urls.find(query).sort("added_at", -1).limit(limit).to_list(length=None)
+    # Remove the limit entirely for unlimited URLs
+    urls = await db.saved_urls.find(query).sort("added_at", -1).to_list(length=None)
     return [SavedUrl(**url) for url in urls]
 
 @api_router.put("/saved-urls/{url_id}", response_model=SavedUrl)
