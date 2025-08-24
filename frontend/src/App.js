@@ -47,7 +47,14 @@ import {
   Award,
   Lightbulb,
   Snowflake,
-  GitCompare
+  GitCompare,
+  Bookmark,
+  CheckSquare,
+  Square,
+  ArrowRight,
+  AlertCircle,
+  CheckCircle,
+  Loader
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -57,6 +64,7 @@ function App() {
   const [products, setProducts] = useState([]);
   const [generatedContent, setGeneratedContent] = useState([]);
   const [emailCampaigns, setEmailCampaigns] = useState([]);
+  const [savedUrls, setSavedUrls] = useState([]);
   const [stats, setStats] = useState({});
   const [analytics, setAnalytics] = useState({});
   const [loading, setLoading] = useState(false);
@@ -65,6 +73,12 @@ function App() {
   // Scraping state
   const [scrapeUrls, setScrapeUrls] = useState('');
   const [scrapeCategory, setScrapeCategory] = useState('');
+  
+  // URL Management state
+  const [urlsToSave, setUrlsToSave] = useState('');
+  const [urlCategory, setUrlCategory] = useState('');
+  const [urlPriority, setUrlPriority] = useState('medium');
+  const [urlNotes, setUrlNotes] = useState('');
   
   // Content generation state
   const [contentTypes, setContentTypes] = useState([]);
@@ -87,6 +101,7 @@ function App() {
     fetchProducts();
     fetchGeneratedContent();
     fetchEmailCampaigns();
+    fetchSavedUrls();
     fetchStats();
     fetchAnalytics();
   }, []);
@@ -126,6 +141,15 @@ function App() {
     }
   };
 
+  const fetchSavedUrls = async () => {
+    try {
+      const response = await axios.get(`${API}/saved-urls`);
+      setSavedUrls(response.data);
+    } catch (error) {
+      console.error('Failed to fetch saved URLs');
+    }
+  };
+
   const fetchStats = async () => {
     try {
       const response = await axios.get(`${API}/stats`);
@@ -141,6 +165,153 @@ function App() {
       setAnalytics(response.data);
     } catch (error) {
       console.error('Failed to fetch analytics');
+    }
+  };
+
+  const handleSaveUrls = async () => {
+    if (!urlsToSave.trim() || !urlCategory.trim()) {
+      toast({
+        title: "Error",
+        description: "Please provide URLs and category",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const urls = urlsToSave.split('\n').filter(url => url.trim());
+      const response = await axios.post(`${API}/saved-urls/bulk`, {
+        urls: urls,
+        category: urlCategory,
+        priority: urlPriority,
+        notes: urlNotes || null
+      });
+      
+      toast({
+        title: "Success",
+        description: `Saved ${response.data.length} URLs to your queue`
+      });
+      
+      setUrlsToSave('');
+      setUrlCategory('');
+      setUrlPriority('medium');
+      setUrlNotes('');
+      fetchSavedUrls();
+      fetchStats();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save URLs",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleToggleUrlSelection = async (urlId, currentSelection) => {
+    try {
+      await axios.put(`${API}/saved-urls/${urlId}`, {
+        selected: !currentSelection
+      });
+      fetchSavedUrls();
+      fetchStats();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update URL selection",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleSelectAllUrls = async () => {
+    try {
+      await axios.post(`${API}/saved-urls/select-all`);
+      toast({
+        title: "Success",
+        description: "Selected all URLs"
+      });
+      fetchSavedUrls();
+      fetchStats();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to select all URLs",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleUnselectAllUrls = async () => {
+    try {
+      await axios.post(`${API}/saved-urls/unselect-all`);
+      toast({
+        title: "Success",
+        description: "Unselected all URLs"
+      });
+      fetchSavedUrls();
+      fetchStats();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to unselect all URLs",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleScrapeSelectedUrls = async () => {
+    const selectedCount = savedUrls.filter(url => url.selected && !url.scraped).length;
+    
+    if (selectedCount === 0) {
+      toast({
+        title: "Error",
+        description: "No URLs selected for scraping",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await axios.post(`${API}/saved-urls/scrape-selected`);
+      
+      toast({
+        title: "Success",
+        description: response.data.message
+      });
+      
+      fetchSavedUrls();
+      fetchProducts();
+      fetchStats();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to scrape selected URLs",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteSavedUrl = async (urlId) => {
+    try {
+      await axios.delete(`${API}/saved-urls/${urlId}`);
+      toast({
+        title: "Success",
+        description: "URL deleted successfully"
+      });
+      fetchSavedUrls();
+      fetchStats();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete URL",
+        variant: "destructive"
+      });
     }
   };
 
