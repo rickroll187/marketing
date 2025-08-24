@@ -208,6 +208,13 @@ function App() {
     fetchSavedUrls();
     fetchStats();
     fetchAnalytics();
+    // Fetch all new competitive feature data
+    fetchPriceAlerts();
+    fetchAdvancedAnalytics();
+    fetchSocialPosts();
+    fetchContentStudioItems();
+    fetchCompetitorAnalysis();
+    fetchAutomationWorkflows();
   }, []);
 
   const fetchProducts = async () => {
