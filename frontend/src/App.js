@@ -567,12 +567,12 @@ function App() {
         </div>
 
         {/* Enhanced Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-7 gap-4 mb-8">
           <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-100 text-xs font-medium">Total Products</p>
+                  <p className="text-blue-100 text-xs font-medium">Products</p>
                   <p className="text-2xl font-bold">{stats.total_products || 0}</p>
                 </div>
                 <Package className="h-6 w-6 text-blue-200" />
@@ -584,7 +584,7 @@ function App() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-100 text-xs font-medium">Generated Content</p>
+                  <p className="text-green-100 text-xs font-medium">Content</p>
                   <p className="text-2xl font-bold">{stats.total_content || 0}</p>
                 </div>
                 <FileText className="h-6 w-6 text-green-200" />
@@ -596,10 +596,10 @@ function App() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-purple-100 text-xs font-medium">Categories</p>
-                  <p className="text-2xl font-bold">{Object.keys(stats.categories || {}).length}</p>
+                  <p className="text-purple-100 text-xs font-medium">Saved URLs</p>
+                  <p className="text-2xl font-bold">{stats.saved_urls || 0}</p>
                 </div>
-                <BarChart3 className="h-6 w-6 text-purple-200" />
+                <Bookmark className="h-6 w-6 text-purple-200" />
               </div>
             </CardContent>
           </Card>
@@ -608,10 +608,10 @@ function App() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-orange-100 text-xs font-medium">Email Campaigns</p>
-                  <p className="text-2xl font-bold">{stats.total_campaigns || 0}</p>
+                  <p className="text-orange-100 text-xs font-medium">Selected</p>
+                  <p className="text-2xl font-bold">{stats.selected_urls || 0}</p>
                 </div>
-                <Mail className="h-6 w-6 text-orange-200" />
+                <CheckSquare className="h-6 w-6 text-orange-200" />
               </div>
             </CardContent>
           </Card>
@@ -620,7 +620,7 @@ function App() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-pink-100 text-xs font-medium">Scheduled Content</p>
+                  <p className="text-pink-100 text-xs font-medium">Scheduled</p>
                   <p className="text-2xl font-bold">{stats.scheduled_content || 0}</p>
                 </div>
                 <Clock className="h-6 w-6 text-pink-200" />
@@ -632,18 +632,34 @@ function App() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-cyan-100 text-xs font-medium">Conversion Rate</p>
+                  <p className="text-cyan-100 text-xs font-medium">Campaigns</p>
+                  <p className="text-2xl font-bold">{stats.total_campaigns || 0}</p>
+                </div>
+                <Mail className="h-6 w-6 text-cyan-200" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-emerald-100 text-xs font-medium">Conv. Rate</p>
                   <p className="text-2xl font-bold">15.8%</p>
                 </div>
-                <TrendingUp className="h-6 w-6 text-cyan-200" />
+                <TrendingUp className="h-6 w-6 text-emerald-200" />
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Main Content */}
-        <Tabs defaultValue="products" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 bg-white shadow-lg rounded-xl p-2">
+        <Tabs defaultValue="url-manager" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-7 bg-white shadow-lg rounded-xl p-2">
+            <TabsTrigger value="url-manager" className="flex items-center gap-2 rounded-lg text-xs">
+              <Bookmark className="h-4 w-4" />
+              URL Manager
+            </TabsTrigger>
             <TabsTrigger value="products" className="flex items-center gap-2 rounded-lg text-xs">
               <Package className="h-4 w-4" />
               Products
@@ -669,6 +685,275 @@ function App() {
               Analytics
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="url-manager" className="space-y-6">
+            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Bookmark className="h-5 w-5" />
+                    URL Queue Manager
+                  </CardTitle>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSelectAllUrls}
+                      className="hover:bg-green-50"
+                    >
+                      <CheckSquare className="h-4 w-4 mr-1" />
+                      Select All
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleUnselectAllUrls}
+                      className="hover:bg-gray-50"
+                    >
+                      <Square className="h-4 w-4 mr-1" />
+                      Unselect All
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={handleScrapeSelectedUrls}
+                      disabled={loading || !savedUrls.some(url => url.selected && !url.scraped)}
+                      className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader className="h-4 w-4 mr-1 animate-spin" />
+                          Scraping...
+                        </>
+                      ) : (
+                        <>
+                          <ArrowRight className="h-4 w-4 mr-1" />
+                          Scrape Selected
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Add URLs Section */}
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-lg">Add URLs to Queue</h3>
+                    
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Product URLs (one per line)</label>
+                      <Textarea
+                        placeholder="https://www.amazon.com/product/...
+https://www.bestbuy.com/site/...
+https://www.newegg.com/..."
+                        value={urlsToSave}
+                        onChange={(e) => setUrlsToSave(e.target.value)}
+                        rows={6}
+                        className="font-mono text-sm"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Category</label>
+                        <Select value={urlCategory} onValueChange={setUrlCategory}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="smartphones">Smartphones</SelectItem>
+                            <SelectItem value="laptops">Laptops</SelectItem>
+                            <SelectItem value="headphones">Headphones</SelectItem>
+                            <SelectItem value="gaming">Gaming</SelectItem>
+                            <SelectItem value="software">Software</SelectItem>
+                            <SelectItem value="accessories">Accessories</SelectItem>
+                            <SelectItem value="tablets">Tablets</SelectItem>
+                            <SelectItem value="smartwatches">Smart Watches</SelectItem>
+                            <SelectItem value="cameras">Cameras</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Priority</label>
+                        <Select value={urlPriority} onValueChange={setUrlPriority}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="high">High Priority</SelectItem>
+                            <SelectItem value="medium">Medium Priority</SelectItem>
+                            <SelectItem value="low">Low Priority</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Notes (optional)</label>
+                      <Input
+                        placeholder="Black Friday deals, trending products, etc."
+                        value={urlNotes}
+                        onChange={(e) => setUrlNotes(e.target.value)}
+                      />
+                    </div>
+                    
+                    <Button
+                      onClick={handleSaveUrls}
+                      disabled={loading || !urlsToSave.trim() || !urlCategory}
+                      className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader className="h-4 w-4 mr-2 animate-spin" />
+                          Saving URLs...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Save URLs to Queue
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  
+                  {/* Benefits Section */}
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-lg">How URL Queue Works</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100">
+                        <Bookmark className="h-5 w-5 text-blue-600 mt-0.5" />
+                        <div>
+                          <p className="font-medium text-blue-900">Save URLs Anytime</p>
+                          <p className="text-sm text-blue-700">Collect product URLs throughout the week without immediate scraping</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 border border-green-100">
+                        <CheckSquare className="h-5 w-5 text-green-600 mt-0.5" />
+                        <div>
+                          <p className="font-medium text-green-900">Review & Select</p>
+                          <p className="text-sm text-green-700">Check/uncheck which products you want to actually scrape</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100">
+                        <ArrowRight className="h-5 w-5 text-purple-600 mt-0.5" />
+                        <div>
+                          <p className="font-medium text-purple-900">Bulk Processing</p>
+                          <p className="text-sm text-purple-700">Scrape multiple selected URLs in one batch operation</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-r from-orange-50 to-red-50 border border-orange-100">
+                        <Target className="h-5 w-5 text-orange-600 mt-0.5" />
+                        <div>
+                          <p className="font-medium text-orange-900">Quality Control</p>
+                          <p className="text-sm text-orange-700">Organize by priority and category before scraping</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* URL Queue Display */}
+                <div className="mt-8">
+                  <h3 className="font-semibold text-lg mb-4">Saved URLs ({savedUrls.length})</h3>
+                  
+                  {savedUrls.length > 0 ? (
+                    <div className="space-y-3">
+                      {savedUrls.map((savedUrl) => (
+                        <Card key={savedUrl.id} className={`border transition-all duration-200 ${
+                          savedUrl.selected 
+                            ? 'border-green-300 bg-green-50' 
+                            : savedUrl.scraped 
+                              ? 'border-gray-200 bg-gray-50 opacity-75'
+                              : 'border-gray-200 bg-white hover:border-purple-200'
+                        }`}>
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleToggleUrlSelection(savedUrl.id, savedUrl.selected)}
+                                  disabled={savedUrl.scraped}
+                                  className="p-1"
+                                >
+                                  {savedUrl.selected ? (
+                                    <CheckSquare className="h-5 w-5 text-green-600" />
+                                  ) : (
+                                    <Square className="h-5 w-5 text-gray-400" />
+                                  )}
+                                </Button>
+                                
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <h4 className="font-medium text-sm">{savedUrl.title}</h4>
+                                    <Badge variant="secondary" className="text-xs">
+                                      {savedUrl.category}
+                                    </Badge>
+                                    <Badge 
+                                      variant="outline" 
+                                      className={`text-xs ${
+                                        savedUrl.priority === 'high' ? 'border-red-300 text-red-600' :
+                                        savedUrl.priority === 'medium' ? 'border-yellow-300 text-yellow-600' :
+                                        'border-gray-300 text-gray-600'
+                                      }`}
+                                    >
+                                      {savedUrl.priority}
+                                    </Badge>
+                                    {savedUrl.scraped && (
+                                      <Badge variant="outline" className="text-green-600 border-green-300">
+                                        <CheckCircle className="h-3 w-3 mr-1" />
+                                        Scraped
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-gray-600 truncate max-w-md">{savedUrl.url}</p>
+                                  {savedUrl.notes && (
+                                    <p className="text-xs text-gray-500 mt-1">📝 {savedUrl.notes}</p>
+                                  )}
+                                  {savedUrl.estimated_price && (
+                                    <p className="text-xs text-green-600 mt-1">💰 ~${savedUrl.estimated_price}</p>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => window.open(savedUrl.url, '_blank')}
+                                  className="hover:bg-indigo-50"
+                                >
+                                  <ExternalLink className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeleteSavedUrl(savedUrl.id)}
+                                  className="hover:bg-red-50 hover:text-red-600"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <Bookmark className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500 mb-2">No URLs saved yet</p>
+                      <p className="text-sm text-gray-400">Add some product URLs above to get started!</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="products" className="space-y-6">
             <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
