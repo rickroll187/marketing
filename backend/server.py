@@ -292,24 +292,122 @@ def extract_product_name(soup):
     return "Unknown Product"
 
 def extract_price(soup):
-    """Extract price from various common selectors"""
+    """Extract price from various common selectors - ENHANCED 2024"""
+    # Modern e-commerce price selectors (updated for 2024)
     price_selectors = [
+        # Amazon specific selectors
+        '.a-price-whole',
+        '.a-price.a-text-price.a-size-medium.apexPriceToPay .a-offscreen',
+        '.a-price-current .a-offscreen',
+        '.a-price .a-offscreen',
+        'span.a-price-whole',
+        '.a-price-symbol + .a-price-whole',
+        
+        # Best Buy selectors
+        '.pricing-price__range .sr-only',
+        '.pricing-price__range-current',
+        '.sr-only:contains("current price")',
+        '.pricing-price__range .visuallyhidden',
+        
+        # Newegg selectors
+        '.price-current-label + .price-current',
         '.price-current',
-        '.price .current',
+        '.product-price .price-current',
+        
+        # Walmart selectors
+        '[data-automation-id="product-price"]',
+        '.price-characteristic',
+        '.price-display .visuallyhidden',
+        
+        # Target selectors
+        '[data-test="product-price"] .visuallyhidden',
+        '[data-test="product-price"]',
+        
+        # Generic modern selectors
+        '[data-testid="price"]',
+        '[data-testid="product-price"]',
+        '[data-cy="price"]',
+        '[aria-label*="price"]',
         '.price-now',
         '.current-price',
         '.sale-price',
-        '[data-testid="price"]',
-        '.price'
+        '.product-price',
+        '.price .current',
+        '.price-current',
+        '.price',
+        
+        # Microdata selectors
+        '[itemprop="price"]',
+        '[itemprop="lowPrice"]',
+        '[itemprop="highPrice"]',
+        
+        # Schema.org structured data
+        '.price[property="price"]',
+        '[property="product:price:amount"]'
     ]
     
     for selector in price_selectors:
-        element = soup.select_one(selector)
-        if element:
-            price_text = element.get_text().strip()
-            price_match = re.search(r'[\d,]+\.?\d*', price_text.replace(',', ''))
-            if price_match:
-                return float(price_match.group())
+        try:
+            elements = soup.select(selector)
+            for element in elements:
+                price_text = element.get_text().strip()
+                
+                # Handle different price text formats
+                if not price_text:
+                    continue
+                    
+                # Remove common currency symbols and text
+                price_text = price_text.replace('$', '').replace(',', '').replace('USD', '').replace('current price', '').strip()
+                
+                # Extract numeric value using regex
+                price_matches = re.findall(r'(\d+(?:\.\d{2})?)', price_text)
+                
+                if price_matches:
+                    try:
+                        # Take the first/largest price found
+                        price = float(max(price_matches, key=float))
+                        if price > 0 and price < 100000:  # Reasonable price range
+                            return price
+                    except (ValueError, TypeError):
+                        continue
+        except Exception as e:
+            continue
+    
+    # Try JSON-LD structured data as fallback
+    try:
+        scripts = soup.find_all('script', type='application/ld+json')
+        for script in scripts:
+            try:
+                data = json.loads(script.string)
+                if isinstance(data, list):
+                    data = data[0]
+                
+                # Look for price in various JSON-LD structures
+                price_fields = ['price', 'lowPrice', 'highPrice', 'priceRange']
+                for field in price_fields:
+                    if field in data:
+                        price_val = data[field]
+                        if isinstance(price_val, str):
+                            price_match = re.search(r'(\d+(?:\.\d{2})?)', price_val)
+                            if price_match:
+                                return float(price_match.group(1))
+                        elif isinstance(price_val, (int, float)):
+                            return float(price_val)
+                
+                # Check offers array
+                if 'offers' in data and isinstance(data['offers'], dict):
+                    offer = data['offers']
+                    if 'price' in offer:
+                        try:
+                            return float(offer['price'])
+                        except:
+                            pass
+                            
+            except (json.JSONDecodeError, KeyError, TypeError):
+                continue
+    except:
+        pass
+    
     return 0.0
 
 def extract_description(soup):
