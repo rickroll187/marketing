@@ -1238,6 +1238,13 @@ async def get_product(product_id: str):
         raise HTTPException(status_code=404, detail="Product not found")
     return Product(**product)
 
+@api_router.post("/products", response_model=Product)
+async def create_product(product: ProductCreate):
+    """Manually add a product"""
+    product_obj = Product(**product.dict())
+    await db.products.insert_one(product_obj.dict())
+    return product_obj
+
 @api_router.put("/products/{product_id}/price")
 async def update_product_price(product_id: str, price_data: dict):
     """Update product price manually when scraping fails"""
