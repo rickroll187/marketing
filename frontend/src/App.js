@@ -93,6 +93,11 @@ function App() {
   const [emailRecipients, setEmailRecipients] = useState('');
   const [scheduleDate, setScheduleDate] = useState(null);
   
+  // Scheduling state
+  const [selectedContentForScheduling, setSelectedContentForScheduling] = useState(null);
+  const [schedulingDate, setSchedulingDate] = useState(null);
+  
+  // Product editing state
   const [editingProduct, setEditingProduct] = useState(null);
   const [editPrice, setEditPrice] = useState('');
   const [editOriginalPrice, setEditOriginalPrice] = useState('');
