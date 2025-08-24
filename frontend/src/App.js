@@ -2459,28 +2459,185 @@ https://www.newegg.com/..."
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <Card className="border hover:shadow-lg transition-shadow cursor-pointer">
-                    <CardContent className="p-6 text-center">
-                      <Headphones className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-                      <h3 className="font-semibold mb-2">Voice Scripts</h3>
-                      <p className="text-sm text-gray-600">AI-generated podcast and voice-over scripts</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="border hover:shadow-lg transition-shadow cursor-pointer">
-                    <CardContent className="p-6 text-center">
-                      <Play className="h-12 w-12 text-red-600 mx-auto mb-4" />
-                      <h3 className="font-semibold mb-2">Video Scripts</h3>
-                      <p className="text-sm text-gray-600">YouTube, TikTok, and marketing video scripts</p>
-                    </CardContent>
-                  </Card>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Card className="border hover:shadow-lg transition-shadow cursor-pointer">
+                        <CardContent className="p-6 text-center">
+                          <Headphones className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+                          <h3 className="font-semibold mb-2">Voice Scripts ({voiceScripts.length})</h3>
+                          <p className="text-sm text-gray-600">AI-generated podcast and voice-over scripts</p>
+                        </CardContent>
+                      </Card>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Generate Voice Script</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">Select Product</label>
+                          <Select value={selectedProduct?.id || ''} onValueChange={(value) => {
+                            const product = products.find(p => p.id === value);
+                            setSelectedProduct(product);
+                          }}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choose a product" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {products.map((product) => (
+                                <SelectItem key={product.id} value={product.id}>
+                                  {product.name} - ${product.price}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <Button
+                          onClick={() => selectedProduct && handleGenerateVoiceScript(selectedProduct.id)}
+                          disabled={loading || !selectedProduct}
+                          className="w-full bg-gradient-to-r from-purple-500 to-indigo-600"
+                        >
+                          {loading ? (
+                            <>
+                              <Loader className="h-4 w-4 mr-2 animate-spin" />
+                              Generating Script...
+                            </>
+                          ) : (
+                            <>
+                              <Mic className="h-4 w-4 mr-2" />
+                              Generate Voice Script
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Card className="border hover:shadow-lg transition-shadow cursor-pointer">
+                        <CardContent className="p-6 text-center">
+                          <Play className="h-12 w-12 text-red-600 mx-auto mb-4" />
+                          <h3 className="font-semibold mb-2">Video Scripts ({videoScripts.length})</h3>
+                          <p className="text-sm text-gray-600">YouTube, TikTok, and marketing video scripts</p>
+                        </CardContent>
+                      </Card>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Generate Video Script</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">Select Product</label>
+                          <Select value={selectedProduct?.id || ''} onValueChange={(value) => {
+                            const product = products.find(p => p.id === value);
+                            setSelectedProduct(product);
+                          }}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choose a product" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {products.map((product) => (
+                                <SelectItem key={product.id} value={product.id}>
+                                  {product.name} - ${product.price}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">Video Type</label>
+                          <Select defaultValue="review">
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="review">Product Review</SelectItem>
+                              <SelectItem value="unboxing">Unboxing</SelectItem>
+                              <SelectItem value="tutorial">Tutorial</SelectItem>
+                              <SelectItem value="comparison">Comparison</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <Button
+                          onClick={() => selectedProduct && handleGenerateVideoScript(selectedProduct.id, 'review')}
+                          disabled={loading || !selectedProduct}
+                          className="w-full bg-gradient-to-r from-red-500 to-pink-600"
+                        >
+                          {loading ? (
+                            <>
+                              <Loader className="h-4 w-4 mr-2 animate-spin" />
+                              Generating Script...
+                            </>
+                          ) : (
+                            <>
+                              <Camera className="h-4 w-4 mr-2" />
+                              Generate Video Script
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
                   <Card className="border hover:shadow-lg transition-shadow cursor-pointer">
                     <CardContent className="p-6 text-center">
                       <Users className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                      <h3 className="font-semibold mb-2">Personalization</h3>
+                      <h3 className="font-semibold mb-2">Personalization ({personalizedContent.length})</h3>
                       <p className="text-sm text-gray-600">Audience-targeted content generation</p>
                     </CardContent>
                   </Card>
+                </div>
+
+                {/* Generated Content Display */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-lg">Generated Content</h3>
+                  
+                  {[...voiceScripts, ...videoScripts, ...personalizedContent].length > 0 ? (
+                    <div className="space-y-4">
+                      {[...voiceScripts, ...videoScripts, ...personalizedContent].map((item) => (
+                        <Card key={item.id} className="border">
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-lg bg-gradient-to-r from-indigo-100 to-purple-100">
+                                  {item.content_type === 'voice_script' && <Headphones className="h-4 w-4 text-purple-600" />}
+                                  {item.content_type === 'video_script' && <Play className="h-4 w-4 text-red-600" />}
+                                  {item.content_type === 'personalized_content' && <Users className="h-4 w-4 text-green-600" />}
+                                </div>
+                                <div>
+                                  <h4 className="font-semibold">{item.title}</h4>
+                                  <p className="text-sm text-gray-600 capitalize">
+                                    {item.content_type.replace('_', ' ')}
+                                    {item.duration && ` • ${item.duration}s`}
+                                  </p>
+                                </div>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => copyToClipboard(item.content)}
+                                className="hover:bg-indigo-50"
+                              >
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                              <p className="text-sm leading-relaxed whitespace-pre-wrap">{item.content}</p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <Camera className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500 mb-2">No content generated yet</p>
+                      <p className="text-sm text-gray-400">Click on the cards above to generate voice or video scripts!</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
