@@ -527,6 +527,12 @@ class AffiliateMarketingAPITester:
         if created_product_id:
             self.test_get_single_product(created_product_id)
         
+        # URL Queue Management tests (NEW)
+        self.test_url_queue_management()
+        
+        # Product price update tests (NEW)
+        self.test_product_price_update()
+        
         # Scraping test (might not work with example URLs but tests the endpoint)
         scraped_products = self.test_scrape_products()
         
@@ -558,7 +564,7 @@ class AffiliateMarketingAPITester:
             # Test social media export
             self.test_social_media_export()
             
-            # Test performance metrics
+            # Test performance metrics and analytics
             self.test_performance_metrics()
             
             # Test email campaigns
