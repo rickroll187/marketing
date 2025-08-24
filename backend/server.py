@@ -745,27 +745,77 @@ async def save_url(url_data: SavedUrlCreate):
 
 @api_router.post("/saved-urls/bulk", response_model=List[SavedUrl])
 async def save_urls_bulk(bulk_data: BulkUrlSave):
-    """Save multiple URLs at once"""
+    """Save multiple URLs at once - UNLIMITED!"""
     saved_urls = []
     
-    for url in bulk_data.urls:
-        if url.strip():  # Skip empty URLs
-            # Get preview info
-            preview = await get_url_preview(url.strip())
-            
-            saved_url = SavedUrl(
-                url=url.strip(),
-                category=bulk_data.category,
-                priority=bulk_data.priority,
-                notes=bulk_data.notes,
-                title=preview.get('title', 'Unknown'),
-                source=preview.get('source'),
-                estimated_price=preview.get('estimated_price')
-            )
-            
-            await db.saved_urls.insert_one(saved_url.dict())
-            saved_urls.append(saved_url)
+    # Process URLs in batches to avoid timeout issues
+    batch_size = 50  # Process 50 URLs at a time for better performance
+    urls_to_process = [url.strip() for url in bulk_data.urls if url.strip()]
     
+    print(f"Processing {len(urls_to_process)} URLs in batches of {batch_size}")
+    
+    for i in range(0, len(urls_to_process), batch_size):
+        batch = urls_to_process[i:i + batch_size]
+        print(f"Processing batch {i//batch_size + 1}: URLs {i+1} to {min(i+batch_size, len(urls_to_process))}")
+        
+        batch_saved_urls = []
+        for url in batch:
+            try:
+                # Get preview info with shorter timeout for bulk operations
+                async with aiohttp.ClientSession() as session:
+                    headers = {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                    }
+                    try:
+                        async with session.get(url, headers=headers, timeout=5) as response:
+                            if response.status == 200:
+                                html = await response.text()
+                                soup = BeautifulSoup(html, 'html.parser')
+                                title = extract_product_name(soup)
+                                source = extract_domain(url)
+                                estimated_price = extract_price(soup)
+                            else:
+                                title = "Unknown Product"
+                                source = extract_domain(url)
+                                estimated_price = None
+                    except:
+                        title = "Unknown Product"
+                        source = extract_domain(url)
+                        estimated_price = None
+                
+                saved_url = SavedUrl(
+                    url=url,
+                    category=bulk_data.category,
+                    priority=bulk_data.priority,
+                    notes=bulk_data.notes,
+                    title=title,
+                    source=source,
+                    estimated_price=estimated_price
+                )
+                
+                await db.saved_urls.insert_one(saved_url.dict())
+                batch_saved_urls.append(saved_url)
+                saved_urls.append(saved_url)
+                
+            except Exception as e:
+                print(f"Error processing URL {url}: {str(e)}")
+                # Still save the URL even if preview fails
+                saved_url = SavedUrl(
+                    url=url,
+                    category=bulk_data.category,
+                    priority=bulk_data.priority,
+                    notes=bulk_data.notes,
+                    title="Unknown Product",
+                    source=extract_domain(url),
+                    estimated_price=None
+                )
+                
+                await db.saved_urls.insert_one(saved_url.dict())
+                saved_urls.append(saved_url)
+        
+        print(f"Batch completed: {len(batch_saved_urls)} URLs saved")
+    
+    print(f"Bulk operation completed: {len(saved_urls)} total URLs saved")
     return saved_urls
 
 @api_router.get("/saved-urls", response_model=List[SavedUrl])
