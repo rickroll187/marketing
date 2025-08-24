@@ -2166,9 +2166,9 @@ https://www.newegg.com/..."
               <CardContent>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <h3 className="font-semibold text-lg">Price Alert Setup</h3>
+                    <h3 className="font-semibold text-lg">Price Monitoring</h3>
                     <div>
-                      <label className="text-sm font-medium mb-2 block">Alert Threshold (%)</label>
+                      <label className="text-sm font-medium mb-2 block">Global Alert Threshold (%)</label>
                       <Input
                         type="number"
                         placeholder="10"
@@ -2189,15 +2189,81 @@ https://www.newegg.com/..."
                         </SelectContent>
                       </Select>
                     </div>
-                    <Button className="w-full bg-gradient-to-r from-green-500 to-blue-600">
-                      <AlertCircle className="h-4 w-4 mr-2" />
-                      Enable Price Alerts
+                    <Button 
+                      onClick={handleCheckAllPrices}
+                      disabled={loading}
+                      className="w-full bg-gradient-to-r from-green-500 to-blue-600"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader className="h-4 w-4 mr-2 animate-spin" />
+                          Checking Prices...
+                        </>
+                      ) : (
+                        <>
+                          <AlertCircle className="h-4 w-4 mr-2" />
+                          Check All Product Prices
+                        </>
+                      )}
                     </Button>
                   </div>
                   <div className="space-y-4">
-                    <h3 className="font-semibold text-lg">Price History</h3>
-                    <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg">
-                      <p className="text-sm text-gray-600">Real-time price monitoring for all your tracked products with historical charts and trend analysis.</p>
+                    <h3 className="font-semibold text-lg">Active Price Alerts ({priceAlerts.length})</h3>
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                      {priceAlerts.length > 0 ? (
+                        priceAlerts.map((alert) => (
+                          <Card key={alert.id} className="border">
+                            <CardContent className="p-3">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <p className="font-medium text-sm">Product Alert</p>
+                                  <p className="text-xs text-gray-600">
+                                    {alert.threshold_percentage}% threshold
+                                  </p>
+                                </div>
+                                <Badge variant={alert.is_active ? "default" : "secondary"}>
+                                  {alert.is_active ? "Active" : "Inactive"}
+                                </Badge>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))
+                      ) : (
+                        <div className="text-center py-8">
+                          <DollarSign className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                          <p className="text-sm text-gray-500">No price alerts set up yet</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-6">
+                  <h3 className="font-semibold text-lg mb-4">Recent Price Changes</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <TrendingUp className="h-4 w-4 text-green-600" />
+                        <span className="font-medium text-green-800">Price Drops</span>
+                      </div>
+                      <p className="text-2xl font-bold text-green-600">{trackedPrices.filter(p => p.change < 0).length}</p>
+                      <p className="text-xs text-green-600">Last 24 hours</p>
+                    </div>
+                    <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <AlertCircle className="h-4 w-4 text-orange-600" />
+                        <span className="font-medium text-orange-800">Price Increases</span>
+                      </div>
+                      <p className="text-2xl font-bold text-orange-600">{trackedPrices.filter(p => p.change > 0).length}</p>
+                      <p className="text-xs text-orange-600">Last 24 hours</p>
+                    </div>
+                    <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Eye className="h-4 w-4 text-blue-600" />
+                        <span className="font-medium text-blue-800">Monitoring</span>
+                      </div>
+                      <p className="text-2xl font-bold text-blue-600">{products.length}</p>
+                      <p className="text-xs text-blue-600">Total products</p>
                     </div>
                   </div>
                 </div>
