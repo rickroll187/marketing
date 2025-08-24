@@ -795,7 +795,7 @@ async def export_social_media_content(platform: str):
     }).to_list(length=None)
     
     content_list = [GeneratedContent(**item) for item in content]
-    csv_data = generate_social_media_export(content_list, platform)
+    csv_data = await generate_social_media_export(content_list, platform)
     
     return {
         "platform": platform,
