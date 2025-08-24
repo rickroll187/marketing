@@ -770,6 +770,11 @@ function App() {
         duration: 6000
       });
       
+      // Track content generation
+      contentTypes.forEach(type => {
+        trackContentGeneration(type, selectedProduct?.name || 'Unknown Product');
+      });
+      
       // Reset form
       setContentTypes([]);
       setPlatforms([]);
