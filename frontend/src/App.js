@@ -789,7 +789,7 @@ function App() {
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-13 bg-white shadow-lg rounded-xl p-2 overflow-x-auto">
+          <TabsList className="flex w-full bg-white shadow-lg rounded-xl p-2 overflow-x-auto space-x-1">
             <TabsTrigger value="url-manager" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
               <Bookmark className="h-3 w-3" />
               URLs
