@@ -93,9 +93,51 @@ function App() {
   const [emailRecipients, setEmailRecipients] = useState('');
   const [scheduleDate, setScheduleDate] = useState(null);
   
-  // Scheduling state
-  const [selectedContentForScheduling, setSelectedContentForScheduling] = useState(null);
-  const [schedulingDate, setSchedulingDate] = useState(null);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [editPrice, setEditPrice] = useState('');
+  const [editOriginalPrice, setEditOriginalPrice] = useState('');
+  const [editName, setEditName] = useState('');
+
+  const handleEditProduct = (product) => {
+    setEditingProduct(product);
+    setEditPrice(product.price.toString());
+    setEditOriginalPrice(product.original_price?.toString() || '');
+    setEditName(product.name);
+  };
+
+  const handleUpdateProduct = async () => {
+    if (!editingProduct) return;
+    
+    try {
+      const updateData = {
+        price: parseFloat(editPrice) || 0,
+        original_price: editOriginalPrice ? parseFloat(editOriginalPrice) : null,
+        name: editName
+      };
+      
+      await axios.put(`${API}/products/${editingProduct.id}/price`, updateData);
+      
+      toast({
+        title: "Success! 🎉",
+        description: "Product updated successfully",
+        duration: 4000
+      });
+      
+      setEditingProduct(null);
+      setEditPrice('');
+      setEditOriginalPrice('');
+      setEditName('');
+      
+      // Refresh products WITHOUT changing tabs
+      fetchProducts();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update product",
+        variant: "destructive"
+      });
+    }
+  };
 
   useEffect(() => {
     fetchProducts();
