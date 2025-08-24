@@ -763,16 +763,21 @@ function App() {
                     <h3 className="font-semibold text-lg">Add URLs to Queue</h3>
                     
                     <div>
-                      <label className="text-sm font-medium mb-2 block">Product URLs (one per line)</label>
+                      <label className="text-sm font-medium mb-2 block">Product URLs (one per line) - ✨ UNLIMITED!</label>
                       <Textarea
                         placeholder="https://www.amazon.com/product/...
 https://www.bestbuy.com/site/...
-https://www.newegg.com/..."
+https://www.newegg.com/...
+
+Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
                         value={urlsToSave}
                         onChange={(e) => setUrlsToSave(e.target.value)}
-                        rows={6}
+                        rows={8}
                         className="font-mono text-sm"
                       />
+                      <p className="text-xs text-gray-600 mt-1">
+                        💡 Pro tip: You can paste 100+ URLs at once! Large batches are processed efficiently in the background.
+                      </p>
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4">
