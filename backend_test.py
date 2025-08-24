@@ -510,9 +510,230 @@ class AffiliateMarketingAPITester:
         else:
             self.log_test("Enhanced Stats", False, f"Stats request failed: {response}")
 
+    def test_price_tracker_endpoints(self):
+        """Test all price tracker endpoints"""
+        print("\n💰 Testing Price Tracker Endpoints...")
+        
+        if not self.created_products:
+            self.log_test("Price Tracker", False, "No products available for price tracking tests")
+            return
+        
+        product_id = self.created_products[0]
+        
+        # Test creating price alert
+        alert_data = {
+            "product_id": product_id,
+            "threshold_percentage": 10.0,
+            "alert_type": "decrease",
+            "is_active": True
+        }
+        
+        success, response = self.make_request('POST', 'price-tracker/alerts', alert_data, 200)
+        if success and 'alert_id' in response:
+            self.log_test("Create Price Alert", True, f"Alert created: {response['alert_id']}")
+        else:
+            self.log_test("Create Price Alert", False, f"Failed to create alert: {response}")
+        
+        # Test getting price alerts
+        success, response = self.make_request('GET', 'price-tracker/alerts')
+        if success and isinstance(response, list):
+            self.log_test("Get Price Alerts", True, f"Retrieved {len(response)} active alerts")
+        else:
+            self.log_test("Get Price Alerts", False, f"Failed to get alerts: {response}")
+        
+        # Test getting price history
+        success, response = self.make_request('GET', f'price-tracker/history/{product_id}')
+        if success and isinstance(response, list):
+            self.log_test("Get Price History", True, f"Retrieved {len(response)} price history records")
+        else:
+            self.log_test("Get Price History", False, f"Failed to get price history: {response}")
+        
+        # Test checking all prices
+        success, response = self.make_request('POST', 'price-tracker/check-prices', expected_status=200)
+        if success and 'message' in response:
+            self.log_test("Check All Prices", True, f"Price check completed: {response['message']}")
+        else:
+            self.log_test("Check All Prices", False, f"Price check failed: {response}")
+
+    def test_advanced_analytics_endpoints(self):
+        """Test advanced analytics dashboard"""
+        print("\n📊 Testing Advanced Analytics Endpoints...")
+        
+        # Test advanced analytics dashboard
+        success, response = self.make_request('GET', 'advanced-analytics/dashboard')
+        
+        if success:
+            expected_keys = ['conversion_rate', 'revenue', 'roi_percentage', 'click_through_rate', 
+                           'engagement_rate', 'traffic_sources', 'top_products', 'revenue_trend', 'conversion_funnel']
+            has_all_keys = all(key in response for key in expected_keys)
+            
+            if has_all_keys:
+                self.log_test("Advanced Analytics Dashboard", True, 
+                    f"Revenue: ${response['revenue']}, ROI: {response['roi_percentage']}%, Conversion: {response['conversion_rate']}%")
+            else:
+                missing_keys = [key for key in expected_keys if key not in response]
+                self.log_test("Advanced Analytics Dashboard", False, f"Missing keys: {missing_keys}")
+        else:
+            self.log_test("Advanced Analytics Dashboard", False, f"Dashboard request failed: {response}")
+
+    def test_social_automation_endpoints(self):
+        """Test social automation features"""
+        print("\n📱 Testing Social Automation Endpoints...")
+        
+        # Test scheduling social post
+        post_data = {
+            "content": "🚀 Check out this amazing tech deal! Perfect for productivity enthusiasts. Limited time offer! #TechDeals #Productivity #AffiliateMarketing",
+            "platforms": ["twitter", "instagram", "facebook"],
+            "hashtags": ["#TechDeals", "#Productivity", "#AffiliateMarketing"],
+            "status": "scheduled"
+        }
+        
+        success, response = self.make_request('POST', 'social-automation/schedule-post', post_data, 200)
+        if success and 'post_id' in response:
+            self.log_test("Schedule Social Post", True, f"Post scheduled: {response['post_id']}")
+        else:
+            self.log_test("Schedule Social Post", False, f"Failed to schedule post: {response}")
+        
+        # Test getting social posts
+        success, response = self.make_request('GET', 'social-automation/posts')
+        if success and isinstance(response, list):
+            self.log_test("Get Social Posts", True, f"Retrieved {len(response)} social posts")
+        else:
+            self.log_test("Get Social Posts", False, f"Failed to get posts: {response}")
+        
+        # Test auto-generating social content
+        if self.created_products:
+            product_id = self.created_products[0]
+            platforms = ["twitter", "instagram"]
+            
+            success, response = self.make_request('POST', f'social-automation/auto-generate?product_id={product_id}&platforms={",".join(platforms)}', expected_status=200)
+            if success and 'posts' in response:
+                generated_count = len(response['posts'])
+                self.log_test("Auto-Generate Social Content", True, f"Generated {generated_count} social posts")
+            else:
+                self.log_test("Auto-Generate Social Content", False, f"Auto-generation failed: {response}")
+        else:
+            self.log_test("Auto-Generate Social Content", False, "No products available for social content generation")
+
+    def test_content_studio_endpoints(self):
+        """Test content studio features"""
+        print("\n🎬 Testing Content Studio Endpoints...")
+        
+        if not self.created_products:
+            self.log_test("Content Studio", False, "No products available for content studio tests")
+            return
+        
+        product_id = self.created_products[0]
+        
+        # Test generating voice script
+        success, response = self.make_request('POST', f'content-studio/generate-voice-script?product_id={product_id}&duration=90', expected_status=200)
+        if success and 'id' in response and response.get('content_type') == 'voice_script':
+            self.log_test("Generate Voice Script", True, f"Voice script created: {response['title']}")
+        else:
+            self.log_test("Generate Voice Script", False, f"Voice script generation failed: {response}")
+        
+        # Test generating video script
+        success, response = self.make_request('POST', f'content-studio/generate-video-script?product_id={product_id}&video_type=unboxing', expected_status=200)
+        if success and 'id' in response and response.get('content_type') == 'video_script':
+            self.log_test("Generate Video Script", True, f"Video script created: {response['title']}")
+        else:
+            self.log_test("Generate Video Script", False, f"Video script generation failed: {response}")
+        
+        # Test getting all content studio items
+        success, response = self.make_request('GET', 'content-studio/items')
+        if success and isinstance(response, list):
+            self.log_test("Get Content Studio Items", True, f"Retrieved {len(response)} studio items")
+        else:
+            self.log_test("Get Content Studio Items", False, f"Failed to get studio items: {response}")
+
+    def test_competitor_intelligence_endpoints(self):
+        """Test competitor intelligence features"""
+        print("\n🕵️ Testing Competitor Intelligence Endpoints...")
+        
+        # Test analyzing competitors
+        competitor_urls = [
+            "https://www.amazon.com",
+            "https://www.bestbuy.com",
+            "https://www.newegg.com"
+        ]
+        
+        success, response = self.make_request('POST', 'competitor-intel/analyze', competitor_urls, 200)
+        if success and 'results' in response:
+            analyzed_count = len(response['results'])
+            self.log_test("Analyze Competitors", True, f"Analyzed {analyzed_count} competitors: {response['message']}")
+        else:
+            self.log_test("Analyze Competitors", False, f"Competitor analysis failed: {response}")
+        
+        # Test getting competitor analysis results
+        success, response = self.make_request('GET', 'competitor-intel/analysis')
+        if success and isinstance(response, list):
+            self.log_test("Get Competitor Analysis", True, f"Retrieved {len(response)} analysis results")
+        else:
+            self.log_test("Get Competitor Analysis", False, f"Failed to get analysis: {response}")
+
+    def test_smart_workflows_endpoints(self):
+        """Test smart workflows automation"""
+        print("\n⚡ Testing Smart Workflows Endpoints...")
+        
+        # Test creating automation workflow
+        workflow_data = {
+            "name": "Price Drop Alert Workflow",
+            "trigger_type": "price_drop",
+            "trigger_conditions": {
+                "threshold_percentage": 15.0,
+                "product_categories": ["electronics", "laptops"]
+            },
+            "actions": [
+                {
+                    "type": "generate_content",
+                    "content_types": ["social", "blog"]
+                },
+                {
+                    "type": "send_email",
+                    "subject": "Price Drop Alert!",
+                    "content": "Great deal detected on your tracked products!"
+                },
+                {
+                    "type": "social_post",
+                    "platforms": ["twitter", "facebook"]
+                }
+            ],
+            "is_active": True
+        }
+        
+        success, response = self.make_request('POST', 'smart-workflows/create', workflow_data, 200)
+        workflow_id = None
+        if success and 'workflow_id' in response:
+            workflow_id = response['workflow_id']
+            self.log_test("Create Automation Workflow", True, f"Workflow created: {workflow_id}")
+        else:
+            self.log_test("Create Automation Workflow", False, f"Workflow creation failed: {response}")
+        
+        # Test getting all workflows
+        success, response = self.make_request('GET', 'smart-workflows/workflows')
+        if success and isinstance(response, list):
+            self.log_test("Get Automation Workflows", True, f"Retrieved {len(response)} workflows")
+        else:
+            self.log_test("Get Automation Workflows", False, f"Failed to get workflows: {response}")
+        
+        # Test triggering workflow
+        if workflow_id:
+            trigger_context = {
+                "product_id": self.created_products[0] if self.created_products else "test-product-id",
+                "price_change": -20.5
+            }
+            
+            success, response = self.make_request('POST', f'smart-workflows/trigger/{workflow_id}', trigger_context, 200)
+            if success and 'actions_completed' in response:
+                self.log_test("Trigger Workflow", True, f"Workflow executed: {response['actions_completed']} actions completed")
+            else:
+                self.log_test("Trigger Workflow", False, f"Workflow trigger failed: {response}")
+        else:
+            self.log_test("Trigger Workflow", False, "No workflow ID available for trigger test")
+
     def run_comprehensive_test(self):
-        """Run all tests in sequence"""
-        print("🚀 Starting Comprehensive API Testing for Advanced Affiliate Marketing Platform")
+        """Run all tests in sequence including NEW competitive features"""
+        print("🚀 Starting Comprehensive API Testing for COMPETITIVE Affiliate Marketing Platform")
         print(f"🌐 Testing against: {self.base_url}")
         print("=" * 80)
         
@@ -529,10 +750,10 @@ class AffiliateMarketingAPITester:
         if created_product_id:
             self.test_get_single_product(created_product_id)
         
-        # URL Queue Management tests (NEW)
+        # URL Queue Management tests
         self.test_url_queue_management()
         
-        # Product price update tests (NEW)
+        # Product price update tests
         self.test_product_price_update()
         
         # Scraping test (might not work with example URLs but tests the endpoint)
@@ -572,6 +793,31 @@ class AffiliateMarketingAPITester:
             # Test email campaigns
             self.test_email_campaigns()
             
+            # =====================================================
+            # NEW COMPETITIVE FEATURES TESTING
+            # =====================================================
+            print("\n" + "🏆" * 50)
+            print("🏆 TESTING NEW COMPETITIVE AFFILIATE MARKETING FEATURES")
+            print("🏆" * 50)
+            
+            # Test Price Tracker Endpoints
+            self.test_price_tracker_endpoints()
+            
+            # Test Advanced Analytics Endpoints
+            self.test_advanced_analytics_endpoints()
+            
+            # Test Social Automation Endpoints
+            self.test_social_automation_endpoints()
+            
+            # Test Content Studio Endpoints
+            self.test_content_studio_endpoints()
+            
+            # Test Competitor Intelligence Endpoints
+            self.test_competitor_intelligence_endpoints()
+            
+            # Test Smart Workflows Endpoints
+            self.test_smart_workflows_endpoints()
+            
             # Test content deletion (do this last)
             if len(self.created_content) > 1:
                 self.test_delete_content(self.created_content[-1])
@@ -583,7 +829,7 @@ class AffiliateMarketingAPITester:
         duration = end_time - start_time
         
         print("\n" + "=" * 80)
-        print("📊 TEST RESULTS SUMMARY")
+        print("📊 COMPREHENSIVE TEST RESULTS SUMMARY")
         print("=" * 80)
         print(f"⏱️ Total Duration: {duration:.2f} seconds")
         print(f"🧪 Tests Run: {self.tests_run}")
@@ -596,8 +842,18 @@ class AffiliateMarketingAPITester:
         print(f"   Products: {len(self.created_products)}")
         print(f"   Content Items: {len(self.created_content)}")
         
+        # Print competitive features summary
+        print(f"\n🏆 COMPETITIVE FEATURES TESTED:")
+        print(f"   ✅ Price Tracker (alerts, history, price checking)")
+        print(f"   ✅ Advanced Analytics (dashboard, performance intelligence)")
+        print(f"   ✅ Social Automation (scheduling, auto-generation)")
+        print(f"   ✅ Content Studio (voice/video scripts)")
+        print(f"   ✅ Competitor Intelligence (analysis, insights)")
+        print(f"   ✅ Smart Workflows (automation, triggers)")
+        
         if self.tests_passed == self.tests_run:
-            print("\n🎉 ALL TESTS PASSED! The Advanced Affiliate Marketing Platform API is working correctly.")
+            print("\n🎉 ALL TESTS PASSED! The COMPETITIVE Affiliate Marketing Platform API is working correctly.")
+            print("🚀 All 6 new competitive feature sets are fully functional!")
             return 0
         else:
             print(f"\n⚠️ {self.tests_run - self.tests_passed} tests failed. Check the details above.")
