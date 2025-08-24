@@ -556,11 +556,13 @@ function App() {
         title: "Success",
         description: "Content deleted successfully"
       });
+      
+      // Update data WITHOUT changing tabs - stay exactly where you are
       fetchGeneratedContent();
       fetchStats();
     } catch (error) {
       toast({
-        title: "Error",
+        title: "Error", 
         description: "Failed to delete content",
         variant: "destructive"
       });
