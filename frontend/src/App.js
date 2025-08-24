@@ -1922,6 +1922,291 @@ https://www.newegg.com/..."
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* PRICE TRACKER TAB */}
+          <TabsContent value="price-tracker" className="space-y-6">
+            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5" />
+                  AI-Powered Price Tracker & Alerts
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-lg">Price Alert Setup</h3>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Alert Threshold (%)</label>
+                      <Input
+                        type="number"
+                        placeholder="10"
+                        value={alertThreshold}
+                        onChange={(e) => setAlertThreshold(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Tracking Interval</label>
+                      <Select value={trackingInterval} onValueChange={setTrackingInterval}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="hourly">Every Hour</SelectItem>
+                          <SelectItem value="daily">Daily</SelectItem>
+                          <SelectItem value="weekly">Weekly</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button className="w-full bg-gradient-to-r from-green-500 to-blue-600">
+                      <AlertCircle className="h-4 w-4 mr-2" />
+                      Enable Price Alerts
+                    </Button>
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-lg">Price History</h3>
+                    <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg">
+                      <p className="text-sm text-gray-600">Real-time price monitoring for all your tracked products with historical charts and trend analysis.</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* ADVANCED ANALYTICS TAB */}
+          <TabsContent value="advanced-analytics" className="space-y-6">
+            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <LineChart className="h-5 w-5" />
+                  Advanced Analytics & Performance Intelligence
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-500 to-indigo-600 text-white">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-purple-100 text-xs font-medium">Conversion Rate</p>
+                          <p className="text-2xl font-bold">23.4%</p>
+                        </div>
+                        <TrendingUp className="h-6 w-6 text-purple-200" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-0 shadow-lg bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-green-100 text-xs font-medium">Revenue/Month</p>
+                          <p className="text-2xl font-bold">$2,847</p>
+                        </div>
+                        <DollarSign className="h-6 w-6 text-green-200" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-500 to-red-500 text-white">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-orange-100 text-xs font-medium">ROI</p>
+                          <p className="text-2xl font-bold">347%</p>
+                        </div>
+                        <Activity className="h-6 w-6 text-orange-200" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* SOCIAL AUTOMATION TAB */}
+          <TabsContent value="social-automation" className="space-y-6">
+            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Share2 className="h-5 w-5" />
+                  Social Media Automation Suite
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-lg">Platform Selection</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      {['Twitter', 'Instagram', 'Facebook', 'LinkedIn', 'TikTok', 'YouTube'].map((platform) => (
+                        <label key={platform} className="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50">
+                          <input
+                            type="checkbox"
+                            checked={selectedSocialPlatforms.includes(platform.toLowerCase())}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedSocialPlatforms([...selectedSocialPlatforms, platform.toLowerCase()]);
+                              } else {
+                                setSelectedSocialPlatforms(selectedSocialPlatforms.filter(p => p !== platform.toLowerCase()));
+                              }
+                            }}
+                            className="rounded"
+                          />
+                          <span className="text-sm">{platform}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-600">
+                      <Bot className="h-4 w-4 mr-2" />
+                      Auto-Schedule Posts
+                    </Button>
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-lg">Hashtag Strategy</h3>
+                    <Textarea
+                      placeholder="Enter your hashtag strategy or let AI optimize them automatically..."
+                      value={hashtagStrategy}
+                      onChange={(e) => setHashtagStrategy(e.target.value)}
+                      rows={6}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* CONTENT STUDIO TAB */}
+          <TabsContent value="content-studio" className="space-y-6">
+            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Camera className="h-5 w-5" />
+                  Advanced Content Studio
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <Card className="border hover:shadow-lg transition-shadow cursor-pointer">
+                    <CardContent className="p-6 text-center">
+                      <Headphones className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+                      <h3 className="font-semibold mb-2">Voice Scripts</h3>
+                      <p className="text-sm text-gray-600">AI-generated podcast and voice-over scripts</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="border hover:shadow-lg transition-shadow cursor-pointer">
+                    <CardContent className="p-6 text-center">
+                      <Play className="h-12 w-12 text-red-600 mx-auto mb-4" />
+                      <h3 className="font-semibold mb-2">Video Scripts</h3>
+                      <p className="text-sm text-gray-600">YouTube, TikTok, and marketing video scripts</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="border hover:shadow-lg transition-shadow cursor-pointer">
+                    <CardContent className="p-6 text-center">
+                      <Users className="h-12 w-12 text-green-600 mx-auto mb-4" />
+                      <h3 className="font-semibold mb-2">Personalization</h3>
+                      <p className="text-sm text-gray-600">Audience-targeted content generation</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* COMPETITOR INTEL TAB */}
+          <TabsContent value="competitor-intel" className="space-y-6">
+            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Radar className="h-5 w-5" />
+                  Competitor Intelligence & Market Analysis
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Competitor URLs (one per line)</label>
+                    <Textarea
+                      placeholder="https://competitor1.com
+https://competitor2.com/products
+https://affiliate-site.com"
+                      value={competitorUrls}
+                      onChange={(e) => setCompetitorUrls(e.target.value)}
+                      rows={6}
+                      className="font-mono text-sm"
+                    />
+                  </div>
+                  <Button className="w-full bg-gradient-to-r from-red-500 to-orange-600">
+                    <Radar className="h-4 w-4 mr-2" />
+                    Analyze Competitors
+                  </Button>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-lg">
+                      <h4 className="font-semibold mb-2">Market Gaps Found: 23</h4>
+                      <p className="text-sm text-gray-600">Opportunities in untapped product categories</p>
+                    </div>
+                    <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
+                      <h4 className="font-semibold mb-2">Price Advantages: 15</h4>
+                      <p className="text-sm text-gray-600">Products where you can compete on pricing</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* SMART WORKFLOWS TAB */}
+          <TabsContent value="smart-workflows" className="space-y-6">
+            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Workflow className="h-5 w-5" />
+                  Smart Automation Workflows
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Card className="border-0 bg-gradient-to-br from-green-100 to-emerald-100 hover:shadow-lg transition-shadow cursor-pointer">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="p-2 bg-green-200 rounded-lg">
+                            <DollarSign className="h-4 w-4 text-green-700" />
+                          </div>
+                          <h4 className="font-semibold">Price Drop Alert</h4>
+                        </div>
+                        <p className="text-sm text-gray-600">Auto-generate content when prices drop by 15%+</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-0 bg-gradient-to-br from-blue-100 to-indigo-100 hover:shadow-lg transition-shadow cursor-pointer">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="p-2 bg-blue-200 rounded-lg">
+                            <Sparkles className="h-4 w-4 text-blue-700" />
+                          </div>
+                          <h4 className="font-semibold">New Product</h4>
+                        </div>
+                        <p className="text-sm text-gray-600">Auto-create content for newly scraped products</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-0 bg-gradient-to-br from-purple-100 to-pink-100 hover:shadow-lg transition-shadow cursor-pointer">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="p-2 bg-purple-200 rounded-lg">
+                            <Share2 className="h-4 w-4 text-purple-700" />
+                          </div>
+                          <h4 className="font-semibold">Social Blast</h4>
+                        </div>
+                        <p className="text-sm text-gray-600">Auto-post to all platforms when content is created</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  <Button className="w-full bg-gradient-to-r from-purple-500 to-indigo-600">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Create Custom Workflow
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
       <Toaster />
