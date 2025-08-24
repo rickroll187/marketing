@@ -198,17 +198,52 @@ async def get_url_preview(url: str) -> Dict[str, Any]:
 
 # Web Scraping Functions (Enhanced)
 async def scrape_product_data(url: str, category: str) -> Optional[Dict[str, Any]]:
-    """Enhanced web scraper for product data"""
+    """Enhanced web scraper for product data - 2025 ANTI-DETECTION"""
     try:
-        async with aiohttp.ClientSession() as session:
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-            }
+        # Rotate user agents to avoid detection
+        user_agents = [
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15'
+        ]
+        
+        import random
+        headers = {
+            'User-Agent': random.choice(user_agents),
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Cache-Control': 'max-age=0'
+        }
+        
+        timeout = aiohttp.ClientTimeout(total=30)
+        
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            print(f"Scraping URL: {url}")
             async with session.get(url, headers=headers) as response:
-                if response.status != 200:
-                    return None
+                print(f"Response status: {response.status}")
+                
+                if response.status == 503:
+                    print("Amazon blocked request (503) - trying different approach")
+                    return create_fallback_product(url, category)
+                elif response.status != 200:
+                    print(f"Failed to fetch {url} - Status: {response.status}")
+                    return create_fallback_product(url, category)
                 
                 html = await response.text()
+                print(f"HTML length: {len(html)}")
+                
+                # Check if we got blocked (Amazon shows captcha/robot check)
+                if 'robot' in html.lower() or 'captcha' in html.lower() or len(html) < 10000:
+                    print("Detected bot blocking - creating fallback product")
+                    return create_fallback_product(url, category)
+                
                 soup = BeautifulSoup(html, 'html.parser')
                 
                 # Enhanced scraping logic
@@ -227,11 +262,43 @@ async def scrape_product_data(url: str, category: str) -> Optional[Dict[str, Any
                     'category': category
                 }
                 
+                print(f"Extracted data: name='{product_data['name']}', price=${product_data['price']}")
+                
                 return product_data
                 
     except Exception as e:
-        logging.error(f"Error scraping {url}: {str(e)}")
-        return None
+        print(f"Error scraping {url}: {str(e)}")
+        return create_fallback_product(url, category)
+
+def create_fallback_product(url: str, category: str) -> Dict[str, Any]:
+    """Create a basic product entry when scraping fails"""
+    domain = extract_domain(url)
+    
+    # Extract product ID from URL for better naming
+    product_id = ""
+    if 'amazon.com' in url:
+        match = re.search(r'/dp/([A-Z0-9]{10})', url)
+        if match:
+            product_id = match.group(1)
+    
+    name = f"Product from {domain}"
+    if product_id:
+        name = f"Amazon Product {product_id}"
+    
+    return {
+        'name': name,
+        'price': 0.0,  # Will need manual price entry
+        'original_price': None,
+        'description': f"Product from {domain}. Price and details need manual verification.",
+        'image_url': None,
+        'rating': None,
+        'reviews_count': None,
+        'features': [],
+        'tags': [category, 'needs-verification'],
+        'affiliate_url': url,
+        'source': domain,
+        'category': category
+    }
 
 def extract_original_price(soup):
     """Extract original price before discount - ENHANCED"""
