@@ -1436,7 +1436,11 @@ Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => window.open(product.affiliate_url, '_blank')}
+                                  onClick={() => {
+                                    trackProductClick(product);
+                                    trackConversion(product, product.price);
+                                    window.open(product.affiliate_url, '_blank');
+                                  }}
                                   className="hover:bg-indigo-50"
                                 >
                                   <ExternalLink className="h-4 w-4" />
