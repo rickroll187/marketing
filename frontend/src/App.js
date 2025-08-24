@@ -125,6 +125,41 @@ function App() {
   const [editOriginalPrice, setEditOriginalPrice] = useState('');
   const [editName, setEditName] = useState('');
 
+  // Price Tracker state
+  const [priceAlerts, setPriceAlerts] = useState([]);
+  const [trackedPrices, setTrackedPrices] = useState([]);
+  const [alertThreshold, setAlertThreshold] = useState(10);
+  const [trackingInterval, setTrackingInterval] = useState('daily');
+
+  // Advanced Analytics state
+  const [performanceData, setPerformanceData] = useState({});
+  const [conversionMetrics, setConversionMetrics] = useState([]);
+  const [revenueData, setRevenueData] = useState([]);
+  const [dateRange, setDateRange] = useState('30d');
+
+  // Social Automation state
+  const [socialPosts, setSocialPosts] = useState([]);
+  const [autoPostSchedule, setAutoPostSchedule] = useState([]);
+  const [selectedSocialPlatforms, setSelectedSocialPlatforms] = useState([]);
+  const [hashtagStrategy, setHashtagStrategy] = useState('');
+
+  // Content Studio state
+  const [voiceScripts, setVoiceScripts] = useState([]);
+  const [videoScripts, setVideoScripts] = useState([]);
+  const [personalizedContent, setPersonalizedContent] = useState([]);
+  const [audienceSegments, setAudienceSegments] = useState([]);
+
+  // Competitor Intel state
+  const [competitorData, setCompetitorData] = useState([]);
+  const [competitorProducts, setCompetitorProducts] = useState([]);
+  const [marketGaps, setMarketGaps] = useState([]);
+  const [competitorUrls, setCompetitorUrls] = useState('');
+
+  // Smart Workflows state
+  const [automationRules, setAutomationRules] = useState([]);
+  const [workflowTriggers, setWorkflowTriggers] = useState([]);
+  const [activeWorkflows, setActiveWorkflows] = useState([]);
+
   const handleEditProduct = (product) => {
     setEditingProduct(product);
     setEditPrice(product.price.toString());
