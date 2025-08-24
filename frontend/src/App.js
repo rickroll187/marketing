@@ -216,6 +216,12 @@ function App() {
   };
 
   useEffect(() => {
+    // Initialize Analytics
+    initGA();
+    initFacebookPixel();
+    trackPageView('Affiliate Marketing Dashboard');
+    
+    // Fetch data
     fetchProducts();
     fetchGeneratedContent();
     fetchEmailCampaigns();
