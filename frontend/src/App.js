@@ -833,12 +833,12 @@ Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
                       {loading ? (
                         <>
                           <Loader className="h-4 w-4 mr-2 animate-spin" />
-                          Saving URLs...
+                          Saving {urlsToSave.split('\n').filter(url => url.trim()).length} URLs...
                         </>
                       ) : (
                         <>
                           <Plus className="h-4 w-4 mr-2" />
-                          Save URLs to Queue
+                          Save {urlsToSave.split('\n').filter(url => url.trim()).length || 0} URLs to Queue
                         </>
                       )}
                     </Button>
