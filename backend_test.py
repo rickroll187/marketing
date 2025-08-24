@@ -267,6 +267,158 @@ class AffiliateMarketingAPITester:
         else:
             self.log_test("Content Filtering by Type", False, f"Type filtering failed: {response}")
 
+    def test_advanced_content_generation(self, product_id: str):
+        """Test all 8 content types with advanced options"""
+        print(f"\n🎯 Testing Advanced Content Generation (Product: {product_id[:8]}...)...")
+        
+        # Test all 8 content types
+        all_content_types = ["blog", "social", "video_script", "comparison", "tutorial", "review_roundup", "seasonal", "launch"]
+        
+        advanced_request = {
+            "product_id": product_id,
+            "content_types": all_content_types,
+            "platforms": ["twitter", "instagram", "facebook", "linkedin", "tiktok"],
+            "comparison_products": ["iPhone 15", "Samsung Galaxy S24"],
+            "season": "black-friday",
+            "tutorial_focus": "setup and configuration"
+        }
+        
+        success, response = self.make_request('POST', 'generate-content', advanced_request, 200)
+        
+        if success and 'generated_content' in response:
+            generated_count = len(response['generated_content'])
+            content_types_generated = set()
+            platforms_generated = set()
+            
+            for content in response['generated_content']:
+                if 'content_type' in content:
+                    content_types_generated.add(content['content_type'])
+                if 'platform' in content and content['platform']:
+                    platforms_generated.add(content['platform'])
+                if 'id' in content:
+                    self.created_content.append(content['id'])
+            
+            self.log_test("Advanced Content Generation", True, 
+                f"Generated {generated_count} pieces, Types: {len(content_types_generated)}, Platforms: {len(platforms_generated)}")
+            return response['generated_content']
+        else:
+            self.log_test("Advanced Content Generation", False, f"Advanced generation failed: {response}")
+            return []
+
+    def test_content_scheduling(self, content_id: str):
+        """Test content scheduling functionality"""
+        print(f"\n📅 Testing Content Scheduling (Content: {content_id[:8]}...)...")
+        
+        # Schedule content for 1 hour from now
+        from datetime import datetime, timedelta
+        scheduled_time = (datetime.now() + timedelta(hours=1)).isoformat()
+        
+        success, response = self.make_request('POST', f'schedule-content/{content_id}?scheduled_for={scheduled_time}', expected_status=200)
+        
+        if success and 'message' in response:
+            self.log_test("Content Scheduling", True, f"Content scheduled: {response['message']}")
+            return True
+        else:
+            self.log_test("Content Scheduling", False, f"Scheduling failed: {response}")
+            return False
+
+    def test_email_campaigns(self):
+        """Test email marketing campaign functionality"""
+        print("\n📧 Testing Email Marketing Campaigns...")
+        
+        campaign_data = {
+            "name": "Test Campaign",
+            "subject": "Amazing Tech Deals - Limited Time!",
+            "content": "<h1>Great Deals!</h1><p>Check out our latest tech products with amazing discounts.</p>",
+            "recipient_list": ["test1@example.com", "test2@example.com"],
+            "scheduled_for": None  # Send immediately
+        }
+        
+        success, response = self.make_request('POST', 'email-campaigns', campaign_data, 200)
+        
+        if success and 'id' in response:
+            campaign_id = response['id']
+            self.log_test("Create Email Campaign", True, f"Created campaign with ID: {campaign_id}")
+            
+            # Test getting all campaigns
+            success, campaigns = self.make_request('GET', 'email-campaigns')
+            if success and isinstance(campaigns, list):
+                self.log_test("Get Email Campaigns", True, f"Retrieved {len(campaigns)} campaigns")
+            else:
+                self.log_test("Get Email Campaigns", False, f"Failed to get campaigns: {campaigns}")
+            
+            return campaign_id
+        else:
+            self.log_test("Create Email Campaign", False, f"Campaign creation failed: {response}")
+            return None
+
+    def test_social_media_export(self):
+        """Test social media content export functionality"""
+        print("\n📱 Testing Social Media Export...")
+        
+        # Test Twitter export
+        success, response = self.make_request('GET', 'content/export/twitter')
+        
+        if success and 'csv_data' in response and 'filename' in response:
+            self.log_test("Twitter Export", True, f"Generated CSV: {response['filename']}")
+        else:
+            self.log_test("Twitter Export", False, f"Twitter export failed: {response}")
+        
+        # Test Instagram export
+        success, response = self.make_request('GET', 'content/export/instagram')
+        
+        if success and 'csv_data' in response and 'filename' in response:
+            self.log_test("Instagram Export", True, f"Generated CSV: {response['filename']}")
+        else:
+            self.log_test("Instagram Export", False, f"Instagram export failed: {response}")
+
+    def test_performance_metrics(self):
+        """Test performance metrics recording and analytics"""
+        print("\n📊 Testing Performance Metrics...")
+        
+        # Record a test metric
+        metric_data = {
+            "content_id": self.created_content[0] if self.created_content else "test-content-id",
+            "platform": "twitter",
+            "metric_type": "views",
+            "value": 1250.0
+        }
+        
+        success, response = self.make_request('POST', 'performance-metrics', metric_data, 200)
+        
+        if success and 'message' in response:
+            self.log_test("Record Performance Metric", True, f"Metric recorded: {response['message']}")
+        else:
+            self.log_test("Record Performance Metric", False, f"Metric recording failed: {response}")
+        
+        # Test analytics endpoint
+        success, response = self.make_request('GET', 'analytics')
+        
+        if success and 'analytics' in response:
+            analytics_count = len(response['analytics'])
+            self.log_test("Get Analytics", True, f"Retrieved analytics with {analytics_count} metric types")
+        else:
+            self.log_test("Get Analytics", False, f"Analytics retrieval failed: {response}")
+
+    def test_enhanced_stats(self):
+        """Test enhanced stats endpoint with new fields"""
+        print("\n📈 Testing Enhanced Stats...")
+        
+        success, response = self.make_request('GET', 'stats')
+        
+        if success:
+            expected_keys = ['total_products', 'total_content', 'total_campaigns', 'scheduled_content', 'categories', 'content_types', 'platforms']
+            has_all_keys = all(key in response for key in expected_keys)
+            
+            if has_all_keys:
+                self.log_test("Enhanced Stats", True, 
+                    f"Products: {response['total_products']}, Content: {response['total_content']}, Campaigns: {response['total_campaigns']}, Scheduled: {response['scheduled_content']}")
+            else:
+                missing_keys = [key for key in expected_keys if key not in response]
+                self.log_test("Enhanced Stats", False, f"Missing keys: {missing_keys}")
+        else:
+            self.log_test("Enhanced Stats", False, f"Stats request failed: {response}")
+
     def run_comprehensive_test(self):
         """Run all tests in sequence"""
         print("🚀 Starting Comprehensive API Testing for Affiliate Marketing Platform")
