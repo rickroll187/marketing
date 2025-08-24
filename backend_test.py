@@ -372,6 +372,95 @@ class AffiliateMarketingAPITester:
         else:
             self.log_test("Instagram Export", False, f"Instagram export failed: {response}")
 
+    def test_url_queue_management(self):
+        """Test URL queue management functionality"""
+        print("\n🔗 Testing URL Queue Management...")
+        
+        # Test bulk URL saving
+        bulk_urls = {
+            "urls": [
+                "https://www.amazon.com/dp/B08N5WRWNW",
+                "https://www.bestbuy.com/site/apple-macbook-pro/6418599.p",
+                "https://www.newegg.com/asus-rog-strix/p/N82E16834235398"
+            ],
+            "category": "electronics",
+            "priority": "high",
+            "notes": "Test bulk URL save for electronics category"
+        }
+        
+        success, response = self.make_request('POST', 'saved-urls/bulk', bulk_urls, 200)
+        
+        if success and isinstance(response, list) and len(response) > 0:
+            saved_count = len(response)
+            self.log_test("Bulk URL Save", True, f"Saved {saved_count} URLs to queue")
+            
+            # Store URL IDs for later testing
+            saved_url_ids = [url['id'] for url in response if 'id' in url]
+            
+            # Test getting saved URLs
+            success, response = self.make_request('GET', 'saved-urls')
+            
+            if success and isinstance(response, list):
+                self.log_test("Get Saved URLs", True, f"Retrieved {len(response)} saved URLs")
+                
+                # Test URL filtering
+                success, filtered = self.make_request('GET', 'saved-urls?category=electronics')
+                if success and isinstance(filtered, list):
+                    self.log_test("Filter URLs by Category", True, f"Found {len(filtered)} electronics URLs")
+                else:
+                    self.log_test("Filter URLs by Category", False, f"Filtering failed: {filtered}")
+                
+                # Test selecting URLs for scraping
+                if saved_url_ids:
+                    url_id = saved_url_ids[0]
+                    update_data = {"selected": True}
+                    success, response = self.make_request('PUT', f'saved-urls/{url_id}', update_data, 200)
+                    
+                    if success and 'id' in response:
+                        self.log_test("Update URL Selection", True, f"URL {url_id[:8]}... marked as selected")
+                        
+                        # Test scraping selected URLs
+                        success, scrape_response = self.make_request('POST', 'saved-urls/scrape-selected', expected_status=200)
+                        
+                        if success and 'scraped_products' in scrape_response:
+                            scraped_count = len(scrape_response['scraped_products'])
+                            self.log_test("Scrape Selected URLs", True, f"Scraped {scraped_count} products from selected URLs")
+                            
+                            # Store scraped product IDs
+                            for product in scrape_response['scraped_products']:
+                                if 'id' in product:
+                                    self.created_products.append(product['id'])
+                        else:
+                            self.log_test("Scrape Selected URLs", False, f"Scraping failed: {scrape_response}")
+                    else:
+                        self.log_test("Update URL Selection", False, f"URL update failed: {response}")
+            else:
+                self.log_test("Get Saved URLs", False, f"Failed to get saved URLs: {response}")
+        else:
+            self.log_test("Bulk URL Save", False, f"Bulk save failed: {response}")
+
+    def test_product_price_update(self):
+        """Test manual product price updates"""
+        print("\n💰 Testing Product Price Updates...")
+        
+        if not self.created_products:
+            self.log_test("Product Price Update", False, "No products available for price update test")
+            return
+        
+        product_id = self.created_products[0]
+        price_update = {
+            "price": 999.99,
+            "original_price": 1199.99,
+            "name": "Updated Gaming Laptop Pro"
+        }
+        
+        success, response = self.make_request('PUT', f'products/{product_id}/price', price_update, 200)
+        
+        if success and 'id' in response and response['price'] == 999.99:
+            self.log_test("Product Price Update", True, f"Updated product price to ${response['price']}")
+        else:
+            self.log_test("Product Price Update", False, f"Price update failed: {response}")
+
     def test_performance_metrics(self):
         """Test performance metrics recording and analytics"""
         print("\n📊 Testing Performance Metrics...")
