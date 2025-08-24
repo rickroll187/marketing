@@ -734,7 +734,7 @@ function App() {
         </div>
 
         {/* Main Content */}
-        <Tabs defaultValue="url-manager" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-7 bg-white shadow-lg rounded-xl p-2">
             <TabsTrigger value="url-manager" className="flex items-center gap-2 rounded-lg text-xs">
               <Bookmark className="h-4 w-4" />
