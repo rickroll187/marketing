@@ -101,3 +101,49 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Fix persistent UI tab switching bug where the application automatically switches back to URL Manager tab after user interactions, causing significant frustration. User wants to stay on their current working tab after actions like deleting content or scraping."
+
+backend:
+  - task: "API endpoints functionality"
+    implemented: true
+    working: "unknown"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+      - agent: "main"
+      - comment: "Need to verify all API endpoints work correctly after the tab switching fix"
+
+frontend:
+  - task: "Fix tab switching bug"
+    implemented: true
+    working: "unknown"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "unknown"
+      - agent: "main"
+      - comment: "Fixed defaultValue='url-manager' to use controlled state value={activeTab} onValueChange={setActiveTab}. This should prevent unwanted tab switching on re-renders."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "API endpoints functionality"
+    - "Fix tab switching bug"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+  - message: "Fixed critical tab switching bug by replacing defaultValue with controlled state management in Tabs component. Ready for backend testing to ensure all APIs work correctly."
