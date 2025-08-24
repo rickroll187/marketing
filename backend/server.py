@@ -303,21 +303,69 @@ def extract_tags(soup, category):
     return tags
 
 def extract_product_name(soup):
-    """Extract product name from various common selectors"""
+    """Extract product name from various common selectors - ENHANCED"""
     selectors = [
-        'h1[data-automation-id="product-title"]',
-        'h1.x-item-title-label',
+        # Amazon specific
+        '#productTitle',
+        'h1.a-size-large.product-title',
+        
+        # Best Buy specific  
+        'h1.sr-only',
         '.product-title h1',
+        'h1[data-automation-id="product-title"]',
+        
+        # Newegg specific
+        'h1.product-title',
+        
+        # Generic modern selectors
+        'h1[data-testid="product-title"]',
+        'h1[data-cy="product-title"]',
+        '[data-testid="product-name"]',
+        
+        # Microdata
+        'h1[itemprop="name"]',
+        '[itemprop="name"]',
+        
+        # Generic fallbacks
         'h1.product-name',
         'h1.pdp-product-name',
+        '.product-title',
+        'h1.title',
         'h1',
-        '.title'
+        '.title',
+        
+        # Meta tags as last resort
+        'meta[property="og:title"]',
+        'meta[name="title"]',
+        'title'
     ]
     
     for selector in selectors:
-        element = soup.select_one(selector)
-        if element:
-            return element.get_text().strip()
+        try:
+            element = soup.select_one(selector)
+            if element:
+                if element.name == 'meta':
+                    title = element.get('content', '').strip()
+                elif element.name == 'title':
+                    title = element.get_text().strip()
+                else:
+                    title = element.get_text().strip()
+                
+                if title and len(title) > 3:  # Minimum reasonable length
+                    # Clean up the title
+                    title = title.replace('\n', ' ').replace('\t', ' ')
+                    title = ' '.join(title.split())  # Remove extra whitespace
+                    
+                    # Remove common suffixes that aren't useful
+                    suffixes_to_remove = [' - Amazon.com', ' | Best Buy', ' - Best Buy', ' - Newegg.com']
+                    for suffix in suffixes_to_remove:
+                        if title.endswith(suffix):
+                            title = title[:-len(suffix)].strip()
+                    
+                    return title[:200]  # Limit length
+        except:
+            continue
+    
     return "Unknown Product"
 
 def extract_price(soup):
