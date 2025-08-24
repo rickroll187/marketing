@@ -789,34 +789,58 @@ function App() {
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 bg-white shadow-lg rounded-xl p-2">
-            <TabsTrigger value="url-manager" className="flex items-center gap-2 rounded-lg text-xs">
-              <Bookmark className="h-4 w-4" />
-              URL Manager
+          <TabsList className="grid w-full grid-cols-13 bg-white shadow-lg rounded-xl p-2 overflow-x-auto">
+            <TabsTrigger value="url-manager" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <Bookmark className="h-3 w-3" />
+              URLs
             </TabsTrigger>
-            <TabsTrigger value="products" className="flex items-center gap-2 rounded-lg text-xs">
-              <Package className="h-4 w-4" />
+            <TabsTrigger value="products" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <Package className="h-3 w-3" />
               Products
             </TabsTrigger>
-            <TabsTrigger value="content" className="flex items-center gap-2 rounded-lg text-xs">
-              <FileText className="h-4 w-4" />
+            <TabsTrigger value="content" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <FileText className="h-3 w-3" />
               Content
             </TabsTrigger>
-            <TabsTrigger value="scraper" className="flex items-center gap-2 rounded-lg text-xs">
-              <Search className="h-4 w-4" />
+            <TabsTrigger value="scraper" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <Search className="h-3 w-3" />
               Scraper
             </TabsTrigger>
-            <TabsTrigger value="scheduler" className="flex items-center gap-2 rounded-lg text-xs">
-              <Clock className="h-4 w-4" />
-              Scheduler
+            <TabsTrigger value="price-tracker" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <DollarSign className="h-3 w-3" />
+              Prices
             </TabsTrigger>
-            <TabsTrigger value="email" className="flex items-center gap-2 rounded-lg text-xs">
-              <Mail className="h-4 w-4" />
+            <TabsTrigger value="advanced-analytics" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <LineChart className="h-3 w-3" />
+              Analytics+
+            </TabsTrigger>
+            <TabsTrigger value="social-automation" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <Share2 className="h-3 w-3" />
+              Social
+            </TabsTrigger>
+            <TabsTrigger value="content-studio" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <Camera className="h-3 w-3" />
+              Studio
+            </TabsTrigger>
+            <TabsTrigger value="competitor-intel" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <Radar className="h-3 w-3" />
+              Intel
+            </TabsTrigger>
+            <TabsTrigger value="smart-workflows" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <Workflow className="h-3 w-3" />
+              Workflows
+            </TabsTrigger>
+            <TabsTrigger value="scheduler" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <Clock className="h-3 w-3" />
+              Schedule
+            </TabsTrigger>
+            <TabsTrigger value="email" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <Mail className="h-3 w-3" />
               Email
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2 rounded-lg text-xs">
-              <BarChart3 className="h-4 w-4" />
-              Analytics
+            <TabsTrigger value="analytics" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <BarChart3 className="h-3 w-3" />
+              Stats
             </TabsTrigger>
           </TabsList>
 
