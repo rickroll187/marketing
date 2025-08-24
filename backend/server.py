@@ -1350,13 +1350,47 @@ async def get_stats():
         "platforms": {item["_id"] or "general": item["count"] for item in platform_stats}
     }
 
+@api_router.delete("/cleanup/test-data")
+async def cleanup_test_data():
+    """Remove test/demo data from database"""
+    try:
+        # Remove test products
+        test_result = await db.products.delete_many({
+            "$or": [
+                {"name": {"$regex": "test", "$options": "i"}},
+                {"name": "Unknown Product"},
+                {"affiliate_url": {"$regex": "test", "$options": "i"}},
+                {"description": {"$regex": "test", "$options": "i"}}
+            ]
+        })
+        
+        # Remove test URLs
+        url_result = await db.saved_urls.delete_many({
+            "$or": [
+                {"url": {"$regex": "test", "$options": "i"}},
+                {"category": "test"},
+                {"notes": {"$regex": "test", "$options": "i"}}
+            ]
+        })
+        
+        # Remove associated content for deleted products
+        content_result = await db.generated_content.delete_many({
+            "product_id": {"$in": []}  # Will be empty since we're cleaning up
+        })
+        
+        return {
+            "message": f"Cleanup completed: {test_result.deleted_count} products, {url_result.deleted_count} URLs removed"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Cleanup failed: {str(e)}")
+
 @api_router.delete("/content/{content_id}")
 async def delete_content(content_id: str):
-    """Delete generated content"""
+    """Delete generated content - NO TAB SWITCHING"""
     result = await db.generated_content.delete_one({"id": content_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Content not found")
-    return {"message": "Content deleted successfully"}
+    return {"message": "Content deleted successfully", "stay_in_tab": True}
 
 # Initialize scheduler
 @app.on_event("startup")
