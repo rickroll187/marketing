@@ -77,6 +77,41 @@ class ProductCreate(BaseModel):
     features: Optional[List[str]] = []
     tags: Optional[List[str]] = []
 
+# NEW: URL Queue Management Models
+class SavedUrl(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    url: str
+    title: Optional[str] = None
+    category: str
+    priority: str = "medium"  # high, medium, low
+    notes: Optional[str] = None
+    selected: bool = False
+    estimated_price: Optional[float] = None
+    source: Optional[str] = None
+    added_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    scraped: bool = False
+    scraped_at: Optional[datetime] = None
+
+class SavedUrlCreate(BaseModel):
+    url: str
+    title: Optional[str] = None
+    category: str
+    priority: str = "medium"
+    notes: Optional[str] = None
+    estimated_price: Optional[float] = None
+
+class SavedUrlUpdate(BaseModel):
+    selected: Optional[bool] = None
+    priority: Optional[str] = None
+    notes: Optional[str] = None
+    category: Optional[str] = None
+
+class BulkUrlSave(BaseModel):
+    urls: List[str]
+    category: str
+    priority: str = "medium"
+    notes: Optional[str] = None
+
 class GeneratedContent(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     product_id: str
@@ -130,6 +165,36 @@ class PerformanceMetric(BaseModel):
 class ScrapeRequest(BaseModel):
     urls: List[str]
     category: str
+
+# URL Preview Function
+async def get_url_preview(url: str) -> Dict[str, Any]:
+    """Get basic preview info from URL without full scraping"""
+    try:
+        async with aiohttp.ClientSession() as session:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+            async with session.get(url, headers=headers, timeout=10) as response:
+                if response.status != 200:
+                    return {"title": "Unknown", "source": extract_domain(url)}
+                
+                html = await response.text()
+                soup = BeautifulSoup(html, 'html.parser')
+                
+                # Extract basic info
+                title = extract_product_name(soup)
+                source = extract_domain(url)
+                estimated_price = extract_price(soup)
+                
+                return {
+                    "title": title,
+                    "source": source,
+                    "estimated_price": estimated_price if estimated_price > 0 else None
+                }
+                
+    except Exception as e:
+        logging.error(f"Error getting preview for {url}: {str(e)}")
+        return {"title": "Unknown", "source": extract_domain(url)}
 
 # Web Scraping Functions (Enhanced)
 async def scrape_product_data(url: str, category: str) -> Optional[Dict[str, Any]]:
@@ -661,14 +726,160 @@ async def schedule_content_publishing():
         
         await db.performance_metrics.insert_one(metric.dict())
 
-# API Routes
+# NEW: URL Queue Management API Routes
+@api_router.post("/saved-urls", response_model=SavedUrl)
+async def save_url(url_data: SavedUrlCreate):
+    """Save a URL to the queue for later processing"""
+    # Get preview info
+    preview = await get_url_preview(url_data.url)
+    
+    saved_url = SavedUrl(
+        **url_data.dict(),
+        title=url_data.title or preview.get('title', 'Unknown'),
+        source=preview.get('source'),
+        estimated_price=url_data.estimated_price or preview.get('estimated_price')
+    )
+    
+    await db.saved_urls.insert_one(saved_url.dict())
+    return saved_url
+
+@api_router.post("/saved-urls/bulk", response_model=List[SavedUrl])
+async def save_urls_bulk(bulk_data: BulkUrlSave):
+    """Save multiple URLs at once"""
+    saved_urls = []
+    
+    for url in bulk_data.urls:
+        if url.strip():  # Skip empty URLs
+            # Get preview info
+            preview = await get_url_preview(url.strip())
+            
+            saved_url = SavedUrl(
+                url=url.strip(),
+                category=bulk_data.category,
+                priority=bulk_data.priority,
+                notes=bulk_data.notes,
+                title=preview.get('title', 'Unknown'),
+                source=preview.get('source'),
+                estimated_price=preview.get('estimated_price')
+            )
+            
+            await db.saved_urls.insert_one(saved_url.dict())
+            saved_urls.append(saved_url)
+    
+    return saved_urls
+
+@api_router.get("/saved-urls", response_model=List[SavedUrl])
+async def get_saved_urls(
+    category: Optional[str] = None,
+    priority: Optional[str] = None,
+    scraped: Optional[bool] = None,
+    selected: Optional[bool] = None,
+    limit: int = 100
+):
+    """Get saved URLs with optional filters"""
+    query = {}
+    if category:
+        query["category"] = category
+    if priority:
+        query["priority"] = priority
+    if scraped is not None:
+        query["scraped"] = scraped
+    if selected is not None:
+        query["selected"] = selected
+    
+    urls = await db.saved_urls.find(query).sort("added_at", -1).limit(limit).to_list(length=None)
+    return [SavedUrl(**url) for url in urls]
+
+@api_router.put("/saved-urls/{url_id}", response_model=SavedUrl)
+async def update_saved_url(url_id: str, update_data: SavedUrlUpdate):
+    """Update a saved URL (select/unselect, change priority, etc.)"""
+    update_dict = {k: v for k, v in update_data.dict().items() if v is not None}
+    
+    result = await db.saved_urls.update_one(
+        {"id": url_id},
+        {"$set": update_dict}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="URL not found")
+    
+    updated_url = await db.saved_urls.find_one({"id": url_id})
+    return SavedUrl(**updated_url)
+
+@api_router.post("/saved-urls/select-all")
+async def select_all_urls(category: Optional[str] = None):
+    """Select all URLs (optionally by category)"""
+    query = {}
+    if category:
+        query["category"] = category
+    
+    result = await db.saved_urls.update_many(
+        query,
+        {"$set": {"selected": True}}
+    )
+    
+    return {"message": f"Selected {result.modified_count} URLs"}
+
+@api_router.post("/saved-urls/unselect-all")
+async def unselect_all_urls():
+    """Unselect all URLs"""
+    result = await db.saved_urls.update_many(
+        {},
+        {"$set": {"selected": False}}
+    )
+    
+    return {"message": f"Unselected {result.modified_count} URLs"}
+
+@api_router.delete("/saved-urls/{url_id}")
+async def delete_saved_url(url_id: str):
+    """Delete a saved URL"""
+    result = await db.saved_urls.delete_one({"id": url_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="URL not found")
+    return {"message": "URL deleted successfully"}
+
+@api_router.post("/saved-urls/scrape-selected")
+async def scrape_selected_urls():
+    """Scrape all selected URLs and create products"""
+    # Get selected URLs
+    selected_urls = await db.saved_urls.find({"selected": True, "scraped": False}).to_list(length=None)
+    
+    if not selected_urls:
+        return {"message": "No URLs selected for scraping", "scraped_products": []}
+    
+    scraped_products = []
+    
+    for url_data in selected_urls:
+        url_obj = SavedUrl(**url_data)
+        
+        # Scrape the product
+        product_data = await scrape_product_data(url_obj.url, url_obj.category)
+        
+        if product_data:
+            # Create product
+            product = Product(**product_data)
+            await db.products.insert_one(product.dict())
+            scraped_products.append(product)
+            
+            # Mark URL as scraped
+            await db.saved_urls.update_one(
+                {"id": url_obj.id},
+                {"$set": {"scraped": True, "scraped_at": datetime.now(timezone.utc)}}
+            )
+    
+    return {
+        "message": f"Successfully scraped {len(scraped_products)} products",
+        "scraped_products": scraped_products
+    }
+
+# API Routes (Existing ones remain the same)
 @api_router.get("/")
 async def root():
-    return {"message": "Advanced Affiliate Marketing Platform API"}
+    return {"message": "Advanced Affiliate Marketing Platform API with URL Management"}
 
 @api_router.post("/scrape", response_model=List[Product])
 async def scrape_products(request: ScrapeRequest, background_tasks: BackgroundTasks):
-    """Scrape products from provided URLs"""
+    """Scrape products from provided URLs (original direct method)"""
     scraped_products = []
     
     for url in request.urls:
@@ -880,6 +1091,8 @@ async def get_stats():
     total_content = await db.generated_content.count_documents({})
     total_campaigns = await db.email_campaigns.count_documents({})
     scheduled_content = await db.generated_content.count_documents({"scheduled_for": {"$exists": True}})
+    saved_urls_count = await db.saved_urls.count_documents({})
+    selected_urls_count = await db.saved_urls.count_documents({"selected": True})
     
     # Category breakdown
     category_pipeline = [
@@ -904,6 +1117,8 @@ async def get_stats():
         "total_content": total_content,
         "total_campaigns": total_campaigns,
         "scheduled_content": scheduled_content,
+        "saved_urls": saved_urls_count,
+        "selected_urls": selected_urls_count,
         "categories": {item["_id"]: item["count"] for item in category_stats},
         "content_types": {item["_id"]: item["count"] for item in content_stats},
         "platforms": {item["_id"] or "general": item["count"] for item in platform_stats}
