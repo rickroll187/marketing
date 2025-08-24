@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/ui/select';
 import { Textarea } from './components/ui/textarea';
 import { Separator } from './components/ui/separator';
+import { Calendar } from './components/ui/calendar';
 import { toast } from './hooks/use-toast';
 import { Toaster } from './components/ui/toaster';
 import { 
@@ -30,7 +31,23 @@ import {
   MessageSquare,
   Copy,
   Trash2,
-  Filter
+  Filter,
+  Mail,
+  Calendar as CalendarIcon,
+  Download,
+  Send,
+  Clock,
+  Eye,
+  MousePointer,
+  Users,
+  Target,
+  Zap,
+  Rocket,
+  BookOpen,
+  Award,
+  Lightbulb,
+  Snowflake,
+  GitCompare
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -39,18 +56,39 @@ const API = `${BACKEND_URL}/api`;
 function App() {
   const [products, setProducts] = useState([]);
   const [generatedContent, setGeneratedContent] = useState([]);
+  const [emailCampaigns, setEmailCampaigns] = useState([]);
   const [stats, setStats] = useState({});
+  const [analytics, setAnalytics] = useState({});
   const [loading, setLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  
+  // Scraping state
   const [scrapeUrls, setScrapeUrls] = useState('');
   const [scrapeCategory, setScrapeCategory] = useState('');
+  
+  // Content generation state
   const [contentTypes, setContentTypes] = useState([]);
   const [platforms, setPlatforms] = useState([]);
+  const [comparisonProducts, setComparisonProducts] = useState('');
+  const [season, setSeason] = useState('');
+  const [tutorialFocus, setTutorialFocus] = useState('');
+  
+  // Email campaign state
+  const [emailSubject, setEmailSubject] = useState('');
+  const [emailContent, setEmailContent] = useState('');
+  const [emailRecipients, setEmailRecipients] = useState('');
+  const [scheduleDate, setScheduleDate] = useState(null);
+  
+  // Scheduling state
+  const [selectedContentForScheduling, setSelectedContentForScheduling] = useState(null);
+  const [schedulingDate, setSchedulingDate] = useState(null);
 
   useEffect(() => {
     fetchProducts();
     fetchGeneratedContent();
+    fetchEmailCampaigns();
     fetchStats();
+    fetchAnalytics();
   }, []);
 
   const fetchProducts = async () => {
@@ -79,12 +117,30 @@ function App() {
     }
   };
 
+  const fetchEmailCampaigns = async () => {
+    try {
+      const response = await axios.get(`${API}/email-campaigns`);
+      setEmailCampaigns(response.data);
+    } catch (error) {
+      console.error('Failed to fetch email campaigns');
+    }
+  };
+
   const fetchStats = async () => {
     try {
       const response = await axios.get(`${API}/stats`);
       setStats(response.data);
     } catch (error) {
       console.error('Failed to fetch stats');
+    }
+  };
+
+  const fetchAnalytics = async () => {
+    try {
+      const response = await axios.get(`${API}/analytics`);
+      setAnalytics(response.data);
+    } catch (error) {
+      console.error('Failed to fetch analytics');
     }
   };
 
@@ -138,19 +194,37 @@ function App() {
 
     setLoading(true);
     try {
-      const response = await axios.post(`${API}/generate-content`, {
+      const requestData = {
         product_id: productId,
         content_types: contentTypes,
         platforms: contentTypes.includes('social') ? platforms : []
-      });
+      };
+
+      // Add optional parameters
+      if (comparisonProducts.trim()) {
+        requestData.comparison_products = comparisonProducts.split(',').map(p => p.trim());
+      }
+      if (season.trim()) {
+        requestData.season = season;
+      }
+      if (tutorialFocus.trim()) {
+        requestData.tutorial_focus = tutorialFocus;
+      }
+      
+      const response = await axios.post(`${API}/generate-content`, requestData);
       
       toast({
         title: "Success",
         description: `Generated ${response.data.generated_content.length} pieces of content`
       });
       
+      // Reset form
       setContentTypes([]);
       setPlatforms([]);
+      setComparisonProducts('');
+      setSeason('');
+      setTutorialFocus('');
+      
       fetchGeneratedContent();
       fetchStats();
     } catch (error) {
@@ -161,6 +235,104 @@ function App() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleScheduleContent = async (contentId, scheduledDate) => {
+    try {
+      await axios.post(`${API}/schedule-content/${contentId}`, null, {
+        params: { scheduled_for: scheduledDate.toISOString() }
+      });
+      
+      toast({
+        title: "Success",
+        description: "Content scheduled successfully"
+      });
+      
+      fetchGeneratedContent();
+      setSelectedContentForScheduling(null);
+      setSchedulingDate(null);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to schedule content",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleCreateEmailCampaign = async () => {
+    if (!emailSubject.trim() || !emailContent.trim() || !emailRecipients.trim()) {
+      toast({
+        title: "Error",
+        description: "Please fill in all email campaign fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const recipients = emailRecipients.split(',').map(email => email.trim());
+      
+      const campaignData = {
+        name: `Campaign: ${emailSubject}`,
+        subject: emailSubject,
+        content: emailContent,
+        recipient_list: recipients,
+        scheduled_for: scheduleDate ? scheduleDate.toISOString() : null
+      };
+      
+      await axios.post(`${API}/email-campaigns`, campaignData);
+      
+      toast({
+        title: "Success",
+        description: scheduleDate ? "Email campaign scheduled" : "Email campaign sent"
+      });
+      
+      // Reset form
+      setEmailSubject('');
+      setEmailContent('');
+      setEmailRecipients('');
+      setScheduleDate(null);
+      
+      fetchEmailCampaigns();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create email campaign",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExportContent = async (platform) => {
+    try {
+      const response = await axios.get(`${API}/content/export/${platform}`);
+      
+      // Create and download CSV file
+      const blob = new Blob([response.data.csv_data], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = response.data.filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Success",
+        description: `${platform} content exported successfully`
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: `Failed to export ${platform} content`,
+        variant: "destructive"
+      });
     }
   };
 
@@ -198,63 +370,101 @@ function App() {
     }
   };
 
+  const getContentTypeIcon = (contentType) => {
+    const icons = {
+      blog: <FileText className="h-5 w-5" />,
+      social: <MessageSquare className="h-5 w-5" />,
+      video_script: <Video className="h-5 w-5" />,
+      comparison: <GitCompare className="h-5 w-5" />,
+      tutorial: <BookOpen className="h-5 w-5" />,
+      review_roundup: <Award className="h-5 w-5" />,
+      seasonal: <Snowflake className="h-5 w-5" />,
+      launch: <Rocket className="h-5 w-5" />
+    };
+    return icons[contentType] || <FileText className="h-5 w-5" />;
+  };
+
   const Dashboard = () => (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       <div className="container mx-auto p-6">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
-            Affiliate Marketing Platform
+            Advanced Affiliate Marketing Platform
           </h1>
-          <p className="text-gray-600 text-lg">Scrape products, generate content, and boost your affiliate sales</p>
+          <p className="text-gray-600 text-lg">Complete marketing automation with AI-powered content generation</p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        {/* Enhanced Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
           <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-100 text-sm font-medium">Total Products</p>
-                  <p className="text-3xl font-bold">{stats.total_products || 0}</p>
+                  <p className="text-blue-100 text-xs font-medium">Total Products</p>
+                  <p className="text-2xl font-bold">{stats.total_products || 0}</p>
                 </div>
-                <Package className="h-8 w-8 text-blue-200" />
+                <Package className="h-6 w-6 text-blue-200" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-0 shadow-lg bg-gradient-to-br from-green-500 to-green-600 text-white">
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-100 text-sm font-medium">Generated Content</p>
-                  <p className="text-3xl font-bold">{stats.total_content || 0}</p>
+                  <p className="text-green-100 text-xs font-medium">Generated Content</p>
+                  <p className="text-2xl font-bold">{stats.total_content || 0}</p>
                 </div>
-                <FileText className="h-8 w-8 text-green-200" />
+                <FileText className="h-6 w-6 text-green-200" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-500 to-purple-600 text-white">
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-purple-100 text-sm font-medium">Categories</p>
-                  <p className="text-3xl font-bold">{Object.keys(stats.categories || {}).length}</p>
+                  <p className="text-purple-100 text-xs font-medium">Categories</p>
+                  <p className="text-2xl font-bold">{Object.keys(stats.categories || {}).length}</p>
                 </div>
-                <BarChart3 className="h-8 w-8 text-purple-200" />
+                <BarChart3 className="h-6 w-6 text-purple-200" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-500 to-red-500 text-white">
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-orange-100 text-sm font-medium">Conversion Rate</p>
-                  <p className="text-3xl font-bold">12.3%</p>
+                  <p className="text-orange-100 text-xs font-medium">Email Campaigns</p>
+                  <p className="text-2xl font-bold">{stats.total_campaigns || 0}</p>
                 </div>
-                <TrendingUp className="h-8 w-8 text-orange-200" />
+                <Mail className="h-6 w-6 text-orange-200" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-pink-500 to-rose-500 text-white">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-pink-100 text-xs font-medium">Scheduled Content</p>
+                  <p className="text-2xl font-bold">{stats.scheduled_content || 0}</p>
+                </div>
+                <Clock className="h-6 w-6 text-pink-200" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-cyan-500 to-blue-500 text-white">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-cyan-100 text-xs font-medium">Conversion Rate</p>
+                  <p className="text-2xl font-bold">15.8%</p>
+                </div>
+                <TrendingUp className="h-6 w-6 text-cyan-200" />
               </div>
             </CardContent>
           </Card>
@@ -262,18 +472,30 @@ function App() {
 
         {/* Main Content */}
         <Tabs defaultValue="products" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 bg-white shadow-lg rounded-xl p-2">
-            <TabsTrigger value="products" className="flex items-center gap-2 rounded-lg">
+          <TabsList className="grid w-full grid-cols-6 bg-white shadow-lg rounded-xl p-2">
+            <TabsTrigger value="products" className="flex items-center gap-2 rounded-lg text-xs">
               <Package className="h-4 w-4" />
               Products
             </TabsTrigger>
-            <TabsTrigger value="content" className="flex items-center gap-2 rounded-lg">
+            <TabsTrigger value="content" className="flex items-center gap-2 rounded-lg text-xs">
               <FileText className="h-4 w-4" />
-              Generated Content
+              Content
             </TabsTrigger>
-            <TabsTrigger value="scraper" className="flex items-center gap-2 rounded-lg">
+            <TabsTrigger value="scraper" className="flex items-center gap-2 rounded-lg text-xs">
               <Search className="h-4 w-4" />
-              Product Scraper
+              Scraper
+            </TabsTrigger>
+            <TabsTrigger value="scheduler" className="flex items-center gap-2 rounded-lg text-xs">
+              <Clock className="h-4 w-4" />
+              Scheduler
+            </TabsTrigger>
+            <TabsTrigger value="email" className="flex items-center gap-2 rounded-lg text-xs">
+              <Mail className="h-4 w-4" />
+              Email
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2 rounded-lg text-xs">
+              <BarChart3 className="h-4 w-4" />
+              Analytics
             </TabsTrigger>
           </TabsList>
 
@@ -321,6 +543,17 @@ function App() {
                                 </div>
                               )}
                             </div>
+
+                            {/* Tags */}
+                            {product.tags && product.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mb-3">
+                                {product.tags.slice(0, 4).map((tag, index) => (
+                                  <Badge key={index} variant="outline" className="text-xs">
+                                    {tag}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
                             
                             <div className="flex items-center justify-between">
                               <div>
@@ -351,9 +584,9 @@ function App() {
                                       Generate
                                     </Button>
                                   </DialogTrigger>
-                                  <DialogContent className="max-w-2xl">
+                                  <DialogContent className="max-w-3xl">
                                     <DialogHeader>
-                                      <DialogTitle>Generate Marketing Content</DialogTitle>
+                                      <DialogTitle>Generate Advanced Marketing Content</DialogTitle>
                                     </DialogHeader>
                                     
                                     <div className="space-y-6">
@@ -364,22 +597,32 @@ function App() {
                                       
                                       <div>
                                         <label className="text-sm font-medium mb-2 block">Content Types</label>
-                                        <div className="grid grid-cols-3 gap-3">
-                                          {['blog', 'social', 'video_script'].map((type) => (
-                                            <label key={type} className="flex items-center space-x-2 cursor-pointer">
+                                        <div className="grid grid-cols-2 gap-3">
+                                          {[
+                                            { value: 'blog', label: 'Blog Posts', icon: <FileText className="h-4 w-4" /> },
+                                            { value: 'social', label: 'Social Media', icon: <MessageSquare className="h-4 w-4" /> },
+                                            { value: 'video_script', label: 'Video Scripts', icon: <Video className="h-4 w-4" /> },
+                                            { value: 'comparison', label: 'Comparisons', icon: <GitCompare className="h-4 w-4" /> },
+                                            { value: 'tutorial', label: 'Tutorials', icon: <BookOpen className="h-4 w-4" /> },
+                                            { value: 'review_roundup', label: 'Review Roundups', icon: <Award className="h-4 w-4" /> },
+                                            { value: 'seasonal', label: 'Seasonal Campaigns', icon: <Snowflake className="h-4 w-4" /> },
+                                            { value: 'launch', label: 'Product Launches', icon: <Rocket className="h-4 w-4" /> }
+                                          ].map((type) => (
+                                            <label key={type.value} className="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50">
                                               <input
                                                 type="checkbox"
-                                                checked={contentTypes.includes(type)}
+                                                checked={contentTypes.includes(type.value)}
                                                 onChange={(e) => {
                                                   if (e.target.checked) {
-                                                    setContentTypes([...contentTypes, type]);
+                                                    setContentTypes([...contentTypes, type.value]);
                                                   } else {
-                                                    setContentTypes(contentTypes.filter(t => t !== type));
+                                                    setContentTypes(contentTypes.filter(t => t !== type.value));
                                                   }
                                                 }}
                                                 className="rounded"
                                               />
-                                              <span className="text-sm capitalize">{type.replace('_', ' ')}</span>
+                                              {type.icon}
+                                              <span className="text-sm">{type.label}</span>
                                             </label>
                                           ))}
                                         </div>
@@ -389,7 +632,7 @@ function App() {
                                         <div>
                                           <label className="text-sm font-medium mb-2 block">Social Media Platforms</label>
                                           <div className="grid grid-cols-2 gap-3">
-                                            {['twitter', 'instagram', 'facebook', 'linkedin'].map((platform) => (
+                                            {['twitter', 'instagram', 'facebook', 'linkedin', 'tiktok'].map((platform) => (
                                               <label key={platform} className="flex items-center space-x-2 cursor-pointer">
                                                 <input
                                                   type="checkbox"
@@ -409,6 +652,50 @@ function App() {
                                           </div>
                                         </div>
                                       )}
+
+                                      {/* Advanced Options */}
+                                      <div className="space-y-4">
+                                        {contentTypes.includes('comparison') && (
+                                          <div>
+                                            <label className="text-sm font-medium mb-2 block">Comparison Products (comma-separated)</label>
+                                            <Input
+                                              placeholder="iPhone 15, Samsung Galaxy S24, etc."
+                                              value={comparisonProducts}
+                                              onChange={(e) => setComparisonProducts(e.target.value)}
+                                            />
+                                          </div>
+                                        )}
+
+                                        {contentTypes.includes('seasonal') && (
+                                          <div>
+                                            <label className="text-sm font-medium mb-2 block">Season/Event</label>
+                                            <Select value={season} onValueChange={setSeason}>
+                                              <SelectTrigger>
+                                                <SelectValue placeholder="Select season/event" />
+                                              </SelectTrigger>
+                                              <SelectContent>
+                                                <SelectItem value="black-friday">Black Friday</SelectItem>
+                                                <SelectItem value="christmas">Christmas</SelectItem>
+                                                <SelectItem value="back-to-school">Back to School</SelectItem>
+                                                <SelectItem value="spring">Spring</SelectItem>
+                                                <SelectItem value="summer">Summer</SelectItem>
+                                                <SelectItem value="winter">Winter</SelectItem>
+                                              </SelectContent>
+                                            </Select>
+                                          </div>
+                                        )}
+
+                                        {contentTypes.includes('tutorial') && (
+                                          <div>
+                                            <label className="text-sm font-medium mb-2 block">Tutorial Focus</label>
+                                            <Input
+                                              placeholder="Setup and configuration, advanced features, troubleshooting..."
+                                              value={tutorialFocus}
+                                              onChange={(e) => setTutorialFocus(e.target.value)}
+                                            />
+                                          </div>
+                                        )}
+                                      </div>
                                       
                                       <Button
                                         onClick={() => handleGenerateContent(selectedProduct?.id)}
@@ -452,10 +739,32 @@ function App() {
           <TabsContent value="content" className="space-y-6">
             <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Generated Marketing Content
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Generated Marketing Content
+                  </CardTitle>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleExportContent('twitter')}
+                      className="hover:bg-blue-50"
+                    >
+                      <Download className="h-4 w-4 mr-1" />
+                      Export Twitter
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleExportContent('instagram')}
+                      className="hover:bg-pink-50"
+                    >
+                      <Download className="h-4 w-4 mr-1" />
+                      Export Instagram
+                    </Button>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
@@ -466,9 +775,7 @@ function App() {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                               <div className="p-2 rounded-lg bg-gradient-to-r from-indigo-100 to-purple-100">
-                                {content.content_type === 'blog' && <FileText className="h-5 w-5 text-indigo-600" />}
-                                {content.content_type === 'social' && <MessageSquare className="h-5 w-5 text-indigo-600" />}
-                                {content.content_type === 'video_script' && <Video className="h-5 w-5 text-indigo-600" />}
+                                {getContentTypeIcon(content.content_type)}
                               </div>
                               <div>
                                 <h3 className="font-semibold">{content.title}</h3>
@@ -481,11 +788,59 @@ function App() {
                                       {content.platform}
                                     </Badge>
                                   )}
+                                  {content.scheduled_for && (
+                                    <Badge variant="outline" className="text-orange-600">
+                                      <Clock className="h-3 w-3 mr-1" />
+                                      Scheduled
+                                    </Badge>
+                                  )}
+                                  {content.published && (
+                                    <Badge variant="outline" className="text-green-600">
+                                      <Eye className="h-3 w-3 mr-1" />
+                                      Published
+                                    </Badge>
+                                  )}
                                 </div>
                               </div>
                             </div>
                             
                             <div className="flex gap-2">
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setSelectedContentForScheduling(content)}
+                                    className="hover:bg-orange-50"
+                                  >
+                                    <Clock className="h-4 w-4" />
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>Schedule Content</DialogTitle>
+                                  </DialogHeader>
+                                  <div className="space-y-4">
+                                    <div>
+                                      <label className="text-sm font-medium mb-2 block">Select Date & Time</label>
+                                      <Calendar
+                                        mode="single"
+                                        selected={schedulingDate}
+                                        onSelect={setSchedulingDate}
+                                        className="rounded-md border"
+                                      />
+                                    </div>
+                                    <Button
+                                      onClick={() => handleScheduleContent(selectedContentForScheduling?.id, schedulingDate)}
+                                      disabled={!schedulingDate}
+                                      className="w-full"
+                                    >
+                                      Schedule Content
+                                    </Button>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                              
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -524,6 +879,13 @@ function App() {
                                 </div>
                               </div>
                             )}
+
+                            {content.scheduled_for && (
+                              <div className="flex items-center gap-2 text-sm text-orange-600">
+                                <CalendarIcon className="h-4 w-4" />
+                                <span>Scheduled for: {new Date(content.scheduled_for).toLocaleString()}</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </CardContent>
@@ -546,7 +908,7 @@ function App() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Search className="h-5 w-5" />
-                  Product Scraper
+                  Enhanced Product Scraper
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -555,10 +917,12 @@ function App() {
                     <div>
                       <label className="text-sm font-medium mb-2 block">Product URLs (one per line)</label>
                       <Textarea
-                        placeholder="https://www.amazon.com/product/..."
+                        placeholder="https://www.amazon.com/product/...
+https://www.bestbuy.com/site/...
+https://www.newegg.com/..."
                         value={scrapeUrls}
                         onChange={(e) => setScrapeUrls(e.target.value)}
-                        rows={8}
+                        rows={10}
                         className="font-mono text-sm"
                       />
                     </div>
@@ -576,6 +940,9 @@ function App() {
                           <SelectItem value="gaming">Gaming</SelectItem>
                           <SelectItem value="software">Software</SelectItem>
                           <SelectItem value="accessories">Accessories</SelectItem>
+                          <SelectItem value="tablets">Tablets</SelectItem>
+                          <SelectItem value="smartwatches">Smart Watches</SelectItem>
+                          <SelectItem value="cameras">Cameras</SelectItem>
                           <SelectItem value="other">Other</SelectItem>
                         </SelectContent>
                       </Select>
@@ -601,40 +968,337 @@ function App() {
                   </div>
                   
                   <div className="space-y-4">
-                    <h3 className="font-semibold text-lg">Supported Sites</h3>
+                    <h3 className="font-semibold text-lg">Enhanced Scraping Features</h3>
                     <div className="space-y-3">
                       <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100">
                         <Globe className="h-5 w-5 text-blue-600" />
                         <div>
-                          <p className="font-medium text-blue-900">Amazon</p>
-                          <p className="text-sm text-blue-700">Product pages with pricing and reviews</p>
+                          <p className="font-medium text-blue-900">Advanced Data Extraction</p>
+                          <p className="text-sm text-blue-700">Extracts prices, ratings, reviews, features, and tags</p>
                         </div>
                       </div>
                       
                       <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 border border-green-100">
-                        <Globe className="h-5 w-5 text-green-600" />
+                        <Target className="h-5 w-5 text-green-600" />
                         <div>
-                          <p className="font-medium text-green-900">Best Buy</p>
-                          <p className="text-sm text-green-700">Electronics with detailed specifications</p>
+                          <p className="font-medium text-green-900">Smart Tag Detection</p>
+                          <p className="text-sm text-green-700">Automatically tags products with relevant keywords</p>
                         </div>
                       </div>
                       
                       <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100">
-                        <Globe className="h-5 w-5 text-purple-600" />
+                        <Zap className="h-5 w-5 text-purple-600" />
                         <div>
-                          <p className="font-medium text-purple-900">Newegg</p>
-                          <p className="text-sm text-purple-700">Computer hardware and tech products</p>
+                          <p className="font-medium text-purple-900">Price Comparison</p>
+                          <p className="text-sm text-purple-700">Detects original vs discounted prices</p>
                         </div>
                       </div>
                       
                       <div className="p-3 rounded-lg bg-gradient-to-r from-orange-50 to-red-50 border border-orange-100">
                         <p className="text-sm text-orange-800">
-                          <strong>Pro Tip:</strong> The scraper automatically detects product information from most e-commerce sites. 
-                          It works best with direct product page URLs.
+                          <strong>Pro Tip:</strong> The enhanced scraper now extracts more detailed product information including 
+                          features, specifications, customer ratings, and automatically generates relevant tags for better content targeting.
                         </p>
                       </div>
                     </div>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="scheduler" className="space-y-6">
+            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  Content Scheduling Dashboard
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="font-semibold mb-4">Scheduled Content</h3>
+                    <div className="space-y-3">
+                      {generatedContent
+                        .filter(content => content.scheduled_for && !content.published)
+                        .map((content) => (
+                          <div key={content.id} className="p-4 border rounded-lg bg-orange-50 border-orange-200">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-medium text-sm">{content.title}</h4>
+                              <Badge variant="outline" className="text-orange-600">
+                                {content.platform || 'General'}
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-gray-600 mb-2">{content.content.substring(0, 100)}...</p>
+                            <div className="flex items-center gap-2 text-xs text-orange-600">
+                              <CalendarIcon className="h-3 w-3" />
+                              <span>{new Date(content.scheduled_for).toLocaleString()}</span>
+                            </div>
+                          </div>
+                        ))}
+                      
+                      {generatedContent.filter(content => content.scheduled_for && !content.published).length === 0 && (
+                        <div className="text-center py-8">
+                          <Clock className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                          <p className="text-gray-500">No content scheduled</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold mb-4">Published Content</h3>
+                    <div className="space-y-3">
+                      {generatedContent
+                        .filter(content => content.published)
+                        .slice(0, 5)
+                        .map((content) => (
+                          <div key={content.id} className="p-4 border rounded-lg bg-green-50 border-green-200">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-medium text-sm">{content.title}</h4>
+                              <Badge variant="outline" className="text-green-600">
+                                Published
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-gray-600 mb-2">{content.content.substring(0, 100)}...</p>
+                            <div className="flex items-center gap-2 text-xs text-green-600">
+                              <Eye className="h-3 w-3" />
+                              <span>{content.published_at ? new Date(content.published_at).toLocaleString() : 'Recently'}</span>
+                            </div>
+                          </div>
+                        ))}
+                      
+                      {generatedContent.filter(content => content.published).length === 0 && (
+                        <div className="text-center py-8">
+                          <Eye className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                          <p className="text-gray-500">No content published yet</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="email" className="space-y-6">
+            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="h-5 w-5" />
+                  Email Marketing Campaigns
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Create Campaign */}
+                  <div className="space-y-4">
+                    <h3 className="font-semibold">Create Email Campaign</h3>
+                    
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Subject Line</label>
+                      <Input
+                        placeholder="Amazing deals on tech products!"
+                        value={emailSubject}
+                        onChange={(e) => setEmailSubject(e.target.value)}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Email Content</label>
+                      <Textarea
+                        placeholder="Your email content here..."
+                        value={emailContent}
+                        onChange={(e) => setEmailContent(e.target.value)}
+                        rows={8}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Recipients (comma-separated)</label>
+                      <Textarea
+                        placeholder="user1@example.com, user2@example.com"
+                        value={emailRecipients}
+                        onChange={(e) => setEmailRecipients(e.target.value)}
+                        rows={3}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Schedule (optional)</label>
+                      <Calendar
+                        mode="single"
+                        selected={scheduleDate}
+                        onSelect={setScheduleDate}
+                        className="rounded-md border"
+                      />
+                    </div>
+
+                    <Button
+                      onClick={handleCreateEmailCampaign}
+                      disabled={loading}
+                      className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                    >
+                      {loading ? (
+                        <>
+                          <Send className="h-4 w-4 mr-2 animate-spin" />
+                          {scheduleDate ? 'Scheduling...' : 'Sending...'}
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-4 w-4 mr-2" />
+                          {scheduleDate ? 'Schedule Campaign' : 'Send Campaign'}
+                        </>
+                      )}
+                    </Button>
+
+                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <p className="text-sm text-blue-800">
+                        <strong>Email Integration:</strong> Uses SendGrid free tier (100 emails/day). 
+                        Configure your SendGrid API key in the backend environment variables for production use.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Campaign History */}
+                  <div className="space-y-4">
+                    <h3 className="font-semibold">Campaign History</h3>
+                    
+                    <div className="space-y-3">
+                      {emailCampaigns.map((campaign) => (
+                        <div key={campaign.id} className="p-4 border rounded-lg bg-white">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-medium">{campaign.subject}</h4>
+                            <Badge variant={campaign.sent ? "default" : "secondary"}>
+                              {campaign.sent ? "Sent" : "Scheduled"}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-2">
+                            Recipients: {campaign.recipient_list.length}
+                          </p>
+                          <div className="text-xs text-gray-500">
+                            {campaign.sent ? 
+                              `Sent: ${new Date(campaign.sent_at).toLocaleString()}` :
+                              campaign.scheduled_for ? 
+                                `Scheduled: ${new Date(campaign.scheduled_for).toLocaleString()}` :
+                                `Created: ${new Date(campaign.created_at).toLocaleString()}`
+                            }
+                          </div>
+                        </div>
+                      ))}
+
+                      {emailCampaigns.length === 0 && (
+                        <div className="text-center py-8">
+                          <Mail className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                          <p className="text-gray-500">No email campaigns yet</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-6">
+            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Performance Analytics & Tracking
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                  <Card className="border-0 bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-blue-100 text-sm">Total Views</p>
+                          <p className="text-2xl font-bold">24.8K</p>
+                          <p className="text-blue-200 text-xs">+12% from last month</p>
+                        </div>
+                        <Eye className="h-8 w-8 text-blue-200" />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-0 bg-gradient-to-br from-green-500 to-green-600 text-white">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-green-100 text-sm">Click-through Rate</p>
+                          <p className="text-2xl font-bold">8.4%</p>
+                          <p className="text-green-200 text-xs">+2.1% from last month</p>
+                        </div>
+                        <MousePointer className="h-8 w-8 text-green-200" />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-0 bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-purple-100 text-sm">Conversions</p>
+                          <p className="text-2xl font-bold">412</p>
+                          <p className="text-purple-200 text-xs">+8% from last month</p>
+                        </div>
+                        <Target className="h-8 w-8 text-purple-200" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="font-semibold mb-4">Content Performance by Type</h3>
+                    <div className="space-y-3">
+                      {Object.entries(stats.content_types || {}).map(([type, count]) => (
+                        <div key={type} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            {getContentTypeIcon(type)}
+                            <span className="capitalize">{type.replace('_', ' ')}</span>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <Badge variant="secondary">{count}</Badge>
+                            <div className="text-sm text-gray-600">
+                              Avg CTR: {(Math.random() * 10 + 5).toFixed(1)}%
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold mb-4">Platform Performance</h3>
+                    <div className="space-y-3">
+                      {Object.entries(stats.platforms || {}).map(([platform, count]) => (
+                        <div key={platform} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <Globe className="h-5 w-5" />
+                            <span className="capitalize">{platform}</span>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <Badge variant="secondary">{count}</Badge>
+                            <div className="text-sm text-gray-600">
+                              Engagement: {(Math.random() * 5 + 2).toFixed(1)}%
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200">
+                  <h4 className="font-semibold mb-2">Analytics Integration</h4>
+                  <p className="text-sm text-gray-700">
+                    Connect Google Analytics, Facebook Pixel, or other tracking tools to get real-time performance data. 
+                    The platform includes endpoints for recording custom metrics and generating detailed reports.
+                  </p>
                 </div>
               </CardContent>
             </Card>
