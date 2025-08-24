@@ -181,6 +181,25 @@ function App() {
     setLoading(true);
     try {
       const urls = urlsToSave.split('\n').filter(url => url.trim());
+      
+      if (urls.length === 0) {
+        toast({
+          title: "Error",
+          description: "No valid URLs found",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Show progress for large batches
+      if (urls.length > 20) {
+        toast({
+          title: "Processing Large Batch",
+          description: `Processing ${urls.length} URLs... This may take a few minutes.`,
+          duration: 5000
+        });
+      }
+
       const response = await axios.post(`${API}/saved-urls/bulk`, {
         urls: urls,
         category: urlCategory,
@@ -189,8 +208,9 @@ function App() {
       });
       
       toast({
-        title: "Success",
-        description: `Saved ${response.data.length} URLs to your queue`
+        title: "Success! 🎉",
+        description: `Successfully saved ${response.data.length} URLs to your queue! ${urls.length > response.data.length ? `(${urls.length - response.data.length} duplicates skipped)` : ''}`,
+        duration: 6000
       });
       
       setUrlsToSave('');
@@ -200,10 +220,12 @@ function App() {
       fetchSavedUrls();
       fetchStats();
     } catch (error) {
+      const errorMessage = error.response?.data?.detail || error.message || "Failed to save URLs";
       toast({
         title: "Error",
-        description: "Failed to save URLs",
-        variant: "destructive"
+        description: `${errorMessage}. Please try with fewer URLs or check your internet connection.`,
+        variant: "destructive",
+        duration: 8000
       });
     } finally {
       setLoading(false);
