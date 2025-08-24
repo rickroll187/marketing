@@ -1,173 +1,103 @@
-import gtag from 'gtag';
-import ReactPixel from 'react-facebook-pixel';
-
-// Analytics Configuration
+// Google Analytics 4 - Direct Implementation (No external packages needed)
 const GA_MEASUREMENT_ID = process.env.REACT_APP_GA_MEASUREMENT_ID;
-const FACEBOOK_PIXEL_ID = process.env.REACT_APP_FACEBOOK_PIXEL_ID;
 
-// Initialize Google Analytics
+// Load Google Analytics script
 export const initGA = () => {
   if (GA_MEASUREMENT_ID) {
-    gtag('config', GA_MEASUREMENT_ID, {
-      page_title: 'Affiliate Marketing Platform',
-      page_location: window.location.href,
-    });
+    // Add Google Analytics script to head
+    const script1 = document.createElement('script');
+    script1.async = true;
+    script1.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+    document.head.appendChild(script1);
+
+    // Add gtag configuration
+    const script2 = document.createElement('script');
+    script2.innerHTML = `
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '${GA_MEASUREMENT_ID}');
+    `;
+    document.head.appendChild(script2);
+    
+    // Make gtag available globally
+    window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};
+    
     console.log('✅ Google Analytics initialized:', GA_MEASUREMENT_ID);
   } else {
     console.warn('⚠️ Google Analytics ID not found in environment variables');
   }
 };
 
-// Initialize Facebook Pixel
+// Initialize Facebook Pixel (simplified - no external package)
 export const initFacebookPixel = () => {
-  if (FACEBOOK_PIXEL_ID) {
-    ReactPixel.init(FACEBOOK_PIXEL_ID, {
-      autoConfig: true,
-      debug: false,
-    });
-    ReactPixel.pageView();
-    console.log('✅ Facebook Pixel initialized:', FACEBOOK_PIXEL_ID);
-  } else {
-    console.warn('⚠️ Facebook Pixel ID not found in environment variables');
-  }
+  // Skip Facebook for now since it's causing issues
+  console.log('🚫 Facebook Pixel skipped');
 };
 
 // Google Analytics Event Tracking
 export const trackEvent = (action, category, label, value) => {
-  gtag('event', action, {
-    event_category: category,
-    event_label: label,
-    value: value,
-  });
+  if (window.gtag) {
+    window.gtag('event', action, {
+      event_category: category,
+      event_label: label,
+      value: value,
+    });
+  }
 };
 
-// Facebook Pixel Event Tracking
-export const trackPixelEvent = (event, parameters = {}) => {
-  ReactPixel.track(event, parameters);
-};
-
-// Affiliate Marketing Specific Events
+// Simplified tracking functions
 export const trackProductView = (product) => {
-  // Google Analytics
   trackEvent('view_item', 'product', product.name, product.price);
-  
-  // Facebook Pixel
-  trackPixelEvent('ViewContent', {
-    content_name: product.name,
-    content_category: product.category,
-    content_ids: [product.id],
-    content_type: 'product',
-    value: product.price,
-    currency: 'USD',
-  });
 };
 
 export const trackProductClick = (product) => {
-  // Google Analytics
-  trackEvent('select_content', 'product_click', product.name, product.price);
-  
-  // Facebook Pixel
-  trackPixelEvent('AddToWishlist', {
-    content_name: product.name,
-    content_category: product.category,
-    content_ids: [product.id],
-    value: product.price,
-    currency: 'USD',
-  });
+  trackEvent('click', 'affiliate_link', product.name, product.price);
 };
 
 export const trackContentGeneration = (contentType, productName) => {
-  // Google Analytics
-  trackEvent('generate_content', 'content_creation', `${contentType}_${productName}`);
-  
-  // Facebook Pixel
-  trackPixelEvent('CompleteRegistration', {
-    content_name: `Generated ${contentType}`,
-    content_category: 'content_creation',
-  });
+  trackEvent('generate_content', 'ai', `${contentType}_${productName}`);
 };
 
 export const trackEmailCampaign = (campaignName, recipientCount) => {
-  // Google Analytics
-  trackEvent('email_sent', 'email_marketing', campaignName, recipientCount);
-  
-  // Facebook Pixel
-  trackPixelEvent('Contact', {
-    content_name: campaignName,
-    value: recipientCount,
-  });
+  trackEvent('email_sent', 'marketing', campaignName, recipientCount);
 };
 
 export const trackSocialPost = (platform, contentType) => {
-  // Google Analytics
-  trackEvent('social_post', 'social_media', `${platform}_${contentType}`);
-  
-  // Facebook Pixel
-  trackPixelEvent('Share', {
-    content_name: `${platform} post`,
-    content_category: contentType,
-  });
+  trackEvent('social_post', 'marketing', `${platform}_${contentType}`);
 };
 
 export const trackPriceAlert = (productName, oldPrice, newPrice) => {
   const savings = oldPrice - newPrice;
-  
-  // Google Analytics
-  trackEvent('price_alert', 'price_tracking', productName, savings);
-  
-  // Facebook Pixel
-  trackPixelEvent('Purchase', {
-    content_name: productName,
-    value: savings,
-    currency: 'USD',
-  });
+  trackEvent('price_alert', 'automation', productName, savings);
 };
 
 export const trackCompetitorAnalysis = (competitorCount) => {
-  // Google Analytics
-  trackEvent('competitor_analysis', 'intelligence', 'competitors_analyzed', competitorCount);
-  
-  // Facebook Pixel
-  trackPixelEvent('Search', {
-    search_string: 'competitor_analysis',
-    content_category: 'business_intelligence',
-  });
+  trackEvent('competitor_analysis', 'intelligence', 'analysis_complete', competitorCount);
 };
 
-// Page View Tracking
 export const trackPageView = (pageName) => {
-  // Google Analytics
-  gtag('config', GA_MEASUREMENT_ID, {
-    page_title: pageName,
-    page_location: window.location.href,
-  });
-  
-  // Facebook Pixel
-  ReactPixel.pageView();
+  if (window.gtag) {
+    window.gtag('config', GA_MEASUREMENT_ID, {
+      page_title: pageName,
+      page_location: window.location.href,
+    });
+  }
 };
 
-// Conversion Tracking (for affiliate link clicks)
 export const trackConversion = (product, conversionValue) => {
-  // Google Analytics Enhanced Ecommerce
-  gtag('event', 'purchase', {
-    transaction_id: `affiliate_${product.id}_${Date.now()}`,
-    value: conversionValue,
-    currency: 'USD',
-    items: [{
-      item_id: product.id,
-      item_name: product.name,
-      category: product.category,
-      quantity: 1,
-      price: conversionValue,
-    }],
-  });
-  
-  // Facebook Pixel Conversion
-  trackPixelEvent('Purchase', {
-    content_name: product.name,
-    content_ids: [product.id],
-    content_type: 'product',
-    value: conversionValue,
-    currency: 'USD',
-  });
+  if (window.gtag) {
+    window.gtag('event', 'purchase', {
+      transaction_id: `affiliate_${product.id}_${Date.now()}`,
+      value: conversionValue,
+      currency: 'USD',
+      items: [{
+        item_id: product.id,
+        item_name: product.name,
+        category: product.category,
+        quantity: 1,
+        price: conversionValue,
+      }],
+    });
+  }
 };
