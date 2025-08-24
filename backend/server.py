@@ -1550,6 +1550,43 @@ async def get_stats():
         "platforms": {item["_id"] or "general": item["count"] for item in platform_stats}
     }
 
+@api_router.delete("/cleanup/all-data")
+async def cleanup_all_data():
+    """NUCLEAR OPTION: Remove ALL data from database"""
+    try:
+        # Remove ALL products
+        products_result = await db.products.delete_many({})
+        
+        # Remove ALL URLs
+        urls_result = await db.saved_urls.delete_many({})
+        
+        # Remove ALL generated content
+        content_result = await db.generated_content.delete_many({})
+        
+        # Remove ALL email campaigns
+        email_result = await db.email_campaigns.delete_many({})
+        
+        # Remove ALL social posts
+        social_result = await db.social_posts.delete_many({})
+        
+        # Remove ALL content studio items
+        studio_result = await db.content_studio.delete_many({})
+        
+        # Remove ALL price alerts
+        alerts_result = await db.price_alerts.delete_many({})
+        
+        # Remove ALL competitor analysis
+        competitor_result = await db.competitor_analysis.delete_many({})
+        
+        # Remove ALL automation workflows
+        workflow_result = await db.automation_workflows.delete_many({})
+        
+        return {
+            "message": f"🔥 COMPLETE CLEANUP: {products_result.deleted_count} products, {urls_result.deleted_count} URLs, {content_result.deleted_count} content pieces, {email_result.deleted_count} emails, {social_result.deleted_count} social posts DELETED!"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Cleanup failed: {str(e)}")
+
 @api_router.delete("/cleanup/test-data")
 async def cleanup_test_data():
     """Remove test/demo data from database"""
