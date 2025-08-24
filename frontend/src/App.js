@@ -272,6 +272,230 @@ function App() {
     }
   };
 
+  // =====================================================
+  // NEW FETCH FUNCTIONS FOR COMPETITIVE FEATURES
+  // =====================================================
+
+  const fetchPriceAlerts = async () => {
+    try {
+      const response = await axios.get(`${API}/price-tracker/alerts`);
+      setPriceAlerts(response.data);
+    } catch (error) {
+      console.error('Failed to fetch price alerts');
+    }
+  };
+
+  const fetchAdvancedAnalytics = async () => {
+    try {
+      const response = await axios.get(`${API}/advanced-analytics/dashboard`);
+      setPerformanceData(response.data);
+    } catch (error) {
+      console.error('Failed to fetch advanced analytics');
+    }
+  };
+
+  const fetchSocialPosts = async () => {
+    try {
+      const response = await axios.get(`${API}/social-automation/posts`);
+      setSocialPosts(response.data);
+    } catch (error) {
+      console.error('Failed to fetch social posts');
+    }
+  };
+
+  const fetchContentStudioItems = async () => {
+    try {
+      const response = await axios.get(`${API}/content-studio/items`);
+      setVoiceScripts(response.data.filter(item => item.content_type === 'voice_script'));
+      setVideoScripts(response.data.filter(item => item.content_type === 'video_script'));
+      setPersonalizedContent(response.data.filter(item => item.content_type === 'personalized_content'));
+    } catch (error) {
+      console.error('Failed to fetch content studio items');
+    }
+  };
+
+  const fetchCompetitorAnalysis = async () => {
+    try {
+      const response = await axios.get(`${API}/competitor-intel/analysis`);
+      setCompetitorData(response.data);
+    } catch (error) {
+      console.error('Failed to fetch competitor analysis');
+    }
+  };
+
+  const fetchAutomationWorkflows = async () => {
+    try {
+      const response = await axios.get(`${API}/smart-workflows/workflows`);
+      setAutomationRules(response.data);
+    } catch (error) {
+      console.error('Failed to fetch automation workflows');
+    }
+  };
+
+  // =====================================================
+  // NEW ACTION HANDLERS FOR COMPETITIVE FEATURES
+  // =====================================================
+
+  const handleCreatePriceAlert = async (productId, threshold) => {
+    try {
+      await axios.post(`${API}/price-tracker/alerts`, {
+        product_id: productId,
+        threshold_percentage: threshold,
+        alert_type: 'decrease'
+      });
+      
+      toast({
+        title: "Success! 🎯",
+        description: "Price alert created successfully",
+        duration: 4000
+      });
+      
+      fetchPriceAlerts();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create price alert",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleGenerateVoiceScript = async (productId) => {
+    setLoading(true);
+    try {
+      const response = await axios.post(`${API}/content-studio/generate-voice-script`, {
+        product_id: productId,
+        duration: 60
+      });
+      
+      toast({
+        title: "Success! 🎙️",
+        description: "Voice script generated successfully",
+        duration: 4000
+      });
+      
+      fetchContentStudioItems();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate voice script",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateVideoScript = async (productId, videoType = 'review') => {
+    setLoading(true);
+    try {
+      const response = await axios.post(`${API}/content-studio/generate-video-script`, {
+        product_id: productId,
+        video_type: videoType
+      });
+      
+      toast({
+        title: "Success! 🎬",
+        description: "Video script generated successfully",
+        duration: 4000
+      });
+      
+      fetchContentStudioItems();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate video script",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAutoGenerateSocialContent = async (productId, platforms) => {
+    setLoading(true);
+    try {
+      const response = await axios.post(`${API}/social-automation/auto-generate`, {
+        product_id: productId,
+        platforms: platforms
+      });
+      
+      toast({
+        title: "Success! 📱",
+        description: `Generated content for ${platforms.length} platforms`,
+        duration: 4000
+      });
+      
+      fetchSocialPosts();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate social content",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAnalyzeCompetitors = async () => {
+    if (!competitorUrls.trim()) {
+      toast({
+        title: "Error",
+        description: "Please provide competitor URLs",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const urls = competitorUrls.split('\n').filter(url => url.trim());
+      const response = await axios.post(`${API}/competitor-intel/analyze`, urls);
+      
+      toast({
+        title: "Success! 🕵️",
+        description: `Analyzed ${urls.length} competitors successfully`,
+        duration: 4000
+      });
+      
+      setCompetitorUrls('');
+      fetchCompetitorAnalysis();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to analyze competitors",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCheckAllPrices = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(`${API}/price-tracker/check-prices`);
+      
+      toast({
+        title: "Success! 💰",
+        description: response.data.message,
+        duration: 4000
+      });
+      
+      fetchProducts();
+      fetchPriceAlerts();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to check prices",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSaveUrls = async () => {
     if (!urlsToSave.trim() || !urlCategory.trim()) {
       toast({
