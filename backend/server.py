@@ -234,22 +234,51 @@ async def scrape_product_data(url: str, category: str) -> Optional[Dict[str, Any
         return None
 
 def extract_original_price(soup):
-    """Extract original price before discount"""
+    """Extract original price before discount - ENHANCED"""
     selectors = [
+        # Amazon specific
+        '.a-text-strike .a-offscreen',
+        '.a-price.a-text-strike .a-offscreen',
+        '.a-price-was .a-offscreen',
+        
+        # Generic selectors
         '.price-original',
-        '.original-price',
+        '.original-price', 
         '.was-price',
         '.list-price',
-        '[data-testid="original-price"]'
+        '.price-before',
+        '.price-strike',
+        '.price-was',
+        '[data-testid="original-price"]',
+        '[data-testid="list-price"]',
+        '.price .strike',
+        '.price .crossed-out',
+        
+        # Strikethrough prices
+        '.price del',
+        '.price s',
+        'del.price',
+        's.price',
+        
+        # Microdata
+        '[itemprop="highPrice"]',
+        '[itemprop="listPrice"]'
     ]
     
     for selector in selectors:
-        element = soup.select_one(selector)
-        if element:
-            price_text = element.get_text().strip()
-            price_match = re.search(r'[\d,]+\.?\d*', price_text.replace(',', ''))
-            if price_match:
-                return float(price_match.group())
+        try:
+            element = soup.select_one(selector)
+            if element:
+                price_text = element.get_text().strip()
+                # Remove currency symbols
+                price_text = price_text.replace('$', '').replace(',', '').replace('USD', '').strip()
+                price_match = re.search(r'(\d+(?:\.\d{2})?)', price_text)
+                if price_match:
+                    original_price = float(price_match.group(1))
+                    if original_price > 0 and original_price < 100000:
+                        return original_price
+        except:
+            continue
     return None
 
 def extract_tags(soup, category):
