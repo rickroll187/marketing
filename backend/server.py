@@ -166,6 +166,74 @@ class ScrapeRequest(BaseModel):
     urls: List[str]
     category: str
 
+# New Advanced Models for Competitive Features
+class PriceAlert(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    product_id: str
+    threshold_percentage: float
+    alert_type: str  # 'decrease', 'increase', 'any'
+    is_active: bool = True
+    created_at: datetime = Field(default_factory=datetime.now)
+    last_triggered: Optional[datetime] = None
+
+class PriceHistory(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    product_id: str
+    price: float
+    original_price: Optional[float] = None
+    timestamp: datetime = Field(default_factory=datetime.now)
+    source: str
+
+class AdvancedAnalytics(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    date: datetime = Field(default_factory=datetime.now)
+    conversion_rate: float
+    revenue: float
+    roi_percentage: float
+    click_through_rate: float
+    engagement_rate: float
+    top_performing_products: List[str] = []
+    traffic_sources: Dict[str, int] = {}
+
+class SocialPost(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    content: str
+    platforms: List[str]
+    hashtags: List[str] = []
+    scheduled_for: Optional[datetime] = None
+    posted_at: Optional[datetime] = None
+    status: str = "draft"  # draft, scheduled, posted, failed
+    engagement_metrics: Dict[str, Any] = {}
+
+class ContentStudioItem(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    content: str
+    content_type: str  # voice_script, video_script, personalized_content
+    target_audience: Optional[str] = None
+    duration: Optional[int] = None  # for video/audio scripts
+    created_at: datetime = Field(default_factory=datetime.now)
+
+class CompetitorAnalysis(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    competitor_url: str
+    competitor_name: str
+    products_analyzed: int
+    avg_pricing: float
+    content_gaps: List[str] = []
+    pricing_advantages: List[Dict[str, Any]] = []
+    last_analyzed: datetime = Field(default_factory=datetime.now)
+
+class AutomationWorkflow(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    trigger_type: str  # price_drop, new_product, schedule
+    trigger_conditions: Dict[str, Any]
+    actions: List[Dict[str, Any]]
+    is_active: bool = True
+    created_at: datetime = Field(default_factory=datetime.now)
+    last_executed: Optional[datetime] = None
+
 # URL Preview Function
 async def get_url_preview(url: str) -> Dict[str, Any]:
     """Get basic preview info from URL without full scraping"""
