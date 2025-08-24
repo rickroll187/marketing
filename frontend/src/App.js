@@ -303,10 +303,12 @@ function App() {
       const response = await axios.post(`${API}/saved-urls/scrape-selected`);
       
       toast({
-        title: "Success",
-        description: response.data.message
+        title: "Success! 🎉",
+        description: response.data.message,
+        duration: 6000
       });
       
+      // Update data WITHOUT changing tabs - stay in current tab
       fetchSavedUrls();
       fetchProducts();
       fetchStats();
