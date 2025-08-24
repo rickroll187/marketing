@@ -411,8 +411,9 @@ function App() {
       const response = await axios.post(`${API}/generate-content`, requestData);
       
       toast({
-        title: "Success",
-        description: `Generated ${response.data.generated_content.length} pieces of content`
+        title: "Success! 🎉",
+        description: `Generated ${response.data.generated_content.length} pieces of content`,
+        duration: 6000
       });
       
       // Reset form
@@ -422,6 +423,7 @@ function App() {
       setSeason('');
       setTutorialFocus('');
       
+      // Update data WITHOUT changing tabs - stay where you are
       fetchGeneratedContent();
       fetchStats();
     } catch (error) {
