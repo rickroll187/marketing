@@ -18,6 +18,7 @@ import {
 import StableInput from './StableInput';
 import NativeInput from './NativeInput';
 import IsolatedInput from './IsolatedInput';
+import PureInput from './PureInput';
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
