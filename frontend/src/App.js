@@ -2104,7 +2104,7 @@ https://www.newegg.com/..."
                       <Input
                         placeholder="Amazing deals on tech products!"
                         value={emailSubject}
-                        onChange={(e) => setEmailSubject(e.target.value)}
+                        onChange={handleInputChange(setEmailSubject)}
                       />
                     </div>
 
