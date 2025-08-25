@@ -155,4 +155,4 @@ const FocusSafeInput = ({
   );
 };
 
-export default FocusSafeInput;
+export default React.memo(FocusSafeInput, () => true); // NEVER re-render this component
