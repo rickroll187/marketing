@@ -2920,7 +2920,7 @@ https://affiliate-site.com"
                         <Input
                           placeholder="laptop, smartphone, headphones..."
                           value={rakutenKeyword}
-                          onChange={(e) => setRakutenKeyword(e.target.value)}
+                          onChange={handleInputChange(setRakutenKeyword)}
                         />
                       </div>
                       
