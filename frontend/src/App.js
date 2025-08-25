@@ -2791,7 +2791,7 @@ https://www.newegg.com/..."
 https://competitor2.com/products
 https://affiliate-site.com"
                       value={competitorUrls}
-                      onChange={(e) => setCompetitorUrls(e.target.value)}
+                      onChange={handleInputChange(setCompetitorUrls)}
                       rows={6}
                       className="font-mono text-sm"
                     />
