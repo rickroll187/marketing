@@ -2113,7 +2113,7 @@ https://www.newegg.com/..."
                       <Textarea
                         placeholder="Your email content here..."
                         value={emailContent}
-                        onChange={(e) => setEmailContent(e.target.value)}
+                        onChange={handleInputChange(setEmailContent)}
                         rows={8}
                       />
                     </div>
