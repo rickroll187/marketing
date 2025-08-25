@@ -315,6 +315,39 @@ function App() {
     };
   }, []);
 
+  // Stable checkbox handlers for content types
+  const handleContentTypeChange = useCallback((type) => {
+    return (e) => {
+      if (e.target.checked) {
+        setContentTypes(prev => [...prev, type]);
+      } else {
+        setContentTypes(prev => prev.filter(t => t !== type));
+      }
+    };
+  }, []);
+
+  // Stable checkbox handlers for platforms
+  const handlePlatformChange = useCallback((platform) => {
+    return (e) => {
+      if (e.target.checked) {
+        setPlatforms(prev => [...prev, platform]);
+      } else {
+        setPlatforms(prev => prev.filter(p => p !== platform));
+      }
+    };
+  }, []);
+
+  // Stable checkbox handlers for social platforms
+  const handleSocialPlatformChange = useCallback((platform) => {
+    return (e) => {
+      if (e.target.checked) {
+        setSelectedSocialPlatforms(prev => [...prev, platform.toLowerCase()]);
+      } else {
+        setSelectedSocialPlatforms(prev => prev.filter(p => p !== platform.toLowerCase()));
+      }
+    };
+  }, []);
+
   const fetchPriceAlerts = async () => {
     try {
       const response = await axios.get(`${API}/price-tracker/alerts`);
