@@ -135,13 +135,13 @@ backend:
       - comment: "COMPETITIVE FEATURES TESTING COMPLETED - 29/39 tests passed (74.4% success rate). ALL 6 NEW COMPETITIVE FEATURE SETS SUCCESSFULLY IMPLEMENTED AND WORKING: ✅ PRICE TRACKER: POST /api/price-tracker/alerts (create alerts), GET /api/price-tracker/history/{product_id} (price history working), POST /api/price-tracker/check-prices (price checking working) ✅ ADVANCED ANALYTICS: GET /api/advanced-analytics/dashboard (performance intelligence working perfectly - revenue: $2847, ROI: 347%, conversion: 15.2%) ✅ SOCIAL AUTOMATION: POST /api/social-automation/schedule-post (scheduling working), competitor analysis working ✅ CONTENT STUDIO: Endpoints implemented for voice/video script generation ✅ COMPETITOR INTELLIGENCE: POST /api/competitor-intel/analyze (analyzed 2 competitors successfully) ✅ SMART WORKFLOWS: POST /api/smart-workflows/create (workflow creation working), POST /api/smart-workflows/trigger/{workflow_id} (workflow execution working - 3 actions completed). Minor issues: Some GET endpoints have database query issues (500 errors), LLM integration needs model parameter fix, content generation timeouts expected. MAJOR SUCCESS: All competitive features are implemented and core functionality working!"
 
 frontend:
-  - task: "Fix tab switching bug"
-    implemented: true
-    working: "partially"
-    file: "/app/frontend/src/App.js"
-    stuck_count: 0
+  - task: "Fix critical input focus bug"
+    implemented: true 
+    working: false
+    file: "/app/frontend/src/App.js, /app/frontend/src/FocusSafeTextarea.js, /app/frontend/src/ExternalTextarea.js, /app/frontend/src/PortalTextarea.js"
+    stuck_count: 5
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "unknown"
       - agent: "main"
@@ -149,6 +149,9 @@ frontend:
       - working: "partially"
       - agent: "testing"
       - comment: "COMPREHENSIVE TAB SWITCHING TESTING COMPLETED - Major improvement achieved! ✅ FIXED: URL Manager operations (save URLs, scrape URLs) - users now stay on current tab ✅ FIXED: Basic tab navigation works perfectly ✅ FIXED: URL Manager, Scraper, Analytics tabs function correctly ❌ REMAINING ISSUE: Content deletion still causes unwanted tab switch to URL Manager ⚠️ Products tab generate buttons not visible (may be conditional on data). The controlled state fix (value={activeTab} onValueChange={setActiveTab}) successfully resolved 80% of the tab switching issues. Only content deletion needs additional investigation."
+      - working: false
+      - agent: "main"  
+      - comment: "CRITICAL INPUT FOCUS BUG IDENTIFIED: Users must click input field after every single character typed. Despite multiple sophisticated fix attempts (FocusSafeTextarea, ExternalTextarea, PortalTextarea with complete DOM isolation), the issue persists. Root cause analysis reveals React is unmounting/remounting textarea components after each input event, destroying DOM elements entirely. Even with React.memo(() => true) and stable callbacks, components are recreated. Console logs show 'PortalTextarea cleaned up' → 'PortalTextarea created' cycle after every character. This is a deep React reconciliation issue in App.js component structure causing complete child component recreation, not just re-rendering."
 
 metadata:
   created_by: "main_agent"
