@@ -2303,7 +2303,7 @@ https://www.newegg.com/..."
                         type="number"
                         placeholder="10"
                         value={alertThreshold}
-                        onChange={(e) => setAlertThreshold(e.target.value)}
+                        onChange={handleInputChange(setAlertThreshold)}
                       />
                     </div>
                     <div>
