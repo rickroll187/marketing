@@ -106,6 +106,10 @@ function App() {
   const [stats, setStats] = useState({});
   const [analytics, setAnalytics] = useState({});
   const [loading, setLoading] = useState(false);
+  const [urlSaveLoading, setUrlSaveLoading] = useState(false);
+  const [scrapeLoading, setScrapeLoading] = useState(false);
+  const [contentLoading, setContentLoading] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   
   // Tab state management
