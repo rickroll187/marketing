@@ -2097,16 +2097,16 @@ async def execute_workflow_action(action: Dict[str, Any], context: Dict[str, Any
 
 @api_router.get("/rakuten/test-connection")
 async def test_rakuten_connection():
-    """Test REAL Rakuten API connection with Web Service Token"""
+    """Test REAL Rakuten API connection with proper API access token generation"""
     try:
         rakuten_client = RakutenAPIClient()
         is_connected = await rakuten_client.test_connection()
         return {
             "connected": is_connected,
-            "message": "✅ REAL Rakuten API connected with Web Service Token!" if is_connected else "❌ Rakuten API connection failed",
+            "message": "✅ REAL Rakuten API connected with proper API access token!" if is_connected else "❌ Rakuten API connection failed",
             "account": "TalkTech",
             "sid": "4574344",
-            "token_configured": bool(rakuten_client.web_service_token)
+            "credentials_configured": bool(rakuten_client.client_id and rakuten_client.client_secret)
         }
     except Exception as e:
         return {
