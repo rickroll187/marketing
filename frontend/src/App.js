@@ -834,7 +834,7 @@ function App() {
         variant: "destructive"
       });
     } finally {
-      setLoading(false);
+      setScrapeLoading(false);
     }
   };
 
