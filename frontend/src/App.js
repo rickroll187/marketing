@@ -1644,13 +1644,7 @@ Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
                                                 <input
                                                   type="checkbox"
                                                   checked={platforms.includes(platform)}
-                                                  onChange={(e) => {
-                                                    if (e.target.checked) {
-                                                      setPlatforms([...platforms, platform]);
-                                                    } else {
-                                                      setPlatforms(platforms.filter(p => p !== platform));
-                                                    }
-                                                  }}
+                                                  onChange={handlePlatformChange(platform)}
                                                   className="rounded"
                                                 />
                                                 <span className="text-sm capitalize">{platform}</span>
