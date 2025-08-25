@@ -2948,7 +2948,7 @@ https://affiliate-site.com"
                             type="number"
                             placeholder="0"
                             value={rakutenMinPrice}
-                            onChange={(e) => setRakutenMinPrice(e.target.value)}
+                            onChange={handleInputChange(setRakutenMinPrice)}
                           />
                         </div>
                         <div>
