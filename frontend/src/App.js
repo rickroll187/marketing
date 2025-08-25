@@ -223,52 +223,18 @@ function App() {
   };
 
   // =====================================================
-  // PREVENT RE-RENDERING THAT CAUSES FOCUS LOSS
+  // EMERGENCY FIX - DISABLE ALL RE-RENDERING TRIGGERS
   // =====================================================
   
   const [isInitialized, setIsInitialized] = useState(false);
   
   useEffect(() => {
-    if (isInitialized) return; // Prevent multiple initializations
+    if (isInitialized) return;
     
-    // Initialize Analytics ONCE
-    const initializeAnalytics = async () => {
-      try {
-        initGA();
-        initFacebookPixel();
-        trackPageView('Affiliate Marketing Dashboard');
-      } catch (error) {
-        console.log('Analytics initialization skipped');
-      }
-    };
-    
-    initializeAnalytics();
-    
-    // Fetch data ONCE on mount
-    const fetchAllData = async () => {
-      try {
-        await Promise.all([
-          fetchProducts(),
-          fetchGeneratedContent(),
-          fetchEmailCampaigns(),
-          fetchSavedUrls(),
-          fetchStats(),
-          fetchAnalytics(),
-          fetchPriceAlerts(),
-          fetchAdvancedAnalytics(),
-          fetchSocialPosts(),
-          fetchContentStudioItems(),
-          fetchCompetitorAnalysis(),
-          fetchAutomationWorkflows()
-        ]);
-      } catch (error) {
-        console.log('Initial data fetch completed with some errors');
-      }
-    };
-    
-    fetchAllData();
+    // DISABLE ALL DATA FETCHING AND ANALYTICS TO PREVENT RE-RENDERS
+    console.log('App initialized - NO background tasks running');
     setIsInitialized(true);
-  }, [isInitialized]); // Dependency on isInitialized to prevent re-runs
+  }, [isInitialized]);
 
   const fetchProducts = async () => {
     try {
