@@ -693,7 +693,7 @@ function App() {
       return;
     }
 
-    setLoading(true);
+    setUrlSaveLoading(true);
     try {
       const urls = urlsToSave.split('\n').filter(url => url.trim());
       
