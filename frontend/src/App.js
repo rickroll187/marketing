@@ -2957,7 +2957,7 @@ https://affiliate-site.com"
                             type="number"
                             placeholder="1000"
                             value={rakutenMaxPrice}
-                            onChange={(e) => setRakutenMaxPrice(e.target.value)}
+                            onChange={handleInputChange(setRakutenMaxPrice)}
                           />
                         </div>
                       </div>
