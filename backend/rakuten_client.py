@@ -27,27 +27,30 @@ class RakutenAPIClient:
         self.token_expires_at = None
         
     async def _get_access_token(self) -> str:
-        """Get OAuth 2.0 access token using client credentials flow - FIXED for Rakuten"""
-        if not self.client_id or not self.client_secret:
+        """Get OAuth 2.0 access token using REAL Rakuten credentials"""
+        if not all([self.client_id, self.client_secret, self.username, self.password, self.sid]):
             raise ValueError("Rakuten API credentials not configured")
             
         if self.access_token and self.token_expires_at and datetime.now() < self.token_expires_at:
             return self.access_token
             
-        # FIX: Use correct Rakuten token endpoint
-        token_url = "https://api.linksynergy.com/token"
+        # REAL Rakuten token endpoint
+        token_url = f"{self.base_url}/token"
         
-        # FIX: Use proper Rakuten authentication format
+        # Base64 encode client credentials
+        credentials = f"{self.client_id}:{self.client_secret}"
+        encoded_credentials = base64.b64encode(credentials.encode()).decode()
+        
         headers = {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': 'application/json'
+            'Authorization': f'Basic {encoded_credentials}',
+            'Content-Type': 'application/x-www-form-urlencoded'
         }
         
         data = {
-            'grant_type': 'client_credentials',
-            'client_id': self.client_id,
-            'client_secret': self.client_secret,
-            'scope': 'product_search'
+            'grant_type': 'password',
+            'username': self.username,
+            'password': self.password,
+            'scope': self.sid  # Use SID as scope
         }
         
         try:
@@ -58,18 +61,18 @@ class RakutenAPIClient:
                 token_data = response.json()
                 self.access_token = token_data['access_token']
                 
-                # Calculate expiration time (subtract 5 minutes for safety)
+                # Calculate expiration time
                 expires_in = token_data.get('expires_in', 3600)
                 self.token_expires_at = datetime.now() + timedelta(seconds=expires_in - 300)
                 
-                logger.info("Successfully obtained Rakuten API access token")
+                logger.info(f"✅ Successfully obtained Rakuten access token for {self.username}")
                 return self.access_token
                 
         except httpx.HTTPStatusError as e:
-            logger.error(f"Failed to get access token: {e.response.status_code} - {e.response.text}")
+            logger.error(f"❌ Rakuten auth failed: {e.response.status_code} - {e.response.text}")
             raise Exception(f"Rakuten Authentication failed: {e.response.status_code}")
         except Exception as e:
-            logger.error(f"Error getting access token: {str(e)}")
+            logger.error(f"❌ Error getting access token: {str(e)}")
             raise
     
     async def _make_authenticated_request(self, method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
