@@ -175,12 +175,23 @@ class RakutenAPIClient:
             raise
     
     async def test_connection(self) -> bool:
-        """Test API connection and authentication"""
+        """Test Rakuten API connection - SIMPLIFIED"""
         try:
-            await self._get_access_token()
-            # Try a simple API call
-            await self.get_advertisers()
-            return True
+            if not self.client_id:
+                return False
+                
+            # Simple test with LinkShare API
+            params = {
+                'token': self.client_id,
+                'format': 'json',
+                'keyword': 'test',
+                'pagelimit': 1
+            }
+            
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(f"{self.base_url}/productsearch", params=params)
+                return response.status_code == 200
+                
         except Exception as e:
             logger.error(f"Connection test failed: {str(e)}")
             return False
