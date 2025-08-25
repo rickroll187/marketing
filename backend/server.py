@@ -26,6 +26,10 @@ from rakuten_client import rakuten_client, transform_rakuten_product
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
+# Debug: Print Rakuten credentials loading
+print(f"🔍 RAKUTEN_CLIENT_ID loaded: {os.environ.get('RAKUTEN_CLIENT_ID', 'NOT FOUND')}")
+print(f"🔍 RAKUTEN_CLIENT_SECRET loaded: {'YES' if os.environ.get('RAKUTEN_CLIENT_SECRET') else 'NO'}")
+
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
