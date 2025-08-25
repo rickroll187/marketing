@@ -1291,7 +1291,7 @@ function App() {
                     
                     <div>
                       <label className="text-sm font-medium mb-2 block">Product URLs (one per line) - ✨ UNLIMITED!</label>
-                      <Textarea
+                      <IsolatedInput
                         placeholder="https://www.amazon.com/product/...
 https://www.bestbuy.com/site/...
 https://www.newegg.com/...
@@ -1299,8 +1299,8 @@ https://www.newegg.com/...
 Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
                         value={urlsToSave}
                         onChange={handleInputChange(setUrlsToSave)}
-                        rows={8}
-                        className="font-mono text-sm"
+                        className="font-mono text-sm min-h-[100px]"
+                        as="textarea"
                       />
                       <p className="text-xs text-gray-600 mt-1">
                         💡 Pro tip: You can paste 100+ URLs at once! Large batches are processed efficiently in the background.
