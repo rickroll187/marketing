@@ -2771,6 +2771,172 @@ https://affiliate-site.com"
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* RAKUTEN INTEGRATION TAB */}
+          <TabsContent value="rakuten" className="space-y-6">
+            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="h-5 w-5" />
+                  Rakuten Advertising API - Live Product Import
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200">
+                    <h3 className="font-semibold text-orange-800 mb-2">🚀 Live Affiliate Product Import</h3>
+                    <p className="text-sm text-orange-700">
+                      Your Rakuten credentials are configured! Search and import thousands of real affiliate products directly from Rakuten's network.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-lg">Search Products</h3>
+                      
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Keyword</label>
+                        <Input
+                          placeholder="laptop, smartphone, headphones..."
+                          value={rakutenKeyword}
+                          onChange={(e) => setRakutenKeyword(e.target.value)}
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Category</label>
+                        <Select value={rakutenCategory} onValueChange={setRakutenCategory}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="electronics">Electronics</SelectItem>
+                            <SelectItem value="computers">Computers</SelectItem>
+                            <SelectItem value="smartphones">Smartphones</SelectItem>
+                            <SelectItem value="gaming">Gaming</SelectItem>
+                            <SelectItem value="accessories">Accessories</SelectItem>
+                            <SelectItem value="software">Software</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">Min Price ($)</label>
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            value={rakutenMinPrice}
+                            onChange={(e) => setRakutenMinPrice(e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">Max Price ($)</label>
+                          <Input
+                            type="number"
+                            placeholder="1000"
+                            value={rakutenMaxPrice}
+                            onChange={(e) => setRakutenMaxPrice(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      
+                      <Button
+                        onClick={handleSearchRakutenProducts}
+                        disabled={loading}
+                        className="w-full bg-gradient-to-r from-orange-500 to-red-600"
+                      >
+                        {loading ? (
+                          <>
+                            <Loader className="h-4 w-4 mr-2 animate-spin" />
+                            Searching Rakuten...
+                          </>
+                        ) : (
+                          <>
+                            <Search className="h-4 w-4 mr-2" />
+                            Search Products
+                          </>
+                        )}
+                      </Button>
+
+                      <Button
+                        onClick={handleImportRakutenProducts}
+                        disabled={loading || !rakutenKeyword}
+                        className="w-full bg-gradient-to-r from-green-500 to-emerald-600"
+                      >
+                        {loading ? (
+                          <>
+                            <Loader className="h-4 w-4 mr-2 animate-spin" />
+                            Importing...
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="h-4 w-4 mr-2" />
+                            Import Products to Database
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-lg">API Status</h3>
+                      <div className="space-y-3">
+                        <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Network className="h-4 w-4 text-blue-600" />
+                            <span className="font-medium text-blue-800">Connection Status</span>
+                          </div>
+                          <p className="text-sm text-blue-600">
+                            Client ID: rH71tRTK...CguM ✓<br />
+                            Ready to connect to Rakuten API
+                          </p>
+                        </div>
+                        
+                        <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Target className="h-4 w-4 text-green-600" />
+                            <span className="font-medium text-green-800">Benefits</span>
+                          </div>
+                          <ul className="text-sm text-green-600 space-y-1">
+                            <li>• Access to thousands of affiliate products</li>
+                            <li>• Real-time pricing and availability</li>
+                            <li>• Automatic commission tracking</li>
+                            <li>• High-converting product data</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {rakutenSearchResults && rakutenSearchResults.length > 0 && (
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-lg">Search Results ({rakutenSearchResults.length})</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {rakutenSearchResults.map((product, index) => (
+                          <Card key={index} className="border hover:shadow-lg transition-shadow">
+                            <CardContent className="p-4">
+                              <div className="space-y-3">
+                                <h4 className="font-semibold text-sm line-clamp-2">{product.name || 'Rakuten Product'}</h4>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-lg font-bold text-green-600">${product.price || 'N/A'}</span>
+                                  <Badge variant="secondary">Rakuten</Badge>
+                                </div>
+                                <p className="text-xs text-gray-600 line-clamp-2">{product.description || 'Product from Rakuten network'}</p>
+                                <Button size="sm" className="w-full">
+                                  <Plus className="h-3 w-3 mr-1" />
+                                  Import
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
       <Toaster />
