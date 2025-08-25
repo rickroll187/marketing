@@ -1298,10 +1298,10 @@ function App() {
                     <Button
                       size="sm"
                       onClick={handleScrapeSelectedUrls}
-                      disabled={loading || !savedUrls.some(url => url.selected && !url.scraped)}
+                      disabled={scrapeLoading || !savedUrls.some(url => url.selected && !url.scraped)}
                       className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700"
                     >
-                      {loading ? (
+                      {scrapeLoading ? (
                         <>
                           <Loader className="h-4 w-4 mr-1 animate-spin" />
                           Scraping...
