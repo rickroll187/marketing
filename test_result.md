@@ -161,10 +161,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "API endpoints functionality"
+    - "Fix critical input focus bug"
+    - "API endpoints functionality" 
     - "Competitive affiliate marketing features"
-    - "Fix tab switching bug"
-  stuck_tasks: []
+  stuck_tasks:
+    - "Fix critical input focus bug"
   test_all: false
   test_priority: "high_first"
 
