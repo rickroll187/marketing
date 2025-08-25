@@ -222,26 +222,43 @@ function App() {
   };
 
   useEffect(() => {
-    // Initialize Analytics
-    initGA();
-    initFacebookPixel();
-    trackPageView('Affiliate Marketing Dashboard');
+    // Initialize Analytics ONCE
+    const initializeAnalytics = async () => {
+      try {
+        initGA();
+        initFacebookPixel();
+        trackPageView('Affiliate Marketing Dashboard');
+      } catch (error) {
+        console.log('Analytics initialization skipped');
+      }
+    };
     
-    // Fetch data
-    fetchProducts();
-    fetchGeneratedContent();
-    fetchEmailCampaigns();
-    fetchSavedUrls();
-    fetchStats();
-    fetchAnalytics();
-    // Fetch all new competitive feature data
-    fetchPriceAlerts();
-    fetchAdvancedAnalytics();
-    fetchSocialPosts();
-    fetchContentStudioItems();
-    fetchCompetitorAnalysis();
-    fetchAutomationWorkflows();
-  }, []);
+    initializeAnalytics();
+    
+    // Fetch data ONCE on mount
+    const fetchAllData = async () => {
+      try {
+        await Promise.all([
+          fetchProducts(),
+          fetchGeneratedContent(),
+          fetchEmailCampaigns(),
+          fetchSavedUrls(),
+          fetchStats(),
+          fetchAnalytics(),
+          fetchPriceAlerts(),
+          fetchAdvancedAnalytics(),
+          fetchSocialPosts(),
+          fetchContentStudioItems(),
+          fetchCompetitorAnalysis(),
+          fetchAutomationWorkflows()
+        ]);
+      } catch (error) {
+        console.log('Initial data fetch completed with some errors');
+      }
+    };
+    
+    fetchAllData();
+  }, []); // Empty dependency array - only run once!
 
   const fetchProducts = async () => {
     try {
