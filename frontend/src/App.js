@@ -1287,7 +1287,7 @@ https://www.newegg.com/...
 
 Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
                         value={urlsToSave}
-                        onChange={(e) => setUrlsToSave(e.target.value)}
+                        onChange={handleInputChange(setUrlsToSave)}
                         rows={8}
                         className="font-mono text-sm"
                       />
