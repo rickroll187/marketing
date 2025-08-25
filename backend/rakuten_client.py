@@ -46,10 +46,12 @@ class RakutenAPIClient:
         if not self.web_service_token:
             raise ValueError("Rakuten Web Service Token not configured")
         
-        params = {
-            'token': self.web_service_token,
+        headers = {
+            'Authorization': f'Bearer {self.web_service_token}',
+            'Accept': 'application/xml'
         }
         
+        params = {}
         if keyword:
             params['keyword'] = keyword
         if category:
