@@ -1,34 +1,84 @@
 import os
 import httpx
 import logging
+import base64
 from typing import Dict, List, Optional, Any
-from datetime import datetime
+from datetime import datetime, timedelta
 from xml.etree import ElementTree as ET
 
 logger = logging.getLogger(__name__)
 
 class RakutenAPIClient:
-    """Rakuten Advertising API Client with Web Service Token authentication"""
+    """Rakuten Advertising API Client with proper API access token generation"""
     
     def __init__(self):
-        self.web_service_token = os.environ.get('RAKUTEN_WEB_SERVICE_TOKEN')
+        self.client_id = os.environ.get('RAKUTEN_CLIENT_ID')
+        self.client_secret = os.environ.get('RAKUTEN_CLIENT_SECRET')
         self.sid = os.environ.get('RAKUTEN_SID')
-        self.base_url = os.environ.get('RAKUTEN_API_BASE_URL', 'https://api.rakutenadvertising.com')
+        self.base_url = os.environ.get('RAKUTEN_API_BASE_URL', 'https://api.linksynergy.com')
         
-        if not self.web_service_token or not self.sid:
-            logger.warning("Rakuten Web Service Token or SID not found")
+        self.access_token = None
+        self.token_expires_at = None
+        self.refresh_token = None
+        
+        if not all([self.client_id, self.client_secret, self.sid]):
+            logger.warning("Rakuten API credentials not complete")
         else:
             logger.info(f"✅ Rakuten client initialized with SID: {self.sid}")
     
-    async def test_connection(self) -> bool:
-        """Test Rakuten API connection with web service token"""
+    async def _get_api_access_token(self) -> str:
+        """Generate API access token using client credentials - CORRECT METHOD"""
+        
+        if self.access_token and self.token_expires_at and datetime.now() < self.token_expires_at:
+            return self.access_token
+            
+        if not all([self.client_id, self.client_secret, self.sid]):
+            raise ValueError("Rakuten API credentials not configured")
+        
+        # Step 1: Create token-key by base64 encoding client_id:client_secret
+        credentials = f"{self.client_id}:{self.client_secret}"
+        token_key = base64.b64encode(credentials.encode()).decode()
+        
+        # Step 2: Use token-key to get API access token
+        headers = {
+            'Authorization': f'Bearer {token_key}',
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+        
+        data = {
+            'scope': self.sid  # Use account ID (SID) as scope
+        }
+        
         try:
-            if not self.web_service_token:
-                return False
+            async with httpx.AsyncClient() as client:
+                response = await client.post(f"{self.base_url}/token", headers=headers, data=data)
+                response.raise_for_status()
                 
-            # Test with a simple product search
+                token_data = response.json()
+                self.access_token = token_data['access_token']
+                self.refresh_token = token_data.get('refresh_token')
+                
+                # Calculate expiration (usually 3600 seconds = 1 hour)
+                expires_in = token_data.get('expires_in', 3600)
+                self.token_expires_at = datetime.now() + timedelta(seconds=expires_in - 300)
+                
+                logger.info(f"✅ Successfully obtained Rakuten API access token")
+                return self.access_token
+                
+        except httpx.HTTPStatusError as e:
+            logger.error(f"❌ Failed to get API access token: {e.response.status_code} - {e.response.text}")
+            raise Exception(f"Rakuten API token generation failed: {e.response.status_code}")
+        except Exception as e:
+            logger.error(f"❌ Error getting API access token: {str(e)}")
+            raise
+    
+    async def test_connection(self) -> bool:
+        """Test Rakuten API connection with proper API access token"""
+        try:
+            # Test by getting access token and making a simple product search
+            await self._get_api_access_token()
             result = await self.search_products(keyword="laptop", limit=1)
-            return len(result.get('products', [])) >= 0  # Even 0 results means connection works
+            return True  # If we get here, connection works
                 
         except Exception as e:
             logger.error(f"❌ Rakuten connection test failed: {str(e)}")
@@ -41,13 +91,13 @@ class RakutenAPIClient:
                             max_price: float = None,
                             limit: int = 50,
                             page: int = 1) -> Dict[str, Any]:
-        """Search for products using Rakuten Product Search API with web service token"""
+        """Search for products using Rakuten Product Search API with proper API access token"""
         
-        if not self.web_service_token:
-            raise ValueError("Rakuten Web Service Token not configured")
+        # Get valid API access token
+        access_token = await self._get_api_access_token()
         
         headers = {
-            'Authorization': f'Bearer {self.web_service_token}',
+            'Authorization': f'Bearer {access_token}',
             'Accept': 'application/xml'
         }
         
@@ -66,7 +116,7 @@ class RakutenAPIClient:
             params['pagenumber'] = page
             
         try:
-            # Use the Product Search endpoint
+            # Use the Product Search endpoint with proper authentication
             url = f"{self.base_url}/productsearch/1.0"
             
             async with httpx.AsyncClient(timeout=30.0) as client:
@@ -105,7 +155,7 @@ class RakutenAPIClient:
                         logger.warning(f"Error parsing product: {str(e)}")
                         continue
                 
-                logger.info(f"✅ Found {len(products)} products from Rakuten")
+                logger.info(f"✅ Found {len(products)} products from Rakuten API")
                 
                 return {
                     'products': products,
@@ -117,9 +167,9 @@ class RakutenAPIClient:
         except httpx.HTTPStatusError as e:
             logger.error(f"❌ Rakuten product search failed: {e.response.status_code}")
             if e.response.status_code == 401:
-                raise Exception("Invalid Rakuten Web Service Token")
+                raise Exception("Rakuten API access token expired or invalid")
             elif e.response.status_code == 403:
-                raise Exception("Rakuten API access forbidden - check token permissions")
+                raise Exception("Rakuten API access forbidden - check permissions")
             else:
                 raise Exception(f"Rakuten API error: {e.response.status_code}")
         except ET.ParseError as e:
@@ -128,64 +178,6 @@ class RakutenAPIClient:
         except Exception as e:
             logger.error(f"❌ Error searching Rakuten products: {str(e)}")
             raise
-    
-    async def get_advertisers(self, category: str = None) -> Dict[str, Any]:
-        """Get list of advertisers from Rakuten"""
-        
-        if not self.web_service_token:
-            raise ValueError("Rakuten Web Service Token not configured")
-        
-        try:
-            url = f"{self.base_url}/v2/advertisers"
-            headers = {
-                'Authorization': f'Bearer {self.web_service_token}'
-            }
-            
-            params = {}
-            if category:
-                params['category'] = category
-            
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.get(url, headers=headers, params=params)
-                response.raise_for_status()
-                
-                return response.json()
-                
-        except httpx.HTTPStatusError as e:
-            logger.error(f"❌ Failed to get advertisers: {e.response.status_code}")
-            raise Exception(f"Failed to get advertisers: {e.response.status_code}")
-        except Exception as e:
-            logger.error(f"❌ Error getting advertisers: {str(e)}")
-            raise
-    
-    async def create_deep_link(self, product_url: str) -> str:
-        """Create affiliate deep link for a product URL"""
-        
-        if not self.web_service_token:
-            raise ValueError("Rakuten Web Service Token not configured")
-        
-        try:
-            url = f"{self.base_url}/v1/links/deep_links"
-            headers = {
-                'Authorization': f'Bearer {self.web_service_token}',
-                'Content-Type': 'application/json'
-            }
-            
-            data = {
-                'url': product_url,
-                'sid': self.sid
-            }
-            
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.post(url, headers=headers, json=data)
-                response.raise_for_status()
-                
-                result = response.json()
-                return result.get('deep_link', product_url)
-                
-        except Exception as e:
-            logger.error(f"❌ Failed to create deep link: {str(e)}")
-            return product_url  # Return original URL if deep link fails
 
 def transform_rakuten_product(rakuten_product: Dict[str, Any]) -> Dict[str, Any]:
     """Transform Rakuten product data to our internal format"""
@@ -215,6 +207,3 @@ def transform_rakuten_product(rakuten_product: Dict[str, Any]) -> Dict[str, Any]
     except Exception as e:
         logger.error(f"Error transforming Rakuten product data: {str(e)}")
         raise
-
-# Don't create global client instance - will be created after env is loaded
-# rakuten_client = RakutenAPIClient()
