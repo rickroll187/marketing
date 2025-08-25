@@ -228,5 +228,5 @@ def transform_rakuten_product(rakuten_product: Dict[str, Any]) -> Dict[str, Any]
         logger.error(f"Error transforming Rakuten product data: {str(e)}")
         raise
 
-# Global client instance
-rakuten_client = RakutenAPIClient()
+# Don't create global client instance - will be created after env is loaded
+# rakuten_client = RakutenAPIClient()
