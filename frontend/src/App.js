@@ -2570,7 +2570,7 @@ https://www.newegg.com/..."
                     <Textarea
                       placeholder="Enter your hashtag strategy or let AI optimize them automatically..."
                       value={hashtagStrategy}
-                      onChange={(e) => setHashtagStrategy(e.target.value)}
+                      onChange={handleInputChange(setHashtagStrategy)}
                       rows={6}
                     />
                   </div>
