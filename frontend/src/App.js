@@ -1153,6 +1153,10 @@ function App() {
               <Search className="h-3 w-3" />
               Scraper
             </TabsTrigger>
+            <TabsTrigger value="rakuten" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <Zap className="h-3 w-3" />
+              Rakuten
+            </TabsTrigger>
             <TabsTrigger value="price-tracker" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
               <DollarSign className="h-3 w-3" />
               Prices
