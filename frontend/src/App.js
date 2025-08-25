@@ -2138,7 +2138,7 @@ https://www.newegg.com/..."
 
                     <div>
                       <label className="text-sm font-medium mb-2 block">Email Content</label>
-                      <Textarea
+                      <FocusSafeTextarea
                         placeholder="Your email content here..."
                         value={emailContent}
                         onChange={handleInputChange(setEmailContent)}
