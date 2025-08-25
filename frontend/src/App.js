@@ -334,6 +334,16 @@ function App() {
     }
   };
 
+  // =====================================================
+  // OPTIMIZED INPUT HANDLERS - PREVENT FOCUS LOSS
+  // =====================================================
+
+  const handleInputChange = useCallback((setter) => {
+    return (e) => {
+      setter(e.target.value);
+    };
+  }, []);
+
   // Stable callbacks for ExternalTextarea to prevent unmounting  
   const handleUrlsChange = useCallback((e) => {
     setUrlsToSave(e.target.value);
