@@ -15,16 +15,16 @@ class RakutenAPIClient:
     def __init__(self):
         self.client_id = os.environ.get('RAKUTEN_CLIENT_ID')
         self.client_secret = os.environ.get('RAKUTEN_CLIENT_SECRET')
-        # Fix: Use the correct Rakuten Advertising API base URL
-        self.base_url = os.environ.get('RAKUTEN_API_BASE_URL', 'https://api.linksynergy.com')
+        self.username = os.environ.get('RAKUTEN_USERNAME')
+        self.password = os.environ.get('RAKUTEN_PASSWORD')
+        self.sid = os.environ.get('RAKUTEN_SID')
+        self.base_url = os.environ.get('RAKUTEN_API_BASE_URL', 'https://api.rakutenmarketing.com')
         
-        # Don't fail on startup - just log warning
-        if not self.client_id or not self.client_secret:
-            logger.warning("Rakuten API credentials not found in environment variables")
+        if not all([self.client_id, self.client_secret, self.username, self.password, self.sid]):
+            logger.warning("Some Rakuten API credentials missing")
         
         self.access_token = None
         self.token_expires_at = None
-        self.client = None
         
     async def _get_access_token(self) -> str:
         """Get OAuth 2.0 access token using client credentials flow - FIXED for Rakuten"""
