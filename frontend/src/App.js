@@ -1947,7 +1947,7 @@ Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
                   <div className="space-y-4">
                     <div>
                       <label className="text-sm font-medium mb-2 block">Product URLs (one per line)</label>
-                      <Textarea
+                      <FocusSafeTextarea
                         placeholder="https://www.amazon.com/product/...
 https://www.bestbuy.com/site/...
 https://www.newegg.com/..."
