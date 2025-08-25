@@ -2927,7 +2927,7 @@ https://affiliate-site.com"
                       
                       <div>
                         <label className="text-sm font-medium mb-2 block">Keyword</label>
-                        <Input
+                        <StableInput
                           placeholder="laptop, smartphone, headphones..."
                           value={rakutenKeyword}
                           onChange={handleInputChange(setRakutenKeyword)}
