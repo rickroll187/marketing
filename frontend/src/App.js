@@ -2568,13 +2568,7 @@ https://www.newegg.com/..."
                           <input
                             type="checkbox"
                             checked={selectedSocialPlatforms.includes(platform.toLowerCase())}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setSelectedSocialPlatforms([...selectedSocialPlatforms, platform.toLowerCase()]);
-                              } else {
-                                setSelectedSocialPlatforms(selectedSocialPlatforms.filter(p => p !== platform.toLowerCase()));
-                              }
-                            }}
+                            onChange={handleSocialPlatformChange(platform)}
                             className="rounded"
                           />
                           <span className="text-sm">{platform}</span>
