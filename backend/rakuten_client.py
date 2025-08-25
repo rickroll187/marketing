@@ -17,8 +17,9 @@ class RakutenAPIClient:
         self.client_secret = os.environ.get('RAKUTEN_CLIENT_SECRET')
         self.base_url = os.environ.get('RAKUTEN_API_BASE_URL', 'https://api.rakutenadvertising.com')
         
+        # Don't fail on startup - just log warning
         if not self.client_id or not self.client_secret:
-            raise ValueError("Rakuten API credentials not found in environment variables")
+            logger.warning("Rakuten API credentials not found in environment variables")
         
         self.access_token = None
         self.token_expires_at = None
