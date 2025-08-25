@@ -221,7 +221,15 @@ function App() {
     }
   };
 
+  // =====================================================
+  // PREVENT RE-RENDERING THAT CAUSES FOCUS LOSS
+  // =====================================================
+  
+  const [isInitialized, setIsInitialized] = useState(false);
+  
   useEffect(() => {
+    if (isInitialized) return; // Prevent multiple initializations
+    
     // Initialize Analytics ONCE
     const initializeAnalytics = async () => {
       try {
@@ -258,7 +266,8 @@ function App() {
     };
     
     fetchAllData();
-  }, []); // Empty dependency array - only run once!
+    setIsInitialized(true);
+  }, [isInitialized]); // Dependency on isInitialized to prevent re-runs
 
   const fetchProducts = async () => {
     try {
