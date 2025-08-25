@@ -106,35 +106,48 @@ class RakutenAPIClient:
                             max_price: float = None,
                             limit: int = 100,
                             page: int = 1) -> Dict[str, Any]:
-        """Search for products using Rakuten Product Search API"""
+        """Search for products using Rakuten LinkShare Product Search API"""
         
-        params = {}
+        # FIX: Use direct API key authentication instead of OAuth for Rakuten
+        if not self.client_id:
+            raise ValueError("Rakuten API credentials not configured")
+            
+        params = {
+            'token': self.client_id,  # Use client_id as API token for LinkShare
+            'format': 'json'
+        }
+        
         if keyword:
             params['keyword'] = keyword
         if category:
-            params['category'] = category
+            params['cat'] = category
         if min_price:
-            params['min_price'] = min_price
+            params['minprice'] = min_price
         if max_price:
-            params['max_price'] = max_price
+            params['maxprice'] = max_price
         if limit:
-            params['limit'] = min(limit, 1000)  # API max is 1000
+            params['pagelimit'] = min(limit, 100)  # LinkShare max is 100
         if page:
             params['page'] = page
             
         try:
-            # Note: The exact endpoint may vary - this is based on typical REST API patterns
-            # You may need to adjust the endpoint based on Rakuten's actual API documentation
-            response = await self._make_authenticated_request(
-                'GET', 
-                '/productsearch/1.0/products',
-                params=params
-            )
+            # FIX: Use correct LinkShare product catalog endpoint
+            url = f"{self.base_url}/productsearch"
             
-            return response
-            
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.get(url, params=params)
+                response.raise_for_status()
+                
+                if response.headers.get('content-type', '').startswith('application/json'):
+                    return response.json()
+                else:
+                    return {'data': response.text}
+                    
+        except httpx.HTTPStatusError as e:
+            logger.error(f"Product search failed: {e.response.status_code} - {e.response.text}")
+            raise Exception(f"Rakuten product search failed: {e.response.status_code}")
         except Exception as e:
-            logger.error(f"Product search failed: {str(e)}")
+            logger.error(f"Error searching products: {str(e)}")
             raise
     
     async def get_advertisers(self) -> Dict[str, Any]:
