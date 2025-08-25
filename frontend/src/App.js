@@ -323,8 +323,20 @@ function App() {
   };
 
   // =====================================================
-  // NEW FETCH FUNCTIONS FOR COMPETITIVE FEATURES
+  // OPTIMIZED INPUT HANDLERS - PREVENT FOCUS LOSS
   // =====================================================
+
+  const handleInputChange = useCallback((setter) => {
+    return (e) => {
+      setter(e.target.value);
+    };
+  }, []);
+
+  const handleSelectChange = useCallback((setter) => {
+    return (value) => {
+      setter(value);
+    };
+  }, []);
 
   const fetchPriceAlerts = async () => {
     try {
