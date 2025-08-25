@@ -154,4 +154,4 @@ const FocusSafeTextarea = ({
   );
 };
 
-export default FocusSafeTextarea;
+export default React.memo(FocusSafeTextarea, () => true); // NEVER re-render this component
