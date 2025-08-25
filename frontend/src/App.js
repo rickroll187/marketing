@@ -745,7 +745,7 @@ function App() {
         duration: 8000
       });
     } finally {
-      setLoading(false);
+      setUrlSaveLoading(false);
     }
   };
 
