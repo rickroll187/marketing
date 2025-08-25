@@ -1331,16 +1331,16 @@ function App() {
                     
                     <div>
                       <label className="text-sm font-medium mb-2 block">Product URLs (one per line) - ✨ UNLIMITED!</label>
-                      <PortalTextarea
-                        initialValue={urlsToSave}
-                        onValueChange={handleUrlsChange}
+                      <textarea
                         placeholder="https://www.amazon.com/product/...
 https://www.bestbuy.com/site/...
 https://www.newegg.com/...
 
 Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
-                        className=""
+                        value={urlsToSave}
+                        onChange={(e) => setUrlsToSave(e.target.value)}
                         rows={6}
+                        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono"
                       />
                       <p className="text-xs text-gray-600 mt-1">
                         💡 Pro tip: You can paste 100+ URLs at once! Large batches are processed efficiently in the background.
