@@ -1331,7 +1331,7 @@ function App() {
                     
                     <div>
                       <label className="text-sm font-medium mb-2 block">Product URLs (one per line) - ✨ UNLIMITED!</label>
-                      <ExternalTextarea
+                      <PortalTextarea
                         initialValue={urlsToSave}
                         onValueChange={handleUrlsChange}
                         placeholder="https://www.amazon.com/product/...
