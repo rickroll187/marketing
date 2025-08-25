@@ -1314,7 +1314,7 @@ Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
                       <Input
                         placeholder="Black Friday deals, trending products, etc."
                         value={urlNotes}
-                        onChange={(e) => setUrlNotes(e.target.value)}
+                        onChange={handleInputChange(setUrlNotes)}
                       />
                     </div>
                     
