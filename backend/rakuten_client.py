@@ -27,6 +27,9 @@ class RakutenAPIClient:
         
     async def _get_access_token(self) -> str:
         """Get OAuth 2.0 access token using client credentials flow"""
+        if not self.client_id or not self.client_secret:
+            raise ValueError("Rakuten API credentials not configured")
+            
         if self.access_token and self.token_expires_at and datetime.now() < self.token_expires_at:
             return self.access_token
             
