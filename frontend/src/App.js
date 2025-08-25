@@ -2975,7 +2975,7 @@ https://affiliate-site.com"
                         </div>
                         <div>
                           <label className="text-sm font-medium mb-2 block">Max Price ($)</label>
-                          <Input
+                          <FocusSafeInput
                             type="number"
                             placeholder="1000"
                             value={rakutenMaxPrice}
