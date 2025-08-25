@@ -529,6 +529,87 @@ function App() {
     }
   };
 
+  // =====================================================
+  // RAKUTEN API HANDLERS
+  // =====================================================
+
+  const handleSearchRakutenProducts = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (rakutenKeyword) params.append('keyword', rakutenKeyword);
+      if (rakutenCategory) params.append('category', rakutenCategory);
+      if (rakutenMinPrice) params.append('min_price', rakutenMinPrice);
+      if (rakutenMaxPrice) params.append('max_price', rakutenMaxPrice);
+      params.append('limit', '20');
+
+      const response = await axios.get(`${API}/rakuten/products/search?${params.toString()}`);
+      
+      setRakutenSearchResults(response.data.results?.products || []);
+      
+      toast({
+        title: "Success! 🔍",
+        description: `Found ${response.data.results?.products?.length || 0} products from Rakuten`,
+        duration: 4000
+      });
+      
+    } catch (error) {
+      toast({
+        title: "Search Failed",
+        description: error.response?.data?.detail || "Failed to search Rakuten products",
+        variant: "destructive"
+      });
+      setRakutenSearchResults([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleImportRakutenProducts = async () => {
+    if (!rakutenKeyword) {
+      toast({
+        title: "Error",
+        description: "Please enter a keyword to import products",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await axios.post(`${API}/rakuten/products/import`, {
+        keyword: rakutenKeyword,
+        category: rakutenCategory || 'general',
+        limit: 20
+      });
+      
+      toast({
+        title: "Success! 🚀",
+        description: `Imported ${response.data.imported_count} products from Rakuten!`,
+        duration: 6000
+      });
+      
+      // Refresh products list
+      fetchProducts();
+      
+      // Clear search
+      setRakutenKeyword('');
+      setRakutenCategory('');
+      setRakutenMinPrice('');
+      setRakutenMaxPrice('');
+      setRakutenSearchResults([]);
+      
+    } catch (error) {
+      toast({
+        title: "Import Failed",
+        description: error.response?.data?.detail || "Failed to import Rakuten products",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSaveUrls = async () => {
     if (!urlsToSave.trim() || !urlCategory.trim()) {
       toast({
