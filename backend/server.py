@@ -2097,14 +2097,20 @@ async def execute_workflow_action(action: Dict[str, Any], context: Dict[str, Any
 
 @api_router.get("/rakuten/test-connection")
 async def test_rakuten_connection():
-    """Test Rakuten API connection - MOCK VERSION"""
-    # Mock successful connection for demo
-    return {
-        "connected": True,
-        "message": "Rakuten API connection successful (Demo Mode)",
-        "credentials_configured": True,
-        "client_id": "rH71tRTK...CguM"
-    }
+    """Test REAL Rakuten API connection with TalkTech credentials"""
+    try:
+        is_connected = await rakuten_client.test_connection()
+        return {
+            "connected": is_connected,
+            "message": "✅ REAL Rakuten API connection successful!" if is_connected else "❌ Rakuten API connection failed",
+            "account": "TalkTech",
+            "sid": "4574344"
+        }
+    except Exception as e:
+        return {
+            "connected": False,
+            "message": f"Connection test failed: {str(e)}"
+        }
 
 @api_router.get("/rakuten/products/search")
 async def search_rakuten_products(
