@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import React from 'react';
 
 /**
  * FocusSafeInput - An input component that NEVER loses focus during typing
