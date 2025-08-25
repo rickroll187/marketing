@@ -1325,15 +1325,15 @@ function App() {
                     
                     <div>
                       <label className="text-sm font-medium mb-2 block">Product URLs (one per line) - ✨ UNLIMITED!</label>
-                      <FocusSafeTextarea
+                      <ExternalTextarea
+                        initialValue={urlsToSave}
+                        onValueChange={handleInputChange(setUrlsToSave)}
                         placeholder="https://www.amazon.com/product/...
 https://www.bestbuy.com/site/...
 https://www.newegg.com/...
 
 Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
-                        value={urlsToSave}
-                        onChange={handleInputChange(setUrlsToSave)}
-                        className="font-mono text-sm"
+                        className=""
                         rows={6}
                       />
                       <p className="text-xs text-gray-600 mt-1">
