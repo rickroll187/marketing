@@ -2148,7 +2148,7 @@ https://www.newegg.com/..."
 
                     <div>
                       <label className="text-sm font-medium mb-2 block">Recipients (comma-separated)</label>
-                      <Textarea
+                      <FocusSafeTextarea
                         placeholder="user1@example.com, user2@example.com"
                         value={emailRecipients}
                         onChange={handleInputChange(setEmailRecipients)}
