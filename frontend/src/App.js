@@ -1641,7 +1641,7 @@ Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
                                             <Input
                                               placeholder="iPhone 15, Samsung Galaxy S24, etc."
                                               value={comparisonProducts}
-                                              onChange={(e) => setComparisonProducts(e.target.value)}
+                                              onChange={handleInputChange(setComparisonProducts)}
                                             />
                                           </div>
                                         )}
