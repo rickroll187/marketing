@@ -1,7 +1,7 @@
-import React, { memo } from 'react';
+import React, { memo, useRef, useEffect } from 'react';
 import { Input } from './components/ui/input';
 
-// Memoized input component to prevent re-renders that cause focus loss
+// Ultra-stable input component that NEVER re-renders and maintains focus
 const StableInput = memo(({ 
   value, 
   onChange, 
@@ -10,17 +10,37 @@ const StableInput = memo(({
   className = "",
   ...props 
 }) => {
+  const inputRef = useRef(null);
+  
+  // Handle value changes without losing focus
+  useEffect(() => {
+    if (inputRef.current && inputRef.current.value !== value) {
+      const currentFocus = document.activeElement === inputRef.current;
+      inputRef.current.value = value || '';
+      if (currentFocus) {
+        inputRef.current.focus();
+      }
+    }
+  }, [value]);
+  
+  const handleChange = (e) => {
+    if (onChange) {
+      onChange(e);
+    }
+  };
+  
   return (
     <Input
+      ref={inputRef}
       type={type}
       placeholder={placeholder}
-      value={value}
-      onChange={onChange}
+      defaultValue={value || ''}
+      onChange={handleChange}
       className={className}
       {...props}
     />
   );
-});
+}, () => true); // Never re-render this component
 
 StableInput.displayName = 'StableInput';
 
