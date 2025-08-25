@@ -21,6 +21,7 @@ from apscheduler.triggers.date import DateTrigger
 import json
 import csv
 import io
+from rakuten_client import rakuten_client, transform_rakuten_product
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
