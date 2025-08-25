@@ -2084,6 +2084,158 @@ async def execute_workflow_action(action: Dict[str, Any], context: Dict[str, Any
     
     return {"action": "unknown", "status": "skipped"}
 
+# =====================================================
+# RAKUTEN API ENDPOINTS - Live Affiliate Products
+# =====================================================
+
+@api_router.get("/rakuten/test-connection")
+async def test_rakuten_connection():
+    """Test Rakuten API connection"""
+    try:
+        is_connected = await rakuten_client.test_connection()
+        return {
+            "connected": is_connected,
+            "message": "Rakuten API connection successful" if is_connected else "Rakuten API connection failed"
+        }
+    except Exception as e:
+        return {
+            "connected": False,
+            "message": f"Connection test failed: {str(e)}"
+        }
+
+@api_router.get("/rakuten/advertisers")
+async def get_rakuten_advertisers():
+    """Get list of Rakuten advertisers"""
+    try:
+        advertisers = await rakuten_client.get_advertisers()
+        return advertisers
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get advertisers: {str(e)}")
+
+@api_router.get("/rakuten/products/search")
+async def search_rakuten_products(
+    keyword: Optional[str] = None,
+    category: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    limit: int = 50,
+    page: int = 1
+):
+    """Search Rakuten products and optionally save them to database"""
+    try:
+        # Search products via Rakuten API
+        results = await rakuten_client.search_products(
+            keyword=keyword,
+            category=category,
+            min_price=min_price,
+            max_price=max_price,
+            limit=limit,
+            page=page
+        )
+        
+        return {
+            "message": f"Found products from Rakuten",
+            "results": results,
+            "search_params": {
+                "keyword": keyword,
+                "category": category,
+                "min_price": min_price,
+                "max_price": max_price,
+                "limit": limit,
+                "page": page
+            }
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Product search failed: {str(e)}")
+
+@api_router.post("/rakuten/products/import")
+async def import_rakuten_products(
+    keyword: Optional[str] = None,
+    category: str = "general",
+    limit: int = 20
+):
+    """Import products from Rakuten directly into your database"""
+    try:
+        # Search products via Rakuten API
+        results = await rakuten_client.search_products(
+            keyword=keyword,
+            category=category,
+            limit=limit
+        )
+        
+        imported_products = []
+        
+        # Transform and save each product
+        if 'products' in results:
+            for rakuten_product in results['products']:
+                try:
+                    # Transform to our format
+                    product_data = transform_rakuten_product(rakuten_product)
+                    
+                    # Save to database
+                    await db.products.insert_one(product_data)
+                    imported_products.append(product_data)
+                    
+                except Exception as e:
+                    logging.error(f"Error importing product: {str(e)}")
+                    continue
+        
+        return {
+            "message": f"Successfully imported {len(imported_products)} products from Rakuten",
+            "imported_count": len(imported_products),
+            "products": imported_products
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Product import failed: {str(e)}")
+
+@api_router.get("/rakuten/products/{product_id}")
+async def get_rakuten_product_details(product_id: str):
+    """Get detailed information for a specific Rakuten product"""
+    try:
+        product_details = await rakuten_client.get_product_details(product_id)
+        return product_details
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get product details: {str(e)}")
+
+@api_router.post("/rakuten/sync-products")
+async def sync_rakuten_products():
+    """Sync existing products with Rakuten data (update prices, availability, etc.)"""
+    try:
+        # Get all Rakuten products from database
+        rakuten_products = await db.products.find({"source": "rakuten"}).to_list(length=None)
+        
+        updated_count = 0
+        for product in rakuten_products:
+            try:
+                # Get latest data from Rakuten
+                latest_data = await rakuten_client.get_product_details(product['id'])
+                
+                if latest_data:
+                    # Update with latest information
+                    updated_data = transform_rakuten_product(latest_data)
+                    updated_data['last_updated'] = datetime.now()
+                    
+                    await db.products.update_one(
+                        {"id": product['id']},
+                        {"$set": updated_data}
+                    )
+                    updated_count += 1
+                    
+            except Exception as e:
+                logging.error(f"Error syncing product {product['id']}: {str(e)}")
+                continue
+        
+        return {
+            "message": f"Successfully synced {updated_count} Rakuten products",
+            "updated_count": updated_count,
+            "total_products": len(rakuten_products)
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Product sync failed: {str(e)}")
+
 # Initialize scheduler
 @app.on_event("startup")
 async def startup_event():
