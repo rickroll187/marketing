@@ -1387,10 +1387,10 @@ Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
                     
                     <Button
                       onClick={handleSaveUrls}
-                      disabled={loading || !urlsToSave.trim() || !urlCategory}
+                      disabled={urlSaveLoading || !urlsToSave.trim() || !urlCategory}
                       className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
                     >
-                      {loading ? (
+                      {urlSaveLoading ? (
                         <>
                           <Loader className="h-4 w-4 mr-2 animate-spin" />
                           Saving {urlsToSave.split('\n').filter(url => url.trim()).length} URLs...
