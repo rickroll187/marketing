@@ -2100,7 +2100,7 @@ https://www.newegg.com/..."
                       <Textarea
                         placeholder="user1@example.com, user2@example.com"
                         value={emailRecipients}
-                        onChange={(e) => setEmailRecipients(e.target.value)}
+                        onChange={handleInputChange(setEmailRecipients)}
                         rows={3}
                       />
                     </div>
