@@ -70,7 +70,7 @@ class RakutenAPIClient:
             url = f"{self.base_url}/productsearch/1.0"
             
             async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.get(url, params=params)
+                response = await client.get(url, headers=headers, params=params)
                 response.raise_for_status()
                 
                 # Parse XML response
