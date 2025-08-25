@@ -109,17 +109,16 @@ class RakutenAPIClient:
                             max_price: float = None,
                             limit: int = 100,
                             page: int = 1) -> Dict[str, Any]:
-        """Search for products using Rakuten LinkShare Product Search API"""
+        """Search for products using REAL Rakuten Product Search API"""
         
-        # FIX: Use direct API key authentication instead of OAuth for Rakuten
-        if not self.client_id:
-            raise ValueError("Rakuten API credentials not configured")
-            
-        params = {
-            'token': self.client_id,  # Use client_id as API token for LinkShare
-            'format': 'json'
+        token = await self._get_access_token()
+        
+        headers = {
+            'Authorization': f'Bearer {token}',
+            'Accept': 'application/xml'  # Rakuten returns XML
         }
         
+        params = {}
         if keyword:
             params['keyword'] = keyword
         if category:
@@ -129,28 +128,52 @@ class RakutenAPIClient:
         if max_price:
             params['maxprice'] = max_price
         if limit:
-            params['pagelimit'] = min(limit, 100)  # LinkShare max is 100
+            params['max'] = min(limit, 100)  # Rakuten max is 100
         if page:
-            params['page'] = page
+            params['pagenumber'] = page
+        
+        # Add required parameters
+        params['mid'] = self.sid  # Use SID as MID
             
         try:
-            # FIX: Use correct LinkShare product catalog endpoint
-            url = f"{self.base_url}/productsearch"
+            # REAL Rakuten product search endpoint
+            url = f"{self.base_url}/productsearch/1.0"
             
             async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.get(url, params=params)
+                response = await client.get(url, headers=headers, params=params)
                 response.raise_for_status()
                 
-                if response.headers.get('content-type', '').startswith('application/json'):
-                    return response.json()
-                else:
-                    return {'data': response.text}
+                # Rakuten returns XML, convert to dict for processing
+                from xml.etree import ElementTree as ET
+                root = ET.fromstring(response.text)
+                
+                # Parse XML response into products list
+                products = []
+                for item in root.findall('.//item'):
+                    product = {
+                        'name': item.findtext('productname', ''),
+                        'price': float(item.findtext('price', '0').replace('$', '').replace(',', '') or '0'),
+                        'description': item.findtext('description', ''),
+                        'image_url': item.findtext('imageurl', ''),
+                        'affiliate_url': item.findtext('linkurl', ''),
+                        'brand': item.findtext('brand', ''),
+                        'category': item.findtext('category', ''),
+                        'upc': item.findtext('upc', ''),
+                        'sku': item.findtext('sku', ''),
+                    }
+                    products.append(product)
+                
+                return {
+                    'products': products,
+                    'total': len(products),
+                    'page': page
+                }
                     
         except httpx.HTTPStatusError as e:
-            logger.error(f"Product search failed: {e.response.status_code} - {e.response.text}")
+            logger.error(f"❌ Rakuten product search failed: {e.response.status_code} - {e.response.text}")
             raise Exception(f"Rakuten product search failed: {e.response.status_code}")
         except Exception as e:
-            logger.error(f"Error searching products: {str(e)}")
+            logger.error(f"❌ Error searching products: {str(e)}")
             raise
     
     async def get_advertisers(self) -> Dict[str, Any]:
