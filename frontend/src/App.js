@@ -2129,7 +2129,7 @@ https://www.newegg.com/..."
                     
                     <div>
                       <label className="text-sm font-medium mb-2 block">Subject Line</label>
-                      <Input
+                      <FocusSafeInput
                         placeholder="Amazing deals on tech products!"
                         value={emailSubject}
                         onChange={handleInputChange(setEmailSubject)}
