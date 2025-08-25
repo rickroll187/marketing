@@ -1625,13 +1625,7 @@ Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
                                               <input
                                                 type="checkbox"
                                                 checked={contentTypes.includes(type.value)}
-                                                onChange={(e) => {
-                                                  if (e.target.checked) {
-                                                    setContentTypes([...contentTypes, type.value]);
-                                                  } else {
-                                                    setContentTypes(contentTypes.filter(t => t !== type.value));
-                                                  }
-                                                }}
+                                                onChange={handleContentTypeChange(type.value)}
                                                 className="rounded"
                                               />
                                               {type.icon}
