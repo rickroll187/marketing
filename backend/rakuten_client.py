@@ -15,7 +15,8 @@ class RakutenAPIClient:
     def __init__(self):
         self.client_id = os.environ.get('RAKUTEN_CLIENT_ID')
         self.client_secret = os.environ.get('RAKUTEN_CLIENT_SECRET')
-        self.base_url = os.environ.get('RAKUTEN_API_BASE_URL', 'https://api.rakutenadvertising.com')
+        # Fix: Use the correct Rakuten Advertising API base URL
+        self.base_url = os.environ.get('RAKUTEN_API_BASE_URL', 'https://api.linksynergy.com')
         
         # Don't fail on startup - just log warning
         if not self.client_id or not self.client_secret:
