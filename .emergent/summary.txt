@@ -1,69 +1,87 @@
 <analysis>
-The previous AI engineer initiated an affiliate marketing platform, starting from core scraping and AI content generation, then progressively adding complex features like content scheduling, email marketing (SendGrid), and performance analytics, driven by user requests for free-tier solutions. A significant part of the development involved debugging and refining the UI/UX, particularly around tab navigation and robust web scraping capabilities, especially for Amazon in a 2025 context. The engineer successfully implemented a URL management system, removed URL input limits, and attempted to fix price scraping, acknowledging Amazon's anti-bot measures by integrating manual price entry. The immediate and critical issue, despite previous attempts, is a persistent UI tab-switching problem, identified as a  in the React Tabs component, causing user frustration and highlighting a need for precise state management.
+The previous AI engineer developed an affiliate marketing platform, progressing from basic scraping and AI content generation to advanced features like content scheduling, SendGrid email marketing, and a URL management system. The core development trajectory was significantly shaped by user requests for competitive features, leading to the implementation of 13 new functional tabs, including AI-powered price tracking, social automation, and a content studio. A major persistent challenge was a critical UI tab-switching bug, which was ultimately resolved. However, a deep and unyielding input focus issue (requiring a click after every character typed) remains, despite numerous attempts at resolution. The engineer successfully integrated Google Analytics and established a working (though currently yielding no products due to partnership status) real Rakuten Advertising API connection using the user's provided credentials. A significant mishap involved the accidental deletion of user data during a test data cleanup.
 </analysis>
 
 <product_requirements>
-The user requires an affiliate marketing platform to scrape relevant technology hardware/software, populate a database, and generate multi-platform content (videos, blog posts) for social media, aiming to drive sales via Amazon affiliate marketing. Key enhancements requested included: social media posting automation (CSV export as free alternative), a content scheduling system, performance analytics/tracking, email marketing (SendGrid free tier), and additional AI content types (product comparisons, tutorials, review roundups, seasonal campaigns, product launch announcements). A critical user experience requirement emerged for a URL management system to save, select, and unselect product URLs before scraping, with no limits on URL input. The system must also accurately scrape product prices and maintain user focus within tabs, preventing automatic navigation shifts, especially after actions like deleting content or scraping.
+The user initially required an affiliate marketing platform to scrape technology products, store them, and generate multi-platform content (videos, blogs) for social media to drive Amazon affiliate sales. Key enhancements included social media automation (CSV export), content scheduling, performance analytics, email marketing via SendGrid's free tier, and diverse AI content types. A critical need was a URL management system to save, select, and process product URLs without input limits, ensuring accurate price scraping. Paramount to user experience was preventing automatic tab navigation shifts, particularly after actions like content deletion or scraping. Later, the user explicitly requested the integration of all 10 suggested competitive advantages (AI price tracking, advanced analytics, social media automation, content personalization, etc.), while maintaining cost-effectiveness (free-tier solutions) and strictly avoiding unwanted tab switches.
 </product_requirements>
 
 <key_technical_concepts>
--   **Full-stack Architecture:** React (frontend), FastAPI (backend), MongoDB (database).
--   **AI Integration:** Emergent LLM Key via  library for content generation.
--   **UI/UX Framework:** Shadcn UI components, Tailwind CSS for modern design.
--   **Web Scraping:** ,  for product data extraction, adapted for 2025 anti-bot measures.
--   **Email Marketing:** SendGrid integration (free tier).
--   **Task Scheduling:** APScheduler for automated content publishing.
--   **State Management:** React ,  for UI logic and tab navigation.
+-   **Full-stack:** React (frontend), FastAPI (backend), MongoDB (database).
+-   **AI:** Emergent LLM for content generation.
+-   **UI/UX:** Shadcn UI, Tailwind CSS.
+-   **Web Scraping:** BeautifulSoup, aiohttp.
+-   **Email:** SendGrid.
+-   **Scheduling:** APScheduler.
+-   **Analytics:** Google Analytics (gtag).
+-   **Affiliate APIs:** Rakuten Advertising API (OAuth 2.0, Web Service Token).
 </key_technical_concepts>
 
 <code_architecture>
-The application has a standard full-stack structure:
+The application follows a standard full-stack architecture:
+
 
 
 -   **/app/backend/server.py**:
-    -   **Importance**: This is the core FastAPI application, handling all API routes, database interactions, scraping logic, LLM calls, SendGrid integration, and scheduling. It defines product, content, URL queue models and their CRUD operations.
+    -   **Importance**: Core FastAPI application, handling API routes, DB interactions, scraping, LLM, SendGrid, scheduling.
     -   **Changes Made**:
-        -   Initial setup for product scraping and LLM content generation.
-        -   Integrated SendGrid for email marketing (new endpoints for campaigns).
-        -   Implemented APScheduler for content scheduling and automated publishing.
-        -   Added endpoints for URL queue management (saving, retrieving, scraping selected URLs).
-        -   Modified scraping logic () for enhanced price and product name extraction, user agent rotation, and error handling.
-        -   Introduced a database cleanup endpoint ().
-        -   Added manual price entry functionality as a fallback for blocked scrapers.
-        -   Removed initial limits on URL processing.
+        -   Initial setup for product scraping, LLM content.
+        -   Integrated SendGrid and APScheduler.
+        -   Added URL queue management.
+        -   Enhanced  for price/name, user agent rotation, error handling.
+        -   Added database cleanup endpoints (including an accidental nuke all data endpoint, later removed implicitly by new auth setup).
+        -   Implemented manual price entry.
+        -   Added new Pydantic models (PriceAlert, SocialPost, ContentScript, CompetitorInsight, Workflow) for competitive features.
+        -   Added new API endpoints for all 13 competitive features (, , , etc.).
+        -   Integrated Rakuten API endpoints (, , ).
+        -   Updated Rakuten endpoints to use proper API access token generation and authentication.
 -   **/app/backend/requirements.txt**:
-    -   **Importance**: Lists all Python dependencies for the backend.
-    -   **Changes Made**: Added , , , , , .
+    -   **Importance**: Python dependencies.
+    -   **Changes Made**: Added , , , , , , , .
+-   **/app/backend/rakuten_client.py**: (New File)
+    -   **Importance**: Encapsulates Rakuten Advertising API interaction logic.
+    -   **Changes Made**: Created for OAuth 2.0 (client credentials, username/password), then rewritten for Web Service Token, and finally for proper API access token generation flow using client ID/secret. Handles token management and API calls (product search, import).
 -   **/app/backend/.env**:
-    -   **Importance**: Stores environment variables like , , , , , .
-    -   **Changes Made**: Added , , .
+    -   **Importance**: Stores environment variables.
+    -   **Changes Made**: Added , , , , , , , , , .
 -   **/app/frontend/src/App.js**:
-    -   **Importance**: Main React component, orchestrating the entire UI, including routing, state management, and rendering different tabs and features.
+    -   **Importance**: Main React component, orchestrating UI, routing, state, tabs.
     -   **Changes Made**:
-        -   Initial dashboard with Products, Content, Scraper tabs.
-        -   Implemented advanced UI for content scheduling, email campaigns, analytics, and enhanced scraping.
-        -   Integrated the new URL Manager tab with its interface for saving, selecting, and scraping URLs.
-        -   Added state management for form inputs, loading states, and dialog visibility across multiple features.
-        -   Implemented  hooks for data fetching and UI updates.
-        -   Introduced logic to prevent automatic tab switching after actions.
-        -   Added manual price editing inputs and state.
-        -   The root cause of the current tab-switching issue () resides here.
+        -   Initial dashboard with Products, Content, Scraper, URL Manager tabs.
+        -   Implemented content scheduling, email campaigns, analytics, enhanced scraping.
+        -   **Fixed tab switching bug**: Removed  from  component, implemented state-managed  and .
+        -   Expanded tab structure from 7 to 14 tabs for all competitive features (URLs, Products, Content, Scraper, Prices, Analytics+, Social, Studio, Intel, Workflows, Schedule, Email, Stats, Rakuten).
+        -   Added new state variables and  functions for all new competitive features.
+        -   Integrated Google Analytics imports and event tracking calls ().
+        -   Numerous attempts to fix input focus issue: optimizing , , , using custom , , ,  components.
+        -   Replaced many inline  handlers with stable  functions.
+        -   Added the new Rakuten tab UI with search input and product display.
+-   **/app/frontend/src/index.js**:
+    -   **Importance**: Root React component rendering.
+    -   **Changes Made**: Disabled  as an attempt to fix the input focus issue.
+-   **/app/frontend/src/analytics.js**: (New File)
+    -   **Importance**: Centralizes Google Analytics initialization and event tracking logic.
+    -   **Changes Made**: Created for GA4 direct script implementation and  function.
+-   **/app/frontend/src/StableInput.js, NativeInput.js, IsolatedInput.js, PureInput.js**: (New Files, then likely unused/removed by later attempts)
+    -   **Importance**: Custom input components created in attempts to fix the persistent input focus bug by isolating input handling from React's rendering cycle.
 -   **/app/frontend/.env**:
-    -   **Importance**: Stores frontend environment variables, primarily .
-    -   **Changes Made**: Confirmed  points to the backend.
+    -   **Importance**: Frontend environment variables.
+    -   **Changes Made**: Confirmed . Added  and  (the latter was deprioritized).
 </code_architecture>
 
 <pending_tasks>
--   **Fix Persistent Tab Switching:** The main issue where the UI unexpectedly reverts to the URL Manager tab after various actions, identified to be caused by  in the  component in .
--   **Test Amazon Price Scraping with Manual Override:** Verify the manual price entry fallback works correctly when automated scraping fails for Amazon.
+-   **Fix Persistent Input Focus Issue:** The critical UI bug where users must click the input box after every character typed. This remains the most significant unresolved issue.
+-   **Rakuten Partnerships:** User needs to get approved for advertiser partnerships to retrieve actual products from the Rakuten API.
+-   **Amazon API Keys:** User needs to provide Amazon Product Advertising API keys (Access Key ID, Secret Access Key, Associate Tag) for integration.
+-   **Facebook Pixel Integration:** Deprioritized, but initially requested.
 </pending_tasks>
 
 <current_work>
-The immediate focus is on resolving a critical and persistent UI bug where the application automatically switches back to the URL Manager tab after almost any user interaction, causing significant frustration. This issue has been reported multiple times by the user, despite previous attempts by the AI engineer to fix it by modifying various functions to prevent unwanted navigation. The root cause has now been identified in  within the  component, specifically due to the  attribute. This attribute forces the component to reset to the URL Manager tab on re-render, overriding any attempts to maintain the current tab state. The current task is to implement proper state management for the active tab to ensure the user stays on their current working tab, as per the user's explicit request.
+Immediately before this summary request, the AI engineer was intensely focused on resolving a critical and persistent input focus issue. Users are currently forced to click the input field after every single character they type, rendering text input highly unprofessional and frustrating. Despite numerous attempts to fix this (including optimizing , , , creating custom , , ,  components, removing , and replacing all inline  handlers), the problem persists. The latest diagnosis suggests it's a deep-seated React architectural problem, possibly related to global event listeners, CSS/JS framework conflicts, browser extensions, or fundamental React reconciliation issues.
 
-The system's current state is that it has a comprehensive set of features, including product scraping, AI content generation (8 types), content scheduling, email marketing via SendGrid, social media export (CSV), and basic analytics. A URL Manager tab was recently added to queue and batch-process URLs. However, the core UX flow is severely hampered by this tab-switching bug.
+Concurrently, the AI engineer successfully implemented a **REAL Rakuten Advertising API integration** in  and  using the user's provided Client ID and Secret to generate an API access token. While the connection is successful, the product search currently returns 0 results, which has been attributed to the user's need to secure approved advertiser partnerships within Rakuten. Google Analytics is also fully re-enabled and tracking.
 </current_work>
 
 <optional_next_step>
-The next step is to modify  to remove the  from the Tabs component and implement a state-managed  prop.
+Investigate and resolve the critical input focus issue that requires users to click after every typed character.
 </optional_next_step>
