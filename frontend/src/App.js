@@ -226,7 +226,7 @@ function App() {
   };
 
   // =====================================================
-  // EMERGENCY FIX - DISABLE ALL RE-RENDERING TRIGGERS
+  // INITIALIZE ANALYTICS AND FETCH DATA
   // =====================================================
   
   const [isInitialized, setIsInitialized] = useState(false);
@@ -234,8 +234,34 @@ function App() {
   useEffect(() => {
     if (isInitialized) return;
     
-    // DISABLE ALL DATA FETCHING AND ANALYTICS TO PREVENT RE-RENDERS
-    console.log('App initialized - NO background tasks running');
+    // Initialize Google Analytics
+    try {
+      initGA();
+      initFacebookPixel();
+      trackPageView('Affiliate Marketing Dashboard');
+      console.log('✅ Analytics initialized successfully');
+    } catch (error) {
+      console.log('⚠️ Analytics initialization skipped');
+    }
+    
+    // Fetch initial data
+    const fetchAllData = async () => {
+      try {
+        await Promise.all([
+          fetchProducts(),
+          fetchGeneratedContent(),
+          fetchEmailCampaigns(),
+          fetchSavedUrls(),
+          fetchStats(),
+          fetchAnalytics()
+        ]);
+        console.log('✅ Initial data loaded');
+      } catch (error) {
+        console.log('⚠️ Some data failed to load');
+      }
+    };
+    
+    fetchAllData();
     setIsInitialized(true);
   }, [isInitialized]);
 
