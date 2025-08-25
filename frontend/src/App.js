@@ -1374,7 +1374,7 @@ Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
                     
                     <div>
                       <label className="text-sm font-medium mb-2 block">Notes (optional)</label>
-                      <Input
+                      <FocusSafeInput
                         placeholder="Black Friday deals, trending products, etc."
                         value={urlNotes}
                         onChange={handleInputChange(setUrlNotes)}
