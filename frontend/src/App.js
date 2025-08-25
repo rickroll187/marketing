@@ -1924,7 +1924,7 @@ Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
 https://www.bestbuy.com/site/...
 https://www.newegg.com/..."
                         value={scrapeUrls}
-                        onChange={(e) => setScrapeUrls(e.target.value)}
+                        onChange={handleInputChange(setScrapeUrls)}
                         rows={10}
                         className="font-mono text-sm"
                       />
