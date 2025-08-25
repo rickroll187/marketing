@@ -2966,7 +2966,7 @@ https://affiliate-site.com"
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="text-sm font-medium mb-2 block">Min Price ($)</label>
-                          <Input
+                            <FocusSafeInput
                             type="number"
                             placeholder="0"
                             value={rakutenMinPrice}
