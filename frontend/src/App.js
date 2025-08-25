@@ -1671,7 +1671,7 @@ Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
                                             <Input
                                               placeholder="Setup and configuration, advanced features, troubleshooting..."
                                               value={tutorialFocus}
-                                              onChange={(e) => setTutorialFocus(e.target.value)}
+                                              onChange={handleInputChange(setTutorialFocus)}
                                             />
                                           </div>
                                         )}
