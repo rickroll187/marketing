@@ -27,26 +27,27 @@ class RakutenAPIClient:
         self.client = None
         
     async def _get_access_token(self) -> str:
-        """Get OAuth 2.0 access token using client credentials flow"""
+        """Get OAuth 2.0 access token using client credentials flow - FIXED for Rakuten"""
         if not self.client_id or not self.client_secret:
             raise ValueError("Rakuten API credentials not configured")
             
         if self.access_token and self.token_expires_at and datetime.now() < self.token_expires_at:
             return self.access_token
             
-        token_url = f"{self.base_url}/token"
+        # FIX: Use correct Rakuten token endpoint
+        token_url = "https://api.linksynergy.com/token"
         
-        # Prepare credentials for Basic Auth
-        credentials = f"{self.client_id}:{self.client_secret}"
-        encoded_credentials = base64.b64encode(credentials.encode()).decode()
-        
+        # FIX: Use proper Rakuten authentication format
         headers = {
-            'Authorization': f'Basic {encoded_credentials}',
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json'
         }
         
         data = {
-            'grant_type': 'client_credentials'
+            'grant_type': 'client_credentials',
+            'client_id': self.client_id,
+            'client_secret': self.client_secret,
+            'scope': 'product_search'
         }
         
         try:
@@ -66,7 +67,7 @@ class RakutenAPIClient:
                 
         except httpx.HTTPStatusError as e:
             logger.error(f"Failed to get access token: {e.response.status_code} - {e.response.text}")
-            raise Exception(f"Authentication failed: {e.response.status_code}")
+            raise Exception(f"Rakuten Authentication failed: {e.response.status_code}")
         except Exception as e:
             logger.error(f"Error getting access token: {str(e)}")
             raise
