@@ -173,6 +173,13 @@ function App() {
   const [workflowTriggers, setWorkflowTriggers] = useState([]);
   const [activeWorkflows, setActiveWorkflows] = useState([]);
 
+  // Rakuten API state
+  const [rakutenKeyword, setRakutenKeyword] = useState('');
+  const [rakutenCategory, setRakutenCategory] = useState('');
+  const [rakutenMinPrice, setRakutenMinPrice] = useState('');
+  const [rakutenMaxPrice, setRakutenMaxPrice] = useState('');
+  const [rakutenSearchResults, setRakutenSearchResults] = useState([]);
+
   const handleEditProduct = (product) => {
     setEditingProduct(product);
     setEditPrice(product.price.toString());
