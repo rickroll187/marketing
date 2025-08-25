@@ -813,7 +813,7 @@ function App() {
       return;
     }
 
-    setLoading(true);
+    setScrapeLoading(true);
     try {
       const response = await axios.post(`${API}/saved-urls/scrape-selected`);
       
