@@ -1,14 +1,3 @@
-import TestInput from './TestInput';
-
-// TEMPORARY: Testing minimal component to isolate focus issue
-function App() {
-  return <TestInput />;
-}
-
-export default App;
-
-/*
-// ORIGINAL APP CODE - TEMPORARILY DISABLED
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import './App.css';
 import axios from 'axios';
