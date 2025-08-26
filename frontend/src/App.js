@@ -414,6 +414,9 @@ function App() {
       setEmailLoading(false);
     }
   }, []);
+
+  // Handle URL submission from isolated component
+  const handleUrlSubmission = useCallback(async ({ urls, category, priority, notes }) => {
     setUrlSaveLoading(true);
     try {
       const response = await axios.post(`${API}/saved-urls/bulk`, {
