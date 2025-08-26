@@ -245,6 +245,9 @@ function App() {
   useEffect(() => {
     if (isInitialized) return;
     
+    // Apply global input focus fix immediately
+    applyGlobalInputFix();
+    
     // Initialize Google Analytics
     try {
       initGA();
