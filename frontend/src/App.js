@@ -2966,11 +2966,19 @@ https://affiliate-site.com"
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="text-sm font-medium mb-2 block">Min Price ($)</label>
-                            <FocusSafeInput
+                            <input
                             type="number"
                             placeholder="0"
                             value={rakutenMinPrice}
-                            onChange={handleInputChange(setRakutenMinPrice)}
+                            onChange={(e) => setRakutenMinPrice(e.target.value)}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            onBlur={(e) => {
+                              setTimeout(() => {
+                                if (document.activeElement !== e.target) {
+                                  e.target.focus();
+                                }
+                              }, 10);
+                            }}
                           />
                         </div>
                         <div>
