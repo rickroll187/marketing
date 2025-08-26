@@ -164,11 +164,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Fix critical input focus bug"
     - "API endpoints functionality" 
     - "Competitive affiliate marketing features"
-  stuck_tasks:
-    - "Fix critical input focus bug"
+    - "Performance optimizations"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
