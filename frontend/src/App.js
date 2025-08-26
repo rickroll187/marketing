@@ -242,7 +242,8 @@ function App() {
   useEffect(() => {
     if (isInitialized) return;
     
-    // Initialize Google Analytics
+    // Initialize Google Analytics - TEMPORARILY DISABLED FOR BUG TESTING
+    /*
     try {
       initGA();
       initFacebookPixel();
@@ -251,6 +252,8 @@ function App() {
     } catch (error) {
       console.log('⚠️ Analytics initialization skipped');
     }
+    */
+    console.log('🚫 Analytics temporarily disabled for input focus bug testing');
     
     // Fetch initial data
     const fetchAllData = async () => {
