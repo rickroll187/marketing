@@ -353,8 +353,67 @@ function App() {
     };
   }, []);
 
-  // Handle URL submission from isolated component
-  const handleUrlSubmission = useCallback(async ({ urls, category, priority, notes }) => {
+  // Handle scraper submission from isolated component
+  const handleScraperSubmission = useCallback(async ({ urls, category }) => {
+    setScrapeLoading(true);
+    try {
+      const response = await axios.post(`${API}/scrape`, {
+        urls: urls,
+        category: category
+      });
+      
+      toast({
+        title: "Success! 🎉",
+        description: `Scraped ${response.data.length} products successfully`
+      });
+      
+      fetchProducts();
+      fetchStats();
+    } catch (error) {
+      const errorMessage = error.response?.data?.detail || error.message || "Failed to scrape products";
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
+      throw error;
+    } finally {
+      setScrapeLoading(false);
+    }
+  }, []);
+
+  // Handle email submission from isolated component
+  const handleEmailSubmission = useCallback(async ({ subject, content, recipients, scheduleDate }) => {
+    setEmailLoading(true);
+    try {
+      const campaignData = {
+        name: `Campaign: ${subject}`,
+        subject: subject,
+        content: content,
+        recipient_list: recipients,
+        scheduled_for: scheduleDate ? new Date(scheduleDate).toISOString() : null
+      };
+
+      const response = await axios.post(`${API}/email-campaigns`, campaignData);
+
+      toast({
+        title: "Success! 📧",
+        description: `Email campaign created successfully! Sending to ${recipients.length} recipients.`
+      });
+
+      fetchStats();
+    } catch (error) {
+      const errorMessage = error.response?.data?.detail || error.message || "Failed to create email campaign";
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
+      throw error;
+    } finally {
+      setEmailLoading(false);
+    }
+  }, []);
     setUrlSaveLoading(true);
     try {
       const response = await axios.post(`${API}/saved-urls/bulk`, {
