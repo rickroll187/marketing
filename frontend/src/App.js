@@ -347,9 +347,38 @@ function App() {
     };
   }, []);
 
-  // Stable callbacks for ExternalTextarea to prevent unmounting  
-  const handleUrlsChange = useCallback((e) => {
-    setUrlsToSave(e.target.value);
+  // Handle URL submission from isolated component
+  const handleUrlSubmission = useCallback(async ({ urls, category, priority, notes }) => {
+    setUrlSaveLoading(true);
+    try {
+      const response = await axios.post(`${API}/saved-urls/bulk`, {
+        urls: urls,
+        category: category,
+        priority: priority,
+        notes: notes
+      });
+      
+      toast({
+        title: "Success! 🎉",
+        description: `Successfully saved ${response.data.length} URLs to your queue!`,
+        duration: 6000
+      });
+      
+      // Update data WITHOUT changing tabs
+      fetchSavedUrls();
+      fetchStats();
+    } catch (error) {
+      const errorMessage = error.response?.data?.detail || error.message || "Failed to save URLs";
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+        duration: 8000
+      });
+      throw error; // Re-throw so the isolated component knows it failed
+    } finally {
+      setUrlSaveLoading(false);
+    }
   }, []);
 
   const handleSelectChange = useCallback((setter) => {
