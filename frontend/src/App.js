@@ -2113,99 +2113,10 @@ https://www.newegg.com/..."
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Create Campaign */}
-                  <div className="space-y-4">
-                    <h3 className="font-semibold">Create Email Campaign</h3>
-                    
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Subject Line</label>
-                      <input
-                        type="text"
-                        placeholder="Amazing deals on tech products!"
-                        value={emailSubject}
-                        onChange={(e) => setEmailSubject(e.target.value)}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        onBlur={(e) => {
-                          setTimeout(() => {
-                            if (document.activeElement !== e.target) {
-                              e.target.focus();
-                            }
-                          }, 10);
-                        }}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Email Content</label>
-                      <textarea
-                        placeholder="Your email content here..."
-                        value={emailContent}
-                        onChange={(e) => setEmailContent(e.target.value)}
-                        rows={8}
-                        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        onBlur={(e) => {
-                          setTimeout(() => {
-                            if (document.activeElement !== e.target) {
-                              e.target.focus();
-                            }
-                          }, 10);
-                        }}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Recipients (comma-separated)</label>
-                      <textarea
-                        placeholder="user1@example.com, user2@example.com"
-                        value={emailRecipients}
-                        onChange={(e) => setEmailRecipients(e.target.value)}
-                        rows={3}
-                        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        onBlur={(e) => {
-                          setTimeout(() => {
-                            if (document.activeElement !== e.target) {
-                              e.target.focus();
-                            }
-                          }, 10);
-                        }}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Schedule (optional)</label>
-                      <Calendar
-                        mode="single"
-                        selected={scheduleDate}
-                        onSelect={setScheduleDate}
-                        className="rounded-md border"
-                      />
-                    </div>
-
-                    <Button
-                      onClick={handleCreateEmailCampaign}
-                      disabled={loading}
-                      className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                    >
-                      {loading ? (
-                        <>
-                          <Send className="h-4 w-4 mr-2 animate-spin" />
-                          {scheduleDate ? 'Scheduling...' : 'Sending...'}
-                        </>
-                      ) : (
-                        <>
-                          <Send className="h-4 w-4 mr-2" />
-                          {scheduleDate ? 'Schedule Campaign' : 'Send Campaign'}
-                        </>
-                      )}
-                    </Button>
-
-                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <p className="text-sm text-blue-800">
-                        <strong>Email Integration:</strong> Uses SendGrid free tier (100 emails/day). 
-                        Configure your SendGrid API key in the backend environment variables for production use.
-                      </p>
-                    </div>
-                  </div>
+                  {/* Isolated Email Input - FOCUS BUG FIXED */}
+                  <IsolatedEmailInput
+                    onEmailSubmit={handleEmailSubmission}
+                  />
 
                   {/* Campaign History */}
                   <div className="space-y-4">
