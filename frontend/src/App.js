@@ -23,6 +23,7 @@ import FocusSafeTextarea from './FocusSafeTextarea';
 import FocusSafeInput from './FocusSafeInput';
 import ExternalTextarea from './ExternalTextarea';
 import PortalTextarea from './PortalTextarea';
+import AutoFocusTextarea from './AutoFocusTextarea';
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
