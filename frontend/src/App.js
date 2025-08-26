@@ -1979,67 +1979,14 @@ Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Product URLs (one per line)</label>
-                      <textarea
-                        placeholder="https://www.amazon.com/product/...
+                  {/* Isolated Scraper Input - FOCUS BUG FIXED */}
+                  <IsolatedScraperInput
+                    onScrapeSubmit={handleScraperSubmission}
+                    placeholder="https://www.amazon.com/product/...
 https://www.bestbuy.com/site/...
 https://www.newegg.com/..."
-                        value={scrapeUrls}
-                        onChange={(e) => setScrapeUrls(e.target.value)}
-                        rows={10}
-                        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono"
-                        onBlur={(e) => {
-                          // Auto-refocus if user was typing
-                          setTimeout(() => {
-                            if (document.activeElement !== e.target) {
-                              e.target.focus();
-                            }
-                          }, 10);
-                        }}
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Category</label>
-                      <Select value={scrapeCategory} onValueChange={setScrapeCategory}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="laptops">Laptops</SelectItem>
-                          <SelectItem value="smartphones">Smartphones</SelectItem>
-                          <SelectItem value="headphones">Headphones</SelectItem>
-                          <SelectItem value="gaming">Gaming</SelectItem>
-                          <SelectItem value="software">Software</SelectItem>
-                          <SelectItem value="accessories">Accessories</SelectItem>
-                          <SelectItem value="tablets">Tablets</SelectItem>
-                          <SelectItem value="smartwatches">Smart Watches</SelectItem>
-                          <SelectItem value="cameras">Cameras</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <Button
-                      onClick={handleScrapeProducts}
-                      disabled={loading || !scrapeUrls.trim() || !scrapeCategory}
-                      className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700"
-                    >
-                      {loading ? (
-                        <>
-                          <Search className="h-4 w-4 mr-2 animate-spin" />
-                          Scraping Products...
-                        </>
-                      ) : (
-                        <>
-                          <Search className="h-4 w-4 mr-2" />
-                          Scrape Products
-                        </>
-                      )}
-                    </Button>
-                  </div>
+                    rows={10}
+                  />
                   
                   <div className="space-y-4">
                     <h3 className="font-semibold text-lg">Enhanced Scraping Features</h3>
