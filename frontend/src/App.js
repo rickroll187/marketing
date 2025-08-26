@@ -1356,90 +1356,16 @@ function App() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Add URLs Section */}
-                  <div className="space-y-4">
-                    <h3 className="font-semibold text-lg">Add URLs to Queue</h3>
-                    
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Product URLs (one per line) - ✨ UNLIMITED!</label>
-                      <AutoFocusTextarea
-                        placeholder="https://www.amazon.com/product/...
+                  {/* Add URLs Section - ISOLATED COMPONENT */}
+                  <IsolatedUrlInput
+                    onUrlsSubmit={handleUrlSubmission}
+                    placeholder="https://www.amazon.com/product/...
 https://www.bestbuy.com/site/...
 https://www.newegg.com/...
 
 Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
-                        value={urlsToSave}
-                        onChange={(e) => setUrlsToSave(e.target.value)}
-                        rows={6}
-                      />
-                      <p className="text-xs text-gray-600 mt-1">
-                        💡 Pro tip: You can paste 100+ URLs at once! Large batches are processed efficiently in the background.
-                      </p>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Category</label>
-                        <Select value={urlCategory} onValueChange={setUrlCategory}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="smartphones">Smartphones</SelectItem>
-                            <SelectItem value="laptops">Laptops</SelectItem>
-                            <SelectItem value="headphones">Headphones</SelectItem>
-                            <SelectItem value="gaming">Gaming</SelectItem>
-                            <SelectItem value="software">Software</SelectItem>
-                            <SelectItem value="accessories">Accessories</SelectItem>
-                            <SelectItem value="tablets">Tablets</SelectItem>
-                            <SelectItem value="smartwatches">Smart Watches</SelectItem>
-                            <SelectItem value="cameras">Cameras</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Priority</label>
-                        <Select value={urlPriority} onValueChange={setUrlPriority}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="high">High Priority</SelectItem>
-                            <SelectItem value="medium">Medium Priority</SelectItem>
-                            <SelectItem value="low">Low Priority</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Notes (optional)</label>
-                      <FocusSafeInput
-                        placeholder="Black Friday deals, trending products, etc."
-                        value={urlNotes}
-                        onChange={handleInputChange(setUrlNotes)}
-                      />
-                    </div>
-                    
-                    <Button
-                      onClick={handleSaveUrls}
-                      disabled={urlSaveLoading || !urlsToSave.trim() || !urlCategory}
-                      className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
-                    >
-                      {urlSaveLoading ? (
-                        <>
-                          <Loader className="h-4 w-4 mr-2 animate-spin" />
-                          Saving {urlsToSave.split('\n').filter(url => url.trim()).length} URLs...
-                        </>
-                      ) : (
-                        <>
-                          <Plus className="h-4 w-4 mr-2" />
-                          Save {urlsToSave.split('\n').filter(url => url.trim()).length || 0} URLs to Queue
-                        </>
-                      )}
-                    </Button>
-                  </div>
+                    rows={6}
+                  />
                   
                   {/* Benefits Section */}
                   <div className="space-y-4">
