@@ -25,6 +25,8 @@ import ExternalTextarea from './ExternalTextarea';
 import PortalTextarea from './PortalTextarea';
 import AutoFocusTextarea from './AutoFocusTextarea';
 import IsolatedUrlInput from './IsolatedUrlInput';
+import IsolatedScraperInput from './IsolatedScraperInput';
+import IsolatedEmailInput from './IsolatedEmailInput';
 import { applyGlobalInputFix } from './GlobalInputFix';
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
 import { Button } from './components/ui/button';
