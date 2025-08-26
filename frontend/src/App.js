@@ -1914,14 +1914,22 @@ Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
                   <div className="space-y-4">
                     <div>
                       <label className="text-sm font-medium mb-2 block">Product URLs (one per line)</label>
-                      <FocusSafeTextarea
+                      <textarea
                         placeholder="https://www.amazon.com/product/...
 https://www.bestbuy.com/site/...
 https://www.newegg.com/..."
                         value={scrapeUrls}
-                        onChange={handleInputChange(setScrapeUrls)}
+                        onChange={(e) => setScrapeUrls(e.target.value)}
                         rows={10}
-                        className="font-mono text-sm"
+                        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono"
+                        onBlur={(e) => {
+                          // Auto-refocus if user was typing
+                          setTimeout(() => {
+                            if (document.activeElement !== e.target) {
+                              e.target.focus();
+                            }
+                          }, 10);
+                        }}
                       />
                     </div>
                     
