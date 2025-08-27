@@ -3027,6 +3027,20 @@ https://affiliate-site.com"
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="programs" className="space-y-6">
+            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Star className="h-5 w-5" />
+                  Tech & SaaS Affiliate Program Discovery
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <TechSaasPrograms />
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
       <Toaster />
