@@ -29,6 +29,8 @@ import IsolatedScraperInput from './IsolatedScraperInput';
 import StableEmailInput from './StableEmailInput';
 import TechSaasPrograms from './components/TechSaasPrograms';
 import RealTimeTrackingDashboard from './components/RealTimeTrackingDashboard';
+import SimplifiedLinkManager from './components/SimplifiedLinkManager';
+import CommissionTracker from './components/CommissionTracker';
 import { applyGlobalInputFix } from './GlobalInputFix';
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
 import { Button } from './components/ui/button';
