@@ -27,6 +27,7 @@ import AutoFocusTextarea from './AutoFocusTextarea';
 import IsolatedUrlInput from './IsolatedUrlInput';
 import IsolatedScraperInput from './IsolatedScraperInput';
 import StableEmailInput from './StableEmailInput';
+import TechSaasPrograms from './components/TechSaasPrograms';
 import { applyGlobalInputFix } from './GlobalInputFix';
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
 import { Button } from './components/ui/button';
