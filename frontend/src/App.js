@@ -1344,6 +1344,10 @@ function App() {
               <Star className="h-3 w-3" />
               Programs
             </TabsTrigger>
+            <TabsTrigger value="links" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <Link className="h-3 w-3" />
+              Links
+            </TabsTrigger>
             <TabsTrigger value="price-tracker" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
               <DollarSign className="h-3 w-3" />
               Prices
