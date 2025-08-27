@@ -1337,6 +1337,10 @@ function App() {
               <Zap className="h-3 w-3" />
               Rakuten
             </TabsTrigger>
+            <TabsTrigger value="programs" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <Star className="h-3 w-3" />
+              Programs
+            </TabsTrigger>
             <TabsTrigger value="price-tracker" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
               <DollarSign className="h-3 w-3" />
               Prices
