@@ -2917,6 +2917,20 @@ https://affiliate-site.com"
             </Card>
           </TabsContent>
 
+          <TabsContent value="links" className="space-y-6">
+            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Link className="h-5 w-5" />
+                  Simplified Link Management
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SimplifiedLinkManager />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="programs" className="space-y-6">
             <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
               <CardHeader>
