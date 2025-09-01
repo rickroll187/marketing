@@ -281,8 +281,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Phase 3 - Single User Engagement Features"
-    - "Phase 3 - Tech Platform Integrations"
+    - "Rakuten API Integration"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
