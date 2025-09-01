@@ -1532,6 +1532,56 @@ class AffiliateMarketingAPITester:
             
             return 1
 
+    def run_conversions_tests_only(self):
+        """Run only Conversions Detected feature tests as requested in review"""
+        print("💰 Starting Conversions Detected Feature Testing")
+        print(f"🌐 Testing against: {self.base_url}")
+        print("=" * 80)
+        
+        start_time = time.time()
+        
+        # Test only conversion endpoints
+        print("\n" + "💰" * 50)
+        print("💰 CONVERSIONS DETECTED FEATURE TESTING")
+        print("💰" * 50)
+        
+        self.test_conversions_detected_endpoints()
+        
+        # Final results
+        end_time = time.time()
+        duration = end_time - start_time
+        
+        print("\n" + "=" * 80)
+        print("📊 CONVERSIONS DETECTED TEST RESULTS")
+        print("=" * 80)
+        print(f"⏱️ Total Duration: {duration:.2f} seconds")
+        print(f"🧪 Tests Run: {self.tests_run}")
+        print(f"✅ Tests Passed: {self.tests_passed}")
+        print(f"❌ Tests Failed: {self.tests_run - self.tests_passed}")
+        print(f"📈 Success Rate: {(self.tests_passed/self.tests_run)*100:.1f}%")
+        
+        # Print conversion features summary
+        print(f"\n💰 CONVERSIONS DETECTED ENDPOINTS TESTED:")
+        print(f"   ✅ GET /api/conversions/detected (list conversions with filtering)")
+        print(f"   ✅ GET /api/conversions/stats (conversion statistics)")
+        print(f"   ✅ POST /api/conversions/track (track new conversion)")
+        print(f"   ✅ PUT /api/conversions/{{conversion_id}}/status (update status)")
+        print(f"   ✅ GET /api/conversions/realtime (real-time conversions)")
+        
+        if self.tests_passed == self.tests_run:
+            print("\n🎉 ALL CONVERSIONS DETECTED TESTS PASSED! The new conversion tracking feature is working correctly.")
+            return 0
+        else:
+            print(f"\n⚠️ {self.tests_run - self.tests_passed} tests failed. Check the details above.")
+            
+            # Print failed tests
+            print("\n❌ FAILED TESTS:")
+            for result in self.test_results:
+                if not result['success']:
+                    print(f"   • {result['name']}: {result['details']}")
+            
+            return 1
+
     def run_phase3_tests_only(self):
         """Run only Phase 3 endpoint tests as requested in review"""
         print("🚀 Starting Phase 3 Backend API Testing")
