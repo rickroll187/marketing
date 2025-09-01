@@ -1615,6 +1615,10 @@ def main():
     elif len(sys.argv) > 1 and sys.argv[1] == "--cleanup":
         tester = AffiliateMarketingAPITester()
         return tester.test_database_cleanup_and_url_management()
+    # Check if we should run Zapier integration and cleanup tests
+    elif len(sys.argv) > 1 and sys.argv[1] == "--zapier":
+        tester = AffiliateMarketingAPITester()
+        return tester.test_complete_zapier_integration_and_cleanup()
     else:
         tester = AffiliateMarketingAPITester()
         return tester.run_comprehensive_test()
