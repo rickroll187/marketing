@@ -267,11 +267,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Phase 3 - Google Analytics Integration"
-    - "Phase 3 - Affiliate Network APIs"
     - "Phase 3 - Single User Engagement Features"
     - "Phase 3 - Tech Platform Integrations"
-    - "Phase 3 - Enhanced Fraud Detection APIs"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
