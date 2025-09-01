@@ -22,6 +22,7 @@ import json
 import csv
 import io
 from rakuten_client import RakutenAPIClient, transform_rakuten_product
+from gearit_client import get_gearit_client
 from google_analytics import google_analytics
 from affiliate_networks import affiliate_networks
 from zapier_integration import zapier_webhooks
