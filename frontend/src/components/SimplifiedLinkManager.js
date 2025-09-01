@@ -24,8 +24,26 @@ import {
   Edit
 } from 'lucide-react';
 
-// Predefined affiliate programs for quick link generation
+// Updated affiliate programs including Rakuten and GEARit
 const AFFILIATE_PROGRAMS = [
+  {
+    id: 'rakuten',
+    name: 'Rakuten Advertising',
+    baseUrl: 'https://click.linksynergy.com',
+    trackingParam: 'id',
+    commission: 'Variable by merchant',
+    category: 'Network',
+    description: 'Access to thousands of merchants through Rakuten network'
+  },
+  {
+    id: 'gearit',
+    name: 'GEARit',
+    baseUrl: 'https://www.gearit.com',
+    trackingParam: 'affiliate',
+    commission: '5-8%',
+    category: 'Electronics',
+    description: 'Premium tech accessories and USB hubs'
+  },
   {
     id: 'hubspot',
     name: 'HubSpot',
@@ -48,137 +66,90 @@ const AFFILIATE_PROGRAMS = [
     baseUrl: 'https://www.clickfunnels.com',
     trackingParam: 'affiliate',
     commission: '40% recurring',
-    category: 'Marketing & Sales'
-  },
-  {
-    id: 'canva',
-    name: 'Canva',
-    baseUrl: 'https://www.canva.com',
-    trackingParam: 'utm_source',
-    commission: '$36 per signup',
-    category: 'Design & Creative'
+    category: 'Marketing'
   },
   {
     id: 'semrush',
-    name: 'Semrush',
+    name: 'SEMrush',
     baseUrl: 'https://www.semrush.com',
     trackingParam: 'ref',
-    commission: '$200 + $10/trial',
+    commission: '$200 per sale',
     category: 'SEO & Analytics'
+  },
+  {
+    id: 'convertkit',
+    name: 'ConvertKit',
+    baseUrl: 'https://convertkit.com',
+    trackingParam: 'ref',
+    commission: '30% recurring',
+    category: 'Email Marketing'
   }
 ];
 
 const SimplifiedLinkManager = () => {
-  const [links, setLinks] = useState([
-    {
-      id: 1,
-      title: 'HubSpot Marketing Hub',
-      originalUrl: 'https://www.hubspot.com/products/marketing',
-      shortUrl: 'https://bit.ly/hubspot-marketing-pro',
-      trackingCode: 'HUB-MKT-001',
-      program: 'HubSpot',
-      clicks: 89,
-      conversions: 4,
-      earnings: '$156.00',
-      status: 'active',
-      createdAt: '2024-01-15'
-    },
-    {
-      id: 2,
-      title: 'Elementor Pro Website Builder',
-      originalUrl: 'https://elementor.com/pro/',
-      shortUrl: 'https://bit.ly/elementor-pro-deal',
-      trackingCode: 'ELE-PRO-002',
-      program: 'Elementor',
-      clicks: 67,
-      conversions: 3,
-      earnings: '$134.50',
-      status: 'active',
-      createdAt: '2024-01-12'
+  const [selectedProgram, setSelectedProgram] = useState('');
+  const [productName, setProductName] = useState('');
+  const [productUrl, setProductUrl] = useState('');
+  const [campaignName, setCampaignName] = useState('');
+  const [customTrackingCode, setCustomTrackingCode] = useState('');
+  const [generatedLinks, setGeneratedLinks] = useState([]);
+  const [shortCode, setShortCode] = useState('');
+
+  // Generate affiliate link
+  const generateAffiliateLink = useCallback(() => {
+    if (!selectedProgram || !productName || !productUrl) {
+      alert('Please fill in all required fields');
+      return;
     }
-  ]);
 
-  const [newLink, setNewLink] = useState({
-    title: '',
-    originalUrl: '',
-    program: '',
-    trackingCode: ''
-  });
+    const program = AFFILIATE_PROGRAMS.find(p => p.id === selectedProgram);
+    if (!program) return;
 
-  const [isCreating, setIsCreating] = useState(false);
-
-  // Generate tracking code
-  const generateTrackingCode = useCallback((program) => {
-    const prefix = program.substring(0, 3).toUpperCase();
-    const timestamp = Date.now().toString().slice(-6);
-    return `${prefix}-${timestamp}`;
-  }, []);
-
-  // Generate short URL (in production, this would call a URL shortening service)
-  const generateShortUrl = useCallback((originalUrl, trackingCode) => {
-    const domain = 'https://bit.ly/';
-    const shortCode = trackingCode.toLowerCase().replace('-', '');
-    return `${domain}${shortCode}`;
-  }, []);
-
-  // Create new affiliate link
-  const handleCreateLink = useCallback(async () => {
-    if (!newLink.title || !newLink.originalUrl || !newLink.program) return;
-
-    setIsCreating(true);
+    // Generate tracking code if not provided
+    const trackingCode = customTrackingCode || `${program.id}_${Date.now()}`;
+    const campaignTag = campaignName ? `_${campaignName.toLowerCase().replace(/\s+/g, '-')}` : '';
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Create affiliate link (simplified version - in real app this would use actual affiliate URLs)
+    const affiliateLink = `${program.baseUrl}?${program.trackingParam}=${trackingCode}${campaignTag}&url=${encodeURIComponent(productUrl)}`;
+    
+    // Generate short link code
+    const shortLinkCode = shortCode || Math.random().toString(36).substring(2, 8).toUpperCase();
+    const shortLink = `https://af.ly/${shortLinkCode}`;
 
-    const trackingCode = newLink.trackingCode || generateTrackingCode(newLink.program);
-    const shortUrl = generateShortUrl(newLink.originalUrl, trackingCode);
-
-    const link = {
+    const newLink = {
       id: Date.now(),
-      title: newLink.title,
-      originalUrl: newLink.originalUrl,
-      shortUrl: shortUrl,
-      trackingCode: trackingCode,
-      program: newLink.program,
+      program: program.name,
+      productName,
+      originalUrl: productUrl,
+      affiliateLink,
+      shortLink,
+      trackingCode,
+      campaign: campaignName || 'Default',
+      created: new Date().toISOString(),
       clicks: 0,
       conversions: 0,
-      earnings: '$0.00',
-      status: 'active',
-      createdAt: new Date().toISOString().split('T')[0]
+      earnings: 0
     };
 
-    setLinks(prev => [link, ...prev]);
-    setNewLink({ title: '', originalUrl: '', program: '', trackingCode: '' });
-    setIsCreating(false);
-  }, [newLink, generateTrackingCode, generateShortUrl]);
-
-  // Copy link to clipboard
-  const copyToClipboard = useCallback(async (text, type) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      // In a real app, you'd show a toast notification here
-      console.log(`${type} copied to clipboard: ${text}`);
-    } catch (err) {
-      console.error('Failed to copy to clipboard:', err);
-    }
-  }, []);
-
-  // Generate social media sharing links
-  const generateSocialLinks = useCallback((link) => {
-    const encodedUrl = encodeURIComponent(link.shortUrl);
-    const encodedTitle = encodeURIComponent(link.title);
+    setGeneratedLinks(prev => [newLink, ...prev]);
     
-    return {
-      twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
-      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
-      email: `mailto:?subject=${encodedTitle}&body=Check this out: ${link.shortUrl}`
-    };
+    // Reset form
+    setProductName('');
+    setProductUrl('');
+    setCampaignName('');
+    setCustomTrackingCode('');
+    setShortCode('');
+  }, [selectedProgram, productName, productUrl, campaignName, customTrackingCode, shortCode]);
+
+  // Copy to clipboard
+  const copyToClipboard = useCallback((text) => {
+    navigator.clipboard.writeText(text);
+    // You could add a toast notification here
   }, []);
 
   // Delete link
-  const handleDeleteLink = useCallback((linkId) => {
-    setLinks(prev => prev.filter(link => link.id !== linkId));
+  const deleteLink = useCallback((linkId) => {
+    setGeneratedLinks(prev => prev.filter(link => link.id !== linkId));
   }, []);
 
   return (
@@ -189,233 +160,229 @@ const SimplifiedLinkManager = () => {
           🔗 Simplified Link Management
         </h2>
         <p className="text-gray-600">
-          Generate, track, and manage your affiliate links with custom tracking codes
+          Generate and manage affiliate links with custom tracking codes
         </p>
       </div>
 
-      {/* Quick Link Generator */}
-      <Card className="border-l-4 border-l-blue-500">
+      {/* Link Generation Form */}
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Plus className="h-5 w-5" />
-            Quick Link Generator
+            Generate New Affiliate Link
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Program Selection */}
             <div>
-              <label className="text-sm font-medium mb-2 block">Link Title</label>
-              <Input
-                placeholder="e.g., HubSpot Marketing Hub"
-                value={newLink.title}
-                onChange={(e) => setNewLink(prev => ({ ...prev, title: e.target.value }))}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium mb-2 block">Affiliate Program</label>
+              <label className="text-sm font-medium mb-2 block">Affiliate Program *</label>
               <select
-                value={newLink.program}
-                onChange={(e) => setNewLink(prev => ({ ...prev, program: e.target.value }))}
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                value={selectedProgram}
+                onChange={(e) => setSelectedProgram(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value="">Select program</option>
-                {AFFILIATE_PROGRAMS.map(program => (
-                  <option key={program.id} value={program.name}>
-                    {program.name} ({program.commission})
+                <option value="">Select a program</option>
+                {AFFILIATE_PROGRAMS.map((program) => (
+                  <option key={program.id} value={program.id}>
+                    {program.name} - {program.commission}
                   </option>
                 ))}
               </select>
             </div>
-          </div>
-          
-          <div>
-            <label className="text-sm font-medium mb-2 block">Original URL</label>
-            <Input
-              placeholder="https://www.example.com/product"
-              value={newLink.originalUrl}
-              onChange={(e) => setNewLink(prev => ({ ...prev, originalUrl: e.target.value }))}
-            />
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            {/* Product Name */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Product Name *</label>
+              <Input
+                value={productName}
+                onChange={(e) => setProductName(e.target.value)}
+                placeholder="e.g., USB-C Hub Pro"
+              />
+            </div>
+
+            {/* Product URL */}
+            <div className="md:col-span-2">
+              <label className="text-sm font-medium mb-2 block">Product URL *</label>
+              <Input
+                value={productUrl}
+                onChange={(e) => setProductUrl(e.target.value)}
+                placeholder="https://example.com/product-page"
+              />
+            </div>
+
+            {/* Campaign Name */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Campaign Name (Optional)</label>
+              <Input
+                value={campaignName}
+                onChange={(e) => setCampaignName(e.target.value)}
+                placeholder="e.g., Holiday2024"
+              />
+            </div>
+
+            {/* Custom Tracking Code */}
             <div>
               <label className="text-sm font-medium mb-2 block">Custom Tracking Code (Optional)</label>
               <Input
+                value={customTrackingCode}
+                onChange={(e) => setCustomTrackingCode(e.target.value)}
                 placeholder="Auto-generated if empty"
-                value={newLink.trackingCode}
-                onChange={(e) => setNewLink(prev => ({ ...prev, trackingCode: e.target.value }))}
               />
             </div>
-            <div className="flex items-end">
-              <Button 
-                onClick={handleCreateLink}
-                disabled={isCreating || !newLink.title || !newLink.originalUrl || !newLink.program}
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-              >
-                {isCreating ? (
-                  <>
-                    <Scissors className="h-4 w-4 mr-2 animate-spin" />
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <Link className="h-4 w-4 mr-2" />
-                    Generate Link
-                  </>
-                )}
-              </Button>
+
+            {/* Short Link Code */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Short Link Code (Optional)</label>
+              <Input
+                value={shortCode}
+                onChange={(e) => setShortCode(e.target.value)}
+                placeholder="e.g., TECH24"
+              />
             </div>
           </div>
+
+          <Button onClick={generateAffiliateLink} className="w-full">
+            <Link className="h-4 w-4 mr-2" />
+            Generate Affiliate Link
+          </Button>
         </CardContent>
       </Card>
 
-      {/* Links List */}
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold">Your Affiliate Links ({links.length})</h3>
-          <Badge variant="outline">{links.filter(l => l.status === 'active').length} Active</Badge>
-        </div>
-
-        {links.map(link => {
-          const socialLinks = generateSocialLinks(link);
-          
-          return (
-            <Card key={link.id} className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  {/* Header */}
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-semibold text-lg">{link.title}</h4>
-                      <p className="text-sm text-gray-600">{link.program} • Created {link.createdAt}</p>
+      {/* Program Information */}
+      {selectedProgram && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Program Information</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {(() => {
+              const program = AFFILIATE_PROGRAMS.find(p => p.id === selectedProgram);
+              return program ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Commission Rate</p>
+                    <p className="text-lg font-semibold text-green-600">{program.commission}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Category</p>
+                    <Badge variant="outline">{program.category}</Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Base URL</p>
+                    <p className="text-sm text-gray-800 truncate">{program.baseUrl}</p>
+                  </div>
+                  {program.description && (
+                    <div className="md:col-span-3">
+                      <p className="text-sm font-medium text-gray-600">Description</p>
+                      <p className="text-sm text-gray-700">{program.description}</p>
                     </div>
-                    <div className="flex gap-2">
-                      <Badge className={link.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
-                        {link.status}
-                      </Badge>
-                      <Button size="sm" variant="outline" onClick={() => handleDeleteLink(link.id)}>
+                  )}
+                </div>
+              ) : null;
+            })()}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Generated Links */}
+      {generatedLinks.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Link className="h-5 w-5" />
+              Generated Links ({generatedLinks.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {generatedLinks.map((link) => (
+                <div key={link.id} className="border rounded-lg p-4 bg-gray-50">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="font-medium">{link.productName}</h3>
+                      <p className="text-sm text-gray-600">{link.program} • {link.campaign}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button size="sm" variant="outline" onClick={() => copyToClipboard(link.shortLink)}>
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => deleteLink(link.id)}>
                         <Trash2 className="h-3 w-3" />
                       </Button>
                     </div>
                   </div>
 
-                  {/* URLs */}
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-gray-500">SHORT URL:</span>
-                      <code className="text-sm bg-blue-50 px-2 py-1 rounded text-blue-700 flex-1">
-                        {link.shortUrl}
-                      </code>
-                      <Button size="sm" variant="outline" onClick={() => copyToClipboard(link.shortUrl, 'Short URL')}>
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-gray-500">TRACKING:</span>
-                      <code className="text-sm bg-gray-50 px-2 py-1 rounded text-gray-700">
-                        {link.trackingCode}
-                      </code>
-                    </div>
-                  </div>
-
-                  {/* Performance Metrics */}
-                  <div className="grid grid-cols-3 gap-4 py-3 border-y">
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-1 mb-1">
-                        <MousePointer className="h-3 w-3 text-blue-500" />
-                        <span className="text-xs text-gray-600">Clicks</span>
+                    <div>
+                      <p className="text-xs font-medium text-gray-600">Short Link</p>
+                      <div className="flex items-center gap-2">
+                        <code className="text-sm bg-white px-2 py-1 rounded border flex-1 truncate">
+                          {link.shortLink}
+                        </code>
+                        <Button size="sm" variant="ghost" onClick={() => copyToClipboard(link.shortLink)}>
+                          <Copy className="h-3 w-3" />
+                        </Button>
                       </div>
-                      <p className="text-lg font-semibold">{link.clicks}</p>
-                    </div>
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-1 mb-1">
-                        <Target className="h-3 w-3 text-green-500" />
-                        <span className="text-xs text-gray-600">Conversions</span>
-                      </div>
-                      <p className="text-lg font-semibold">{link.conversions}</p>
-                    </div>
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-1 mb-1">
-                        <BarChart3 className="h-3 w-3 text-purple-500" />
-                        <span className="text-xs text-gray-600">Earnings</span>
-                      </div>
-                      <p className="text-lg font-semibold text-green-600">{link.earnings}</p>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex flex-wrap gap-2">
-                    {/* Social Sharing */}
-                    <div className="flex gap-1">
-                      <Button size="sm" variant="outline" onClick={() => window.open(socialLinks.twitter, '_blank')}>
-                        <Twitter className="h-3 w-3" />
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => window.open(socialLinks.linkedin, '_blank')}>
-                        <Linkedin className="h-3 w-3" />
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => window.open(socialLinks.facebook, '_blank')}>
-                        <Facebook className="h-3 w-3" />
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => window.open(socialLinks.email, '_blank')}>
-                        <Mail className="h-3 w-3" />
-                      </Button>
                     </div>
 
-                    {/* Quick Actions */}
-                    <Button size="sm" variant="outline" onClick={() => window.open(link.shortUrl, '_blank')}>
-                      <ExternalLink className="h-3 w-3 mr-1" />
-                      Test Link
-                    </Button>
-                    
-                    <Button size="sm" variant="outline">
-                      <QrCode className="h-3 w-3 mr-1" />
-                      QR Code
-                    </Button>
-                    
-                    <Button size="sm" variant="outline">
-                      <Eye className="h-3 w-3 mr-1" />
-                      Analytics
-                    </Button>
+                    <div>
+                      <p className="text-xs font-medium text-gray-600">Full Affiliate Link</p>
+                      <div className="flex items-center gap-2">
+                        <code className="text-sm bg-white px-2 py-1 rounded border flex-1 truncate">
+                          {link.affiliateLink}
+                        </code>
+                        <Button size="sm" variant="ghost" onClick={() => copyToClipboard(link.affiliateLink)}>
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-4 pt-2 border-t">
+                      <div className="text-center">
+                        <p className="text-lg font-semibold text-blue-600">{link.clicks}</p>
+                        <p className="text-xs text-gray-600">Clicks</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-lg font-semibold text-green-600">{link.conversions}</p>
+                        <p className="text-xs text-gray-600">Conversions</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-lg font-semibold text-purple-600">${link.earnings.toFixed(2)}</p>
+                        <p className="text-xs text-gray-600">Earnings</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Pre-built Templates */}
+      {/* Quick Actions */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Share2 className="h-5 w-5" />
-            Pre-built Promotional Templates
-          </CardTitle>
+          <CardTitle className="text-lg">Quick Actions</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 border rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50">
-              <h4 className="font-semibold mb-2">📧 Email Template</h4>
-              <p className="text-sm text-gray-600 mb-3">
-                Professional email template for promoting tech/SaaS products
-              </p>
-              <Button size="sm" variant="outline">
-                <Copy className="h-3 w-3 mr-1" />
-                Copy Template
-              </Button>
-            </div>
-            
-            <div className="p-4 border rounded-lg bg-gradient-to-r from-purple-50 to-pink-50">
-              <h4 className="font-semibold mb-2">🎨 Social Media Banner</h4>
-              <p className="text-sm text-gray-600 mb-3">
-                Eye-catching banner templates for social media promotion
-              </p>
-              <Button size="sm" variant="outline">
-                <ExternalLink className="h-3 w-3 mr-1" />
-                Download
-              </Button>
-            </div>
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <Button variant="outline" size="sm" className="h-auto p-3">
+              <QrCode className="h-4 w-4 mb-1" />
+              <span className="text-xs">Generate QR</span>
+            </Button>
+            <Button variant="outline" size="sm" className="h-auto p-3">
+              <BarChart3 className="h-4 w-4 mb-1" />
+              <span className="text-xs">Analytics</span>
+            </Button>
+            <Button variant="outline" size="sm" className="h-auto p-3">
+              <Share2 className="h-4 w-4 mb-1" />
+              <span className="text-xs">Bulk Share</span>
+            </Button>
+            <Button variant="outline" size="sm" className="h-auto p-3">
+              <Settings className="h-4 w-4 mb-1" />
+              <span className="text-xs">Settings</span>
+            </Button>
           </div>
         </CardContent>
       </Card>
