@@ -1149,7 +1149,7 @@ class AffiliateMarketingAPITester:
             "category": "electronics"
         }
         
-        success, response = self.make_request('POST', 'scraper/scrape', scrape_request, 200)
+        success, response = self.make_request('POST', 'scrape', scrape_request, 200)
         if success and isinstance(response, list):
             scraped_count = len(response)
             self.log_test("Direct Scraper Test", True, f"Direct scraping completed, returned {scraped_count} products")
