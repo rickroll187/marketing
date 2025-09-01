@@ -1191,7 +1191,7 @@ class AffiliateMarketingAPITester:
         print(f"   ✅ URL Management (POST /api/saved-urls/bulk with GEARit URLs)")
         print(f"   ✅ URL Selection (PUT /api/saved-urls/{{id}})")
         print(f"   ✅ Scraper (POST /api/saved-urls/scrape-selected)")
-        print(f"   ✅ Direct Scraper (POST /api/scraper/scrape)")
+        print(f"   ✅ Direct Scraper (POST /api/scrape)")
         print(f"   ✅ Final Database Verification")
         
         if self.tests_passed == self.tests_run:
