@@ -11,7 +11,6 @@ import {
   Facebook,
   Instagram,
   Youtube,
-  Globe,
   Zap,
   Settings,
   Copy,
