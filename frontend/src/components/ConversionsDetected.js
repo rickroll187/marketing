@@ -38,8 +38,8 @@ const ConversionsDetected = () => {
   const fetchConversions = useCallback(async () => {
     try {
       const params = new URLSearchParams();
-      if (filter.status) params.append('status', filter.status);
-      if (filter.program) params.append('program', filter.program);
+      if (filter.status && filter.status !== 'all') params.append('status', filter.status);
+      if (filter.program && filter.program !== 'all') params.append('program', filter.program);
       params.append('limit', '20');
       
       const response = await axios.get(`${API}/conversions/detected?${params.toString()}`);
