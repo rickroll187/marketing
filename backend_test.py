@@ -1464,6 +1464,10 @@ def main():
     elif len(sys.argv) > 1 and sys.argv[1] == "--rakuten":
         tester = AffiliateMarketingAPITester()
         return tester.test_rakuten_endpoints_only()
+    # Check if we should run database cleanup and URL management tests
+    elif len(sys.argv) > 1 and sys.argv[1] == "--cleanup":
+        tester = AffiliateMarketingAPITester()
+        return tester.test_database_cleanup_and_url_management()
     else:
         tester = AffiliateMarketingAPITester()
         return tester.run_comprehensive_test()
