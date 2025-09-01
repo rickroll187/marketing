@@ -2094,52 +2094,99 @@ async def execute_workflow_action(action: Dict[str, Any], context: Dict[str, Any
     return {"action": "unknown", "status": "skipped"}
 
 # =====================================================
-# RAKUTEN API ENDPOINTS - Live Affiliate Products
+# RAKUTEN API ENDPOINTS - Live Affiliate Products (Updated with Real Credentials)
 # =====================================================
 
 @api_router.get("/rakuten/test-connection")
 async def test_rakuten_connection():
-    """Test REAL Rakuten API connection with proper API access token generation"""
+    """Test REAL Rakuten API connection with your marketing credentials"""
     try:
         rakuten_client = RakutenAPIClient()
-        is_connected = await rakuten_client.test_connection()
+        
+        # Test by searching for a simple product
+        test_products = await rakuten_client.search_products("laptop", max_results=1)
+        is_connected = len(test_products) > 0
+        
         return {
             "connected": is_connected,
-            "message": "✅ REAL Rakuten API connected with proper API access token!" if is_connected else "❌ Rakuten API connection failed",
-            "account": "TalkTech",
-            "sid": "4574344",
-            "credentials_configured": bool(rakuten_client.client_id and rakuten_client.client_secret)
+            "message": "✅ REAL Rakuten API connected with marketing credentials!" if is_connected else "⚠️ Rakuten API responding with mock data",
+            "account": "Marketing API",
+            "sid": rakuten_client.sid,
+            "credentials_configured": bool(rakuten_client.marketing_key and rakuten_client.web_service_token),
+            "test_results": len(test_products)
         }
     except Exception as e:
+        return {"connected": False, "error": str(e)}
+
+@api_router.post("/rakuten/search")
+async def rakuten_search_products(request: dict):
+    """Search products using real Rakuten API with new credentials"""
+    try:
+        rakuten_client = RakutenAPIClient()
+        
+        keyword = request.get('keyword', '')
+        category = request.get('category', '')
+        max_results = min(request.get('max_results', 20), 100)
+        
+        if not keyword:
+            raise HTTPException(status_code=400, detail="Keyword is required")
+        
+        products = await rakuten_client.search_products(
+            keyword=keyword,
+            category=category,
+            max_results=max_results
+        )
+        
+        logger.info(f"Rakuten search returned {len(products)} products for '{keyword}'")
+        
         return {
-            "connected": False,
-            "message": f"Connection test failed: {str(e)}"
+            "success": True,
+            "message": f"Found {len(products)} products from Rakuten API",
+            "products": products,
+            "count": len(products),
+            "keyword": keyword,
+            "category": category
         }
+        
+    except Exception as e:
+        logger.error(f"Rakuten search error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.get("/rakuten/products/search")
 async def search_rakuten_products(
-    keyword: Optional[str] = None,
-    category: Optional[str] = None,
-    min_price: Optional[float] = None,
-    max_price: Optional[float] = None,
+    keyword: str,
+    category: str = None,
+    min_price: float = None,
+    max_price: float = None,
     limit: int = 50,
     page: int = 1
 ):
-    """Search REAL Rakuten products with Web Service Token"""
+    """Search REAL Rakuten products with Web Service Token (Legacy endpoint)"""
     try:
         rakuten_client = RakutenAPIClient()
-        results = await rakuten_client.search_products(
+        
+        # Filter by price if specified
+        products = await rakuten_client.search_products(
             keyword=keyword,
             category=category,
-            min_price=min_price,
-            max_price=max_price,
-            limit=limit,
-            page=page
+            max_results=limit
         )
         
+        # Apply price filtering if specified
+        if min_price is not None or max_price is not None:
+            filtered_products = []
+            for product in products:
+                price = product.get('price', 0)
+                if min_price is not None and price < min_price:
+                    continue
+                if max_price is not None and price > max_price:
+                    continue
+                filtered_products.append(product)
+            products = filtered_products
+        
         return {
-            "message": f"Found {len(results.get('products', []))} products from REAL Rakuten API",
-            "results": results,
+            "message": f"Found {len(products)} products from REAL Rakuten API",
+            "products": products,
             "search_params": {
                 "keyword": keyword,
                 "category": category,
@@ -2151,102 +2198,128 @@ async def search_rakuten_products(
         }
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Rakuten product search failed: {str(e)}")
+        logger.error(f"Error searching Rakuten products: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/rakuten/products/import")
 async def import_rakuten_products(
-    keyword: Optional[str] = None,
+    keyword: str,
     category: str = "general",
     limit: int = 20
 ):
     """Import REAL Rakuten products directly into database"""
     try:
         rakuten_client = RakutenAPIClient()
-        results = await rakuten_client.search_products(
+        products = await rakuten_client.search_products(
             keyword=keyword,
             category=category,
-            limit=limit
+            max_results=limit
         )
         
-        imported_products = []
-        
-        for rakuten_product in results.get('products', []):
+        imported_count = 0
+        for product_data in products:
             try:
-                # Transform to our format
-                product_data = transform_rakuten_product(rakuten_product)
+                # Create product document
+                product_doc = {
+                    "name": product_data.get('name'),
+                    "description": product_data.get('description', ''),
+                    "price": product_data.get('price', 0),
+                    "original_price": product_data.get('original_price'),
+                    "image_url": product_data.get('image_url', ''),
+                    "url": product_data.get('affiliate_url', ''),
+                    "category": product_data.get('category', category),
+                    "source": "rakuten",
+                    "tags": product_data.get('tags', []),
+                    "retailer": product_data.get('retailer', 'Rakuten'),
+                    "rating": product_data.get('rating'),
+                    "external_id": product_data.get('id', ''),
+                    "created_at": datetime.now().isoformat(),
+                    "updated_at": datetime.now().isoformat()
+                }
                 
-                # Save to database
-                await db.products.insert_one(product_data)
-                imported_products.append(product_data)
-                
-            except Exception as e:
-                logging.error(f"Error importing product: {str(e)}")
+                # Insert into database
+                result = await db.products.insert_one(product_doc)
+                if result.inserted_id:
+                    imported_count += 1
+                    
+            except Exception as product_error:
+                logger.error(f"Error importing individual product: {product_error}")
                 continue
         
         return {
-            "message": f"✅ Successfully imported {len(imported_products)} REAL products from Rakuten!",
-            "imported_count": len(imported_products),
-            "products": imported_products[:5]  # Return first 5 for preview
+            "message": f"Successfully imported {imported_count} products from Rakuten",
+            "imported_count": imported_count,
+            "total_found": len(products),
+            "keyword": keyword,
+            "category": category
         }
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Rakuten product import failed: {str(e)}")
+        logger.error(f"Error importing Rakuten products: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/rakuten/coupons")
+async def rakuten_get_coupons(advertiser_id: str = None):
+    """Get available Rakuten coupons and deals"""
+    try:
+        rakuten_client = RakutenAPIClient()
+        coupons = await rakuten_client.get_coupons(advertiser_id)
+        
+        return {
+            "success": True,
+            "coupons": coupons,
+            "count": len(coupons),
+            "message": f"Found {len(coupons)} coupons"
+        }
+        
+    except Exception as e:
+        logger.error(f"Rakuten coupons error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/rakuten/programs")
+async def rakuten_get_programs():
+    """Get available Rakuten advertiser programs"""
+    try:
+        rakuten_client = RakutenAPIClient()
+        programs = await rakuten_client.get_advertiser_programs()
+        
+        return {
+            "success": True,
+            "programs": programs,
+            "count": len(programs),
+            "message": f"Found {len(programs)} advertiser programs"
+        }
+        
+    except Exception as e:
+        logger.error(f"Rakuten programs error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.get("/rakuten/advertisers")
 async def get_rakuten_advertisers():
-    """Get list of REAL Rakuten advertisers"""
+    """Get list of REAL Rakuten advertisers (Legacy endpoint)"""
     try:
         rakuten_client = RakutenAPIClient()
-        advertisers = await rakuten_client.get_advertisers()
-        return advertisers
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get advertisers: {str(e)}")
-
-@api_router.get("/rakuten/products/{product_id}")
-async def get_rakuten_product_details(product_id: str):
-    """Get detailed information for a specific Rakuten product"""
-    try:
-        product_details = await rakuten_client.get_product_details(product_id)
-        return product_details
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get product details: {str(e)}")
-
-@api_router.post("/rakuten/sync-products")
-async def sync_rakuten_products():
-    """Sync existing products with Rakuten data (update prices, availability, etc.)"""
-    try:
-        # Get all Rakuten products from database
-        rakuten_products = await db.products.find({"source": "rakuten"}).to_list(length=None)
+        programs = await rakuten_client.get_advertiser_programs()
         
-        updated_count = 0
-        for product in rakuten_products:
-            try:
-                # Get latest data from Rakuten
-                latest_data = await rakuten_client.get_product_details(product['id'])
-                
-                if latest_data:
-                    # Update with latest information
-                    updated_data = transform_rakuten_product(latest_data)
-                    updated_data['last_updated'] = datetime.now()
-                    
-                    await db.products.update_one(
-                        {"id": product['id']},
-                        {"$set": updated_data}
-                    )
-                    updated_count += 1
-                    
-            except Exception as e:
-                logging.error(f"Error syncing product {product['id']}: {str(e)}")
-                continue
+        # Transform to legacy format
+        advertisers = [
+            {
+                "advertiser_id": prog.get('id'),
+                "name": prog.get('name'),
+                "description": prog.get('description'),
+                "commission": prog.get('commission'),
+                "category": prog.get('category'),
+                "status": prog.get('status', 'active')
+            }
+            for prog in programs
+        ]
         
         return {
-            "message": f"Successfully synced {updated_count} Rakuten products",
-            "updated_count": updated_count,
-            "total_products": len(rakuten_products)
+            "advertisers": advertisers,
+            "count": len(advertisers)
         }
-        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Product sync failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get advertisers: {str(e)}")
 
 # Initialize scheduler
 @app.on_event("startup")
