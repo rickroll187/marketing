@@ -1165,8 +1165,15 @@ class AffiliateMarketingAPITester:
 
 def main():
     """Main function to run the tests"""
-    tester = AffiliateMarketingAPITester()
-    return tester.run_comprehensive_test()
+    import sys
+    
+    # Check if we should run only Phase 3 tests
+    if len(sys.argv) > 1 and sys.argv[1] == "--phase3":
+        tester = AffiliateMarketingAPITester()
+        return tester.run_phase3_tests_only()
+    else:
+        tester = AffiliateMarketingAPITester()
+        return tester.run_comprehensive_test()
 
 if __name__ == "__main__":
     sys.exit(main())
