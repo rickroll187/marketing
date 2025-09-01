@@ -36,6 +36,7 @@ import FraudDetectionAlerts from './components/FraudDetectionAlerts';
 import SingleUserEngagement from './components/SingleUserEngagement';
 import ConversionsDetected from './components/ConversionsDetected';
 import AffiliateProducts from './components/AffiliateProducts';
+import SmartLinkGenerator from './components/SmartLinkGenerator';
 import StableEmailForm from './components/StableEmailForm';
 import { applyGlobalInputFix } from './GlobalInputFix';
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
