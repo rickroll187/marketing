@@ -2868,7 +2868,7 @@ async def get_detected_conversions(
                     "customer_location": "New York, USA",
                     "referrer_url": "https://techblog.com/reviews/usb-hubs",
                     "conversion_type": "sale",
-                    "detected_at": datetime.now(timezone.utc) - timedelta(hours=2),
+                    "detected_at": (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat(),
                     "status": "confirmed",
                     "tracking_code": "TRK001"
                 },
