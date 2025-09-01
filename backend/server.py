@@ -2645,6 +2645,114 @@ async def get_database_stats():
         logger.error(f"Error getting database stats: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# =====================================================
+# ZAPIER INTEGRATION ENDPOINTS
+# =====================================================
+
+@api_router.get("/zapier/webhook-setup")
+async def get_zapier_webhook_setup():
+    """Get Zapier webhook setup instructions and sample data"""
+    try:
+        setup_info = zapier_webhooks.get_webhook_setup_instructions()
+        return {
+            "success": True,
+            "zapier_integration": setup_info
+        }
+    except Exception as e:
+        logger.error(f"Error getting Zapier setup info: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/zapier/test-webhook")
+async def test_zapier_webhook(webhook_type: str, test_data: dict = None):
+    """Test Zapier webhook with sample data"""
+    try:
+        if webhook_type == "new_affiliate_link":
+            test_link_data = test_data or {
+                'id': 'test_link_123',
+                'product_name': 'Test USB-C Hub',
+                'affiliate_url': 'https://click.linksynergy.com/test',
+                'short_url': 'https://af.ly/TEST123',
+                'program': 'GEARit',
+                'commission_rate': '5-8%',
+                'created_at': datetime.now().isoformat()
+            }
+            success = await zapier_webhooks.trigger_new_affiliate_link(test_link_data)
+            
+        elif webhook_type == "new_conversion":
+            test_conversion_data = test_data or {
+                'id': 'test_conv_456',
+                'link_id': 'test_link_123', 
+                'product_name': 'Test USB-C Hub',
+                'commission_amount': 15.50,
+                'conversion_value': 49.99,
+                'customer_location': 'New York, US'
+            }
+            success = await zapier_webhooks.trigger_conversion_event(test_conversion_data)
+            
+        elif webhook_type == "new_content":
+            test_content_data = test_data or {
+                'id': 'test_content_789',
+                'title': 'Test Content: Amazing USB-C Hub Review',
+                'content_type': 'blog',
+                'platform': 'wordpress',
+                'product_name': 'Test USB-C Hub',
+                'content': 'This is a test content for Zapier integration...'
+            }
+            success = await zapier_webhooks.trigger_content_generated(test_content_data)
+            
+        else:
+            raise HTTPException(status_code=400, detail=f"Unknown webhook type: {webhook_type}")
+        
+        return {
+            "success": success,
+            "message": f"Zapier webhook test {'successful' if success else 'failed'}",
+            "webhook_type": webhook_type
+        }
+        
+    except Exception as e:
+        logger.error(f"Error testing Zapier webhook: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/zapier/webhook/affiliate-link")
+async def zapier_webhook_new_link(link_data: dict):
+    """Webhook endpoint called when new affiliate link is created (for external triggers)"""
+    try:
+        # This would be called by external systems to trigger Zapier
+        success = await zapier_webhooks.trigger_new_affiliate_link(link_data)
+        return {
+            "success": success,
+            "message": "Zapier webhook triggered for new affiliate link"
+        }
+    except Exception as e:
+        logger.error(f"Error in Zapier affiliate link webhook: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/zapier/webhook/conversion")
+async def zapier_webhook_new_conversion(conversion_data: dict):
+    """Webhook endpoint called when new conversion occurs"""
+    try:
+        success = await zapier_webhooks.trigger_conversion_event(conversion_data)
+        return {
+            "success": success,
+            "message": "Zapier webhook triggered for new conversion"
+        }
+    except Exception as e:
+        logger.error(f"Error in Zapier conversion webhook: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/zapier/webhook/content")
+async def zapier_webhook_new_content(content_data: dict):
+    """Webhook endpoint called when new content is generated"""
+    try:
+        success = await zapier_webhooks.trigger_content_generated(content_data)
+        return {
+            "success": success,
+            "message": "Zapier webhook triggered for new content"
+        }
+    except Exception as e:
+        logger.error(f"Error in Zapier content webhook: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Include the router in the main app
 app.include_router(api_router)
 
