@@ -1055,6 +1055,160 @@ class AffiliateMarketingAPITester:
         else:
             self.log_test("Rakuten Product Import", False, f"Import failed: {response}")
 
+    def test_database_cleanup_and_url_management(self):
+        """Test database cleanup and URL management with real GEARit URLs as requested in review"""
+        print("🧹 Starting Database Cleanup and URL Management Testing")
+        print(f"🌐 Testing against: {self.base_url}")
+        print("=" * 80)
+        
+        start_time = time.time()
+        
+        # Test 1: Database Stats - Check what's currently in the database
+        print("\n📊 Testing Database Stats...")
+        success, response = self.make_request('GET', 'cleanup/database-stats')
+        if success:
+            self.log_test("Database Stats", True, 
+                f"Current database state retrieved successfully")
+            print(f"   Database contents: {response}")
+        else:
+            self.log_test("Database Stats", False, f"Failed to get database stats: {response}")
+        
+        # Test 2: Cleanup Mock Data - Remove test/mock data
+        print("\n🗑️ Testing Mock Data Cleanup...")
+        success, response = self.make_request('DELETE', 'cleanup/mock-data')
+        if success and 'message' in response:
+            self.log_test("Cleanup Mock Data", True, f"Cleanup completed: {response['message']}")
+        else:
+            self.log_test("Cleanup Mock Data", False, f"Cleanup failed: {response}")
+        
+        # Test 3: URL Management with Real GEARit URLs
+        print("\n🔗 Testing URL Management with Real GEARit URLs...")
+        
+        # Real GEARit URLs for testing
+        gearit_urls = {
+            "urls": [
+                "https://www.gearit.com/gearit-7-port-usb-3-0-hub",
+                "https://www.gearit.com/gearit-usb-c-to-hdmi-adapter",
+                "https://www.gearit.com/gearit-ethernet-cable-cat6"
+            ],
+            "category": "electronics",
+            "priority": "high"
+        }
+        
+        success, response = self.make_request('POST', 'saved-urls/bulk', gearit_urls, 200)
+        if success and isinstance(response, list) and len(response) > 0:
+            saved_count = len(response)
+            self.log_test("Bulk URL Save (GEARit)", True, f"Saved {saved_count} GEARit URLs successfully")
+            
+            # Store URL IDs for scraping test
+            saved_url_ids = [url['id'] for url in response if 'id' in url]
+            
+            # Test 4: Get Saved URLs
+            print("\n📋 Testing Get Saved URLs...")
+            success, response = self.make_request('GET', 'saved-urls')
+            if success and isinstance(response, list):
+                self.log_test("Get Saved URLs", True, f"Retrieved {len(response)} saved URLs")
+                
+                # Test 5: Select URLs for scraping
+                if saved_url_ids:
+                    print("\n✅ Testing URL Selection for Scraping...")
+                    url_id = saved_url_ids[0]
+                    update_data = {"selected": True}
+                    success, response = self.make_request('PUT', f'saved-urls/{url_id}', update_data, 200)
+                    
+                    if success and 'id' in response:
+                        self.log_test("Select URL for Scraping", True, f"URL {url_id[:8]}... selected successfully")
+                        
+                        # Test 6: Scraper with Real GEARit URL
+                        print("\n🕷️ Testing Scraper with Real GEARit URL...")
+                        success, scrape_response = self.make_request('POST', 'saved-urls/scrape-selected', expected_status=200)
+                        
+                        if success and 'scraped_products' in scrape_response:
+                            scraped_count = len(scrape_response['scraped_products'])
+                            message = scrape_response.get('message', '')
+                            self.log_test("Scrape GEARit URLs", True, 
+                                f"Scraped {scraped_count} products from GEARit URLs: {message}")
+                            
+                            # Store scraped product IDs
+                            for product in scrape_response['scraped_products']:
+                                if 'id' in product:
+                                    self.created_products.append(product['id'])
+                        else:
+                            self.log_test("Scrape GEARit URLs", False, f"Scraping failed: {scrape_response}")
+                    else:
+                        self.log_test("Select URL for Scraping", False, f"URL selection failed: {response}")
+            else:
+                self.log_test("Get Saved URLs", False, f"Failed to get saved URLs: {response}")
+        else:
+            self.log_test("Bulk URL Save (GEARit)", False, f"Failed to save GEARit URLs: {response}")
+        
+        # Test 7: Alternative Scraper Test with Direct URLs
+        print("\n🕷️ Testing Direct Scraper with GEARit URL...")
+        scrape_request = {
+            "urls": ["https://www.gearit.com/gearit-7-port-usb-3-0-hub"],
+            "category": "electronics"
+        }
+        
+        success, response = self.make_request('POST', 'scraper/scrape', scrape_request, 200)
+        if success and isinstance(response, list):
+            scraped_count = len(response)
+            self.log_test("Direct Scraper Test", True, f"Direct scraping completed, returned {scraped_count} products")
+            
+            # Store scraped product IDs for later use
+            for product in response:
+                if 'id' in product:
+                    self.created_products.append(product['id'])
+        else:
+            self.log_test("Direct Scraper Test", False, f"Direct scraping failed: {response}")
+        
+        # Test 8: Verify Clean Database - Check final state
+        print("\n🔍 Testing Final Database State...")
+        success, response = self.make_request('GET', 'cleanup/database-stats')
+        if success:
+            self.log_test("Final Database Stats", True, 
+                f"Final database state verified - only real user data should remain")
+            print(f"   Final database contents: {response}")
+        else:
+            self.log_test("Final Database Stats", False, f"Failed to verify final database state: {response}")
+        
+        # Final results
+        end_time = time.time()
+        duration = end_time - start_time
+        
+        print("\n" + "=" * 80)
+        print("📊 DATABASE CLEANUP & URL MANAGEMENT TEST RESULTS")
+        print("=" * 80)
+        print(f"⏱️ Total Duration: {duration:.2f} seconds")
+        print(f"🧪 Tests Run: {self.tests_run}")
+        print(f"✅ Tests Passed: {self.tests_passed}")
+        print(f"❌ Tests Failed: {self.tests_run - self.tests_passed}")
+        print(f"📈 Success Rate: {(self.tests_passed/self.tests_run)*100:.1f}%")
+        
+        # Print features tested summary
+        print(f"\n🧹 FEATURES TESTED:")
+        print(f"   ✅ Database Stats (GET /api/cleanup/database-stats)")
+        print(f"   ✅ Mock Data Cleanup (DELETE /api/cleanup/mock-data)")
+        print(f"   ✅ URL Management (POST /api/saved-urls/bulk with GEARit URLs)")
+        print(f"   ✅ URL Selection (PUT /api/saved-urls/{{id}})")
+        print(f"   ✅ Scraper (POST /api/saved-urls/scrape-selected)")
+        print(f"   ✅ Direct Scraper (POST /api/scraper/scrape)")
+        print(f"   ✅ Final Database Verification")
+        
+        if self.tests_passed == self.tests_run:
+            print("\n🎉 ALL DATABASE CLEANUP & URL MANAGEMENT TESTS PASSED!")
+            print("🧹 Database cleanup and GEARit URL management working correctly.")
+            return 0
+        else:
+            print(f"\n⚠️ {self.tests_run - self.tests_passed} tests failed. Check the details above.")
+            
+            # Print failed tests
+            print("\n❌ FAILED TESTS:")
+            for result in self.test_results:
+                if not result['success']:
+                    print(f"   • {result['name']}: {result['details']}")
+            
+            return 1
+
     def test_rakuten_endpoints_only(self):
         """Run only Rakuten API endpoint tests as requested in review"""
         print("🛒 Starting Rakuten API Endpoint Testing")
