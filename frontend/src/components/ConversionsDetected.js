@@ -31,7 +31,7 @@ const ConversionsDetected = () => {
   const [stats, setStats] = useState({});
   const [realtimeConversions, setRealtimeConversions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState({ status: '', program: '' });
+  const [filter, setFilter] = useState({ status: 'all', program: 'all' });
   const [autoRefresh, setAutoRefresh] = useState(true);
 
   // Fetch conversions data
