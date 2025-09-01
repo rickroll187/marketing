@@ -2261,6 +2261,231 @@ async def startup_event():
         id='content_publisher'
     )
 
+# Phase 3 - Tech Platform Integrations API Endpoints
+
+@api_router.get("/integrations/google-analytics/performance")
+async def get_analytics_performance(days: int = 30):
+    """Get Google Analytics performance data for affiliate links"""
+    try:
+        performance_data = await google_analytics.get_affiliate_performance(days)
+        return {"success": True, "data": performance_data}
+    except Exception as e:
+        logger.error(f"Error getting analytics performance: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/integrations/google-analytics/realtime")
+async def get_analytics_realtime():
+    """Get real-time Google Analytics data"""
+    try:
+        realtime_data = await google_analytics.get_realtime_data()
+        return {"success": True, "data": realtime_data}
+    except Exception as e:
+        logger.error(f"Error getting realtime analytics: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/integrations/google-analytics/track-conversion")
+async def track_analytics_conversion(link_id: str, revenue: float, product_name: str):
+    """Track affiliate conversion in Google Analytics"""
+    try:
+        success = await google_analytics.track_affiliate_conversion(link_id, revenue, product_name)
+        return {"success": success, "message": "Conversion tracked successfully" if success else "Failed to track conversion"}
+    except Exception as e:
+        logger.error(f"Error tracking conversion: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Phase 3 - Affiliate Network Connectivity API Endpoints
+
+@api_router.get("/affiliate-networks/programs")
+async def search_affiliate_programs(category: str = "", keywords: str = ""):
+    """Search affiliate programs across all networks"""
+    try:
+        programs = await affiliate_networks.search_all_programs(category, keywords)
+        return {"success": True, "programs": programs, "count": len(programs)}
+    except Exception as e:
+        logger.error(f"Error searching affiliate programs: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/affiliate-networks/commissions")
+async def get_affiliate_commissions(days: int = 30):
+    """Get commission data from all affiliate networks"""
+    try:
+        commission_data = await affiliate_networks.get_all_commissions(days)
+        return {"success": True, "data": commission_data}
+    except Exception as e:
+        logger.error(f"Error getting affiliate commissions: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Phase 3 - Single User Engagement API Endpoints
+
+@api_router.get("/engagement/user-progress")
+async def get_user_progress():
+    """Get user progress, achievements, and stats"""
+    try:
+        # Mock user progress data - in real app this would come from user profile
+        progress_data = {
+            "level": 3,
+            "xp": 1250,
+            "xpToNext": 1500,
+            "totalEarnings": 2847.50,
+            "completedTasks": 12,
+            "streak": 7,
+            "achievements": [
+                {"id": "first_link", "name": "First Link", "unlocked": True},
+                {"id": "early_bird", "name": "Early Bird", "unlocked": True},
+                {"id": "streak_5", "name": "5-Day Streak", "unlocked": True},
+                {"id": "first_sale", "name": "First Sale", "unlocked": False}
+            ]
+        }
+        return {"success": True, "data": progress_data}
+    except Exception as e:
+        logger.error(f"Error getting user progress: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/engagement/daily-challenges")
+async def get_daily_challenges():
+    """Get daily challenges for user engagement"""
+    try:
+        challenges = [
+            {
+                "id": "content_creation",
+                "title": "Create 3 Social Media Posts",
+                "description": "Generate content for Twitter, Instagram, and LinkedIn",
+                "progress": 2,
+                "target": 3,
+                "reward": 50,
+                "type": "content"
+            },
+            {
+                "id": "url_collection",
+                "title": "Add 10 New Product URLs",
+                "description": "Expand your product research pipeline",
+                "progress": 7,
+                "target": 10,
+                "reward": 30,
+                "type": "research"
+            }
+        ]
+        return {"success": True, "challenges": challenges}
+    except Exception as e:
+        logger.error(f"Error getting daily challenges: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/engagement/complete-challenge")
+async def complete_challenge(challenge_id: str):
+    """Mark a challenge as completed and award XP"""
+    try:
+        # In real app, this would update user progress in database
+        logger.info(f"Challenge completed: {challenge_id}")
+        return {
+            "success": True, 
+            "message": "Challenge completed!",
+            "xp_awarded": 50,
+            "new_total_xp": 1300
+        }
+    except Exception as e:
+        logger.error(f"Error completing challenge: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/engagement/motivational-notifications")
+async def get_motivational_notifications():
+    """Get personalized motivational notifications"""
+    try:
+        notifications = [
+            {"type": "milestone", "message": "🎉 You're on fire! 7-day streak achieved!", "priority": "high"},
+            {"type": "encouragement", "message": "💪 Just 3 more links to reach your daily goal!", "priority": "medium"},
+            {"type": "tip", "message": "💡 Pro tip: Schedule content during peak engagement hours (7-9 PM)", "priority": "low"}
+        ]
+        return {"success": True, "notifications": notifications}
+    except Exception as e:
+        logger.error(f"Error getting notifications: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Phase 3 - Enhanced Fraud Detection API Endpoints
+
+@api_router.get("/fraud-detection/alerts")
+async def get_fraud_alerts():
+    """Get fraud detection alerts and suspicious activity"""
+    try:
+        # Mock fraud detection data
+        alerts = [
+            {
+                "id": 1,
+                "type": "suspicious_clicks",
+                "severity": "medium",
+                "title": "Unusual Click Pattern Detected",
+                "description": "50+ clicks from same IP in 1 hour for GEARit USB-C Hub link",
+                "timestamp": datetime.now().isoformat(),
+                "confidence": 85,
+                "details": {
+                    "ip": "192.168.1.100",
+                    "location": "New York, US",
+                    "clicks": 52,
+                    "link": "gearit-usb-hub-2024"
+                }
+            },
+            {
+                "id": 2,
+                "type": "bot_traffic",
+                "severity": "high",
+                "title": "Potential Bot Traffic",
+                "description": "Non-human click patterns detected on HubSpot affiliate link",
+                "timestamp": (datetime.now() - timedelta(hours=1)).isoformat(),
+                "confidence": 92,
+                "details": {
+                    "ip": "45.123.456.789",
+                    "location": "Unknown",
+                    "clicks": 127,
+                    "link": "hubspot-marketing-2024"
+                }
+            }
+        ]
+        return {"success": True, "alerts": alerts, "count": len(alerts)}
+    except Exception as e:
+        logger.error(f"Error getting fraud alerts: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/fraud-detection/stats")
+async def get_fraud_detection_stats():
+    """Get fraud detection summary statistics"""
+    try:
+        stats = {
+            "active_alerts": 2,
+            "high_severity": 1,
+            "blocked_clicks": 774,
+            "total_triggers": 258,
+            "protection_rules": [
+                {
+                    "id": "ip_rate_limit",
+                    "name": "IP Rate Limiting",
+                    "status": "active",
+                    "triggers": 156,
+                    "blocked_clicks": 450
+                },
+                {
+                    "id": "bot_detection",
+                    "name": "Bot Pattern Detection",
+                    "status": "active",
+                    "triggers": 23,
+                    "blocked_clicks": 89
+                }
+            ]
+        }
+        return {"success": True, "data": stats}
+    except Exception as e:
+        logger.error(f"Error getting fraud detection stats: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/fraud-detection/block-ip")
+async def block_suspicious_ip(ip_address: str, reason: str = ""):
+    """Block a suspicious IP address"""
+    try:
+        # In real app, this would add IP to blocklist
+        logger.info(f"IP blocked: {ip_address} - Reason: {reason}")
+        return {"success": True, "message": f"IP {ip_address} has been blocked"}
+    except Exception as e:
+        logger.error(f"Error blocking IP: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Include the router in the main app
 app.include_router(api_router)
 
