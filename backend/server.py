@@ -2882,7 +2882,7 @@ async def get_detected_conversions(
                     "customer_location": "California, USA",
                     "referrer_url": "https://youtube.com/tech-reviews",
                     "conversion_type": "sale",
-                    "detected_at": datetime.now(timezone.utc) - timedelta(hours=6),
+                    "detected_at": (datetime.now(timezone.utc) - timedelta(hours=6)).isoformat(),
                     "status": "pending",
                     "tracking_code": "TRK002"
                 },
