@@ -2138,9 +2138,10 @@ https://www.newegg.com/..."
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Ultra-Stable Email Input - NO FOCUS BOUNCING */}
-                  <StableEmailInput
-                    onEmailSubmit={handleEmailSubmission}
+                  {/* Stable Email Form - NO FOCUS BOUNCING */}
+                  <StableEmailForm
+                    onSubmit={handleEmailSubmission}
+                    loading={emailLoading}
                   />
 
                   {/* Campaign History */}
