@@ -2846,10 +2846,10 @@ async def get_detected_conversions(
     try:
         # Build query filter
         query_filter = {}
-        if filter.status and filter.status != 'all':
-            query_filter["status"] = filter.status
-        if filter.program and filter.program != 'all':
-            query_filter["affiliate_program"] = filter.program
+        if status and status != 'all':
+            query_filter["status"] = status
+        if program and program != 'all':
+            query_filter["affiliate_program"] = program
             
         # Get conversions from database
         conversions_cursor = db.conversions.find(query_filter).sort("detected_at", -1).skip(offset).limit(limit)
