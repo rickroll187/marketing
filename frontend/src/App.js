@@ -1409,6 +1409,10 @@ function App() {
             </TabsTrigger>
           </TabsList>
 
+          <TabsContent value="products" className="space-y-6">
+            <AffiliateProducts />
+          </TabsContent>
+
           <TabsContent value="url-manager" className="space-y-6">
             <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
               <CardHeader>
