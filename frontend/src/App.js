@@ -2427,7 +2427,7 @@ https://affiliate-site.com"
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <SimplifiedLinkManager />
+                <StableLinkManager />
               </CardContent>
             </Card>
           </TabsContent>
