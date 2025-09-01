@@ -1302,12 +1302,41 @@ async def scrape_products(request: ScrapeRequest, background_tasks: BackgroundTa
 @api_router.get("/products", response_model=List[Product])
 async def get_products(category: Optional[str] = None, limit: int = 50):
     """Get all scraped products"""
-    query = {}
-    if category:
-        query["category"] = category
-    
-    products = await db.products.find(query).sort("scraped_at", -1).limit(limit).to_list(length=None)
-    return [Product(**product) for product in products]
+    try:
+        query = {}
+        if category:
+            query["category"] = category
+        
+        products = await db.products.find(query).sort("scraped_at", -1).limit(limit).to_list(length=None)
+        # Clean up products data and ensure required fields
+        clean_products = []
+        for product in products:
+            # Remove MongoDB ObjectId
+            if '_id' in product:
+                del product['_id']
+            
+            # Ensure required fields exist
+            if 'affiliate_url' not in product:
+                product['affiliate_url'] = product.get('url', '#')
+            
+            # Ensure source field exists
+            if 'source' not in product:
+                product['source'] = 'scraped'
+                
+            # Ensure category field exists
+            if 'category' not in product:
+                product['category'] = 'general'
+            
+            try:
+                clean_products.append(Product(**product))
+            except Exception as validation_error:
+                logger.warning(f"Skipping invalid product: {validation_error}")
+                continue
+                
+        return clean_products
+    except Exception as e:
+        logger.error(f"Error getting products: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.get("/products/{product_id}", response_model=Product)
 async def get_product(product_id: str):
