@@ -1575,6 +1575,7 @@ class AffiliateMarketingAPITester:
         print(f"   ✅ Affiliate Network APIs (programs, commissions)")
         print(f"   ✅ User Engagement APIs (progress, challenges, notifications)")
         print(f"   ✅ Enhanced Fraud Detection (alerts, stats, IP blocking)")
+        print(f"   ✅ Conversions Detected Feature (detected, stats, track, status update, realtime)")
         
         if self.tests_passed == self.tests_run:
             print("\n🎉 ALL PHASE 3 TESTS PASSED! The new Phase 3 endpoints are working correctly.")
