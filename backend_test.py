@@ -920,6 +920,192 @@ class AffiliateMarketingAPITester:
         else:
             self.log_test("Fraud Detection Block IP", False, f"IP blocking failed: {response}")
 
+    def test_rakuten_api_endpoints(self):
+        """Test NEW Rakuten API endpoints with real credentials"""
+        print("\n🛒 Testing NEW Rakuten API Endpoints with Real Credentials...")
+        
+        # Test 1: Connection Test
+        print("\n🔗 Testing Rakuten Connection...")
+        success, response = self.make_request('GET', 'rakuten/test-connection')
+        if success and 'connected' in response:
+            is_connected = response['connected']
+            credentials_configured = response.get('credentials_configured', False)
+            sid = response.get('sid', 'N/A')
+            test_results = response.get('test_results', 0)
+            
+            if is_connected and credentials_configured:
+                self.log_test("Rakuten Connection Test", True, 
+                    f"✅ Connected with SID: {sid}, Test results: {test_results}")
+            else:
+                self.log_test("Rakuten Connection Test", False, 
+                    f"⚠️ Using mock data - Credentials: {credentials_configured}, Connected: {is_connected}")
+        else:
+            self.log_test("Rakuten Connection Test", False, f"Connection test failed: {response}")
+        
+        # Test 2: Product Search (POST method with JSON body)
+        print("\n🔍 Testing Rakuten Product Search (POST)...")
+        search_data = {
+            "keyword": "laptop",
+            "max_results": 5
+        }
+        
+        success, response = self.make_request('POST', 'rakuten/search', search_data, 200)
+        if success and 'success' in response and response['success']:
+            products = response.get('products', [])
+            count = response.get('count', 0)
+            keyword = response.get('keyword', '')
+            
+            if products and len(products) > 0:
+                # Check if we got real Rakuten data vs mock data
+                first_product = products[0]
+                is_real_data = 'rakuten' in first_product.get('source', '').lower()
+                
+                self.log_test("Rakuten Product Search (POST)", True, 
+                    f"Found {count} products for '{keyword}' - {'Real' if is_real_data else 'Mock'} data")
+                
+                # Validate product structure
+                required_fields = ['id', 'name', 'price', 'affiliate_url', 'source']
+                if all(field in first_product for field in required_fields):
+                    self.log_test("Rakuten Product Structure", True, 
+                        f"Product: {first_product['name'][:50]}... - ${first_product['price']}")
+                else:
+                    missing_fields = [field for field in required_fields if field not in first_product]
+                    self.log_test("Rakuten Product Structure", False, f"Missing fields: {missing_fields}")
+            else:
+                self.log_test("Rakuten Product Search (POST)", False, f"No products returned")
+        else:
+            self.log_test("Rakuten Product Search (POST)", False, f"Search failed: {response}")
+        
+        # Test 3: Product Search (GET method with query parameters)
+        print("\n🔍 Testing Rakuten Product Search (GET)...")
+        success, response = self.make_request('GET', 'rakuten/products/search?keyword=laptop&limit=5')
+        if success and 'products' in response:
+            products = response['products']
+            search_params = response.get('search_params', {})
+            
+            if products and len(products) > 0:
+                self.log_test("Rakuten Product Search (GET)", True, 
+                    f"Found {len(products)} products with params: {search_params}")
+            else:
+                self.log_test("Rakuten Product Search (GET)", False, f"No products returned")
+        else:
+            self.log_test("Rakuten Product Search (GET)", False, f"GET search failed: {response}")
+        
+        # Test 4: Coupons Endpoint
+        print("\n🎫 Testing Rakuten Coupons...")
+        success, response = self.make_request('GET', 'rakuten/coupons')
+        if success and 'success' in response and response['success']:
+            coupons = response.get('coupons', [])
+            count = response.get('count', 0)
+            
+            if coupons and len(coupons) > 0:
+                first_coupon = coupons[0]
+                coupon_fields = ['id', 'advertiser', 'title', 'code', 'discount']
+                has_required_fields = all(field in first_coupon for field in coupon_fields)
+                
+                self.log_test("Rakuten Coupons", True, 
+                    f"Found {count} coupons - First: {first_coupon.get('title', 'N/A')}")
+                
+                if has_required_fields:
+                    self.log_test("Rakuten Coupon Structure", True, 
+                        f"Coupon: {first_coupon['advertiser']} - {first_coupon['discount']}")
+                else:
+                    self.log_test("Rakuten Coupon Structure", False, "Missing required coupon fields")
+            else:
+                self.log_test("Rakuten Coupons", True, "No coupons available (valid response)")
+        else:
+            self.log_test("Rakuten Coupons", False, f"Coupons request failed: {response}")
+        
+        # Test 5: Programs Endpoint
+        print("\n🤝 Testing Rakuten Programs...")
+        success, response = self.make_request('GET', 'rakuten/programs')
+        if success and 'success' in response and response['success']:
+            programs = response.get('programs', [])
+            count = response.get('count', 0)
+            
+            if programs and len(programs) > 0:
+                first_program = programs[0]
+                program_fields = ['id', 'name', 'description', 'commission', 'status']
+                has_required_fields = all(field in first_program for field in program_fields)
+                
+                self.log_test("Rakuten Programs", True, 
+                    f"Found {count} programs - First: {first_program.get('name', 'N/A')}")
+                
+                if has_required_fields:
+                    self.log_test("Rakuten Program Structure", True, 
+                        f"Program: {first_program['name']} - {first_program['commission']}")
+                else:
+                    self.log_test("Rakuten Program Structure", False, "Missing required program fields")
+            else:
+                self.log_test("Rakuten Programs", True, "No programs available (valid response)")
+        else:
+            self.log_test("Rakuten Programs", False, f"Programs request failed: {response}")
+        
+        # Test 6: Product Import
+        print("\n📥 Testing Rakuten Product Import...")
+        success, response = self.make_request('POST', 'rakuten/products/import?keyword=usb&category=electronics&limit=3', expected_status=200)
+        if success and 'imported_count' in response:
+            imported_count = response.get('imported_count', 0)
+            total_found = response.get('total_found', 0)
+            keyword = response.get('keyword', '')
+            category = response.get('category', '')
+            
+            self.log_test("Rakuten Product Import", True, 
+                f"Imported {imported_count}/{total_found} products for '{keyword}' in {category}")
+        else:
+            self.log_test("Rakuten Product Import", False, f"Import failed: {response}")
+
+    def test_rakuten_endpoints_only(self):
+        """Run only Rakuten API endpoint tests as requested in review"""
+        print("🛒 Starting Rakuten API Endpoint Testing")
+        print(f"🌐 Testing against: {self.base_url}")
+        print("=" * 80)
+        
+        start_time = time.time()
+        
+        # Test all Rakuten endpoints
+        print("\n" + "🛒" * 50)
+        print("🛒 RAKUTEN API ENDPOINT TESTING")
+        print("🛒" * 50)
+        
+        self.test_rakuten_api_endpoints()
+        
+        # Final results
+        end_time = time.time()
+        duration = end_time - start_time
+        
+        print("\n" + "=" * 80)
+        print("📊 RAKUTEN API TEST RESULTS SUMMARY")
+        print("=" * 80)
+        print(f"⏱️ Total Duration: {duration:.2f} seconds")
+        print(f"🧪 Tests Run: {self.tests_run}")
+        print(f"✅ Tests Passed: {self.tests_passed}")
+        print(f"❌ Tests Failed: {self.tests_run - self.tests_passed}")
+        print(f"📈 Success Rate: {(self.tests_passed/self.tests_run)*100:.1f}%")
+        
+        # Print Rakuten features summary
+        print(f"\n🛒 RAKUTEN API ENDPOINTS TESTED:")
+        print(f"   ✅ Connection Test (GET /api/rakuten/test-connection)")
+        print(f"   ✅ Product Search POST (POST /api/rakuten/search)")
+        print(f"   ✅ Product Search GET (GET /api/rakuten/products/search)")
+        print(f"   ✅ Coupons (GET /api/rakuten/coupons)")
+        print(f"   ✅ Programs (GET /api/rakuten/programs)")
+        print(f"   ✅ Product Import (POST /api/rakuten/products/import)")
+        
+        if self.tests_passed == self.tests_run:
+            print("\n🎉 ALL RAKUTEN API TESTS PASSED! The new Rakuten endpoints are working correctly.")
+            return 0
+        else:
+            print(f"\n⚠️ {self.tests_run - self.tests_passed} tests failed. Check the details above.")
+            
+            # Print failed tests
+            print("\n❌ FAILED TESTS:")
+            for result in self.test_results:
+                if not result['success']:
+                    print(f"   • {result['name']}: {result['details']}")
+            
+            return 1
+
     def run_phase3_tests_only(self):
         """Run only Phase 3 endpoint tests as requested in review"""
         print("🚀 Starting Phase 3 Backend API Testing")
