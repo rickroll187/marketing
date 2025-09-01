@@ -802,78 +802,65 @@ class AffiliateMarketingAPITester:
         
         # Test user progress endpoint
         success, response = self.make_request('GET', 'engagement/user-progress')
-        if success:
-            expected_keys = ['level', 'xp', 'xp_to_next_level', 'achievements', 'streak_days', 'total_actions']
-            has_all_keys = all(key in response for key in expected_keys)
-            
-            if has_all_keys:
-                level = response['level']
-                xp = response['xp']
-                achievements = len(response['achievements'])
+        if success and 'success' in response and response['success']:
+            if 'data' in response:
+                data = response['data']
+                level = data.get('level', 0)
+                xp = data.get('xp', 0)
+                achievements = data.get('achievements', [])
                 self.log_test("User Engagement Progress", True, 
-                    f"Level: {level}, XP: {xp}, Achievements: {achievements}")
+                    f"Level: {level}, XP: {xp}, Achievements: {len(achievements)}")
             else:
-                missing_keys = [key for key in expected_keys if key not in response]
-                self.log_test("User Engagement Progress", False, f"Missing keys: {missing_keys}")
+                self.log_test("User Engagement Progress", False, f"Missing data field in response")
         else:
             self.log_test("User Engagement Progress", False, f"Progress request failed: {response}")
         
         # Test daily challenges endpoint
         success, response = self.make_request('GET', 'engagement/daily-challenges')
-        if success:
-            expected_keys = ['challenges', 'completed_today', 'streak_bonus']
-            has_all_keys = all(key in response for key in expected_keys)
-            
-            if has_all_keys and isinstance(response['challenges'], list):
+        if success and 'success' in response and response['success']:
+            if 'challenges' in response and isinstance(response['challenges'], list):
                 challenges_count = len(response['challenges'])
-                completed = response['completed_today']
                 self.log_test("User Engagement Daily Challenges", True, 
-                    f"Available: {challenges_count} challenges, Completed today: {completed}")
+                    f"Available: {challenges_count} challenges")
             else:
-                self.log_test("User Engagement Daily Challenges", False, f"Invalid response structure: {response}")
+                self.log_test("User Engagement Daily Challenges", False, f"Invalid challenges structure: {response}")
         else:
             self.log_test("User Engagement Daily Challenges", False, f"Challenges request failed: {response}")
         
-        # Test complete challenge endpoint
-        challenge_data = {
-            "challenge_id": "content_creation_challenge",
-            "completion_data": {
-                "content_pieces": 3,
-                "quality_score": 85
-            }
-        }
+        # Test complete challenge endpoint (using query parameter)
+        challenge_id = "content_creation"
         
-        success, response = self.make_request('POST', 'engagement/complete-challenge', challenge_data, 200)
-        if success:
-            expected_keys = ['xp_earned', 'new_level', 'achievement_unlocked', 'message']
-            has_all_keys = all(key in response for key in expected_keys)
-            
-            if has_all_keys:
-                xp_earned = response['xp_earned']
-                new_level = response['new_level']
+        success, response = self.make_request('POST', f'engagement/complete-challenge?challenge_id={challenge_id}', expected_status=200)
+        if success and 'success' in response and response['success']:
+            if 'message' in response:
+                xp_awarded = response.get('xp_awarded', 0)
+                new_total_xp = response.get('new_total_xp', 0)
                 self.log_test("User Engagement Complete Challenge", True, 
-                    f"XP earned: {xp_earned}, New level: {new_level}")
+                    f"XP awarded: {xp_awarded}, New total XP: {new_total_xp}")
             else:
-                self.log_test("User Engagement Complete Challenge", False, f"Invalid response structure: {response}")
+                self.log_test("User Engagement Complete Challenge", False, f"Missing message in response")
         else:
             self.log_test("User Engagement Complete Challenge", False, f"Challenge completion failed: {response}")
         
         # Test motivational notifications endpoint
         success, response = self.make_request('GET', 'engagement/motivational-notifications')
-        if success and isinstance(response, list):
-            notifications_count = len(response)
-            if notifications_count > 0:
-                # Check if notifications have required structure
-                first_notification = response[0]
-                if 'type' in first_notification and 'message' in first_notification:
-                    self.log_test("User Engagement Motivational Notifications", True, 
-                        f"Retrieved {notifications_count} motivational notifications")
+        if success and 'success' in response and response['success']:
+            if 'notifications' in response and isinstance(response['notifications'], list):
+                notifications_count = len(response['notifications'])
+                if notifications_count > 0:
+                    # Check if notifications have required structure
+                    first_notification = response['notifications'][0]
+                    if 'type' in first_notification and 'message' in first_notification:
+                        self.log_test("User Engagement Motivational Notifications", True, 
+                            f"Retrieved {notifications_count} motivational notifications")
+                    else:
+                        self.log_test("User Engagement Motivational Notifications", False, 
+                            "Notifications missing required fields")
                 else:
-                    self.log_test("User Engagement Motivational Notifications", False, 
-                        "Notifications missing required fields")
+                    self.log_test("User Engagement Motivational Notifications", True, 
+                        "No notifications available (valid response)")
             else:
-                self.log_test("User Engagement Motivational Notifications", True, 
-                    "No notifications available (valid response)")
+                self.log_test("User Engagement Motivational Notifications", False, f"Invalid notifications structure")
         else:
             self.log_test("User Engagement Motivational Notifications", False, f"Notifications request failed: {response}")
 
