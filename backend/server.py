@@ -1379,7 +1379,25 @@ async def generate_content(request: ContentGenerationRequest):
                     content=content_data['content'],
                     hashtags=content_data['hashtags']
                 )
-                await db.generated_content.insert_one(content_obj.dict())
+                result = await db.generated_content.insert_one(content_obj.dict())
+                
+                if result.inserted_id:
+                    # Trigger Zapier webhook for new content
+                    try:
+                        content_webhook_data = {
+                            'id': str(result.inserted_id),
+                            'title': content_data['title'],
+                            'content_type': content_type,
+                            'platform': platform,
+                            'product_name': product.get('name', 'Unknown Product'),
+                            'content': content_data['content'],
+                            'scheduled_for': None
+                        }
+                        await zapier_webhooks.trigger_content_generated(content_webhook_data)
+                        logging.info(f"Zapier webhook triggered for new content: {content_data['title']}")
+                    except Exception as zapier_error:
+                        logging.warning(f"Zapier content webhook failed: {zapier_error}")
+                
                 generated_contents.append(content_obj)
         else:
             content_data = await generate_content_with_llm(
