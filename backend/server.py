@@ -3068,14 +3068,14 @@ async def get_realtime_conversions():
                     "id": "rt_conv_001",
                     "product_name": "GEARit USB-C Hub",
                     "commission": 8.50,
-                    "detected_at": datetime.now(timezone.utc) - timedelta(minutes=15),
+                    "detected_at": (datetime.now(timezone.utc) - timedelta(minutes=15)).isoformat(),
                     "location": "Texas, USA"
                 },
                 {
                     "id": "rt_conv_002", 
                     "product_name": "HubSpot CRM Professional",
                     "commission": 120.00,
-                    "detected_at": datetime.now(timezone.utc) - timedelta(minutes=45),
+                    "detected_at": (datetime.now(timezone.utc) - timedelta(minutes=45)).isoformat(),
                     "location": "Toronto, Canada"
                 }
             ]
