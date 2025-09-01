@@ -2434,17 +2434,7 @@ https://affiliate-site.com"
           </TabsContent>
 
           <TabsContent value="links" className="space-y-6">
-            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Link className="h-5 w-5" />
-                  Simplified Link Management
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <StableLinkManager />
-              </CardContent>
-            </Card>
+            <SmartLinkGenerator />
           </TabsContent>
 
           <TabsContent value="programs" className="space-y-6">
