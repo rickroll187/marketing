@@ -1306,6 +1306,10 @@ def main():
     if len(sys.argv) > 1 and sys.argv[1] == "--phase3":
         tester = AffiliateMarketingAPITester()
         return tester.run_phase3_tests_only()
+    # Check if we should run only Rakuten tests
+    elif len(sys.argv) > 1 and sys.argv[1] == "--rakuten":
+        tester = AffiliateMarketingAPITester()
+        return tester.test_rakuten_endpoints_only()
     else:
         tester = AffiliateMarketingAPITester()
         return tester.run_comprehensive_test()
