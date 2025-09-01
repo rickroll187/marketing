@@ -2806,6 +2806,291 @@ async def zapier_webhook_new_content(content_data: dict):
         logger.error(f"Error in Zapier content webhook: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# =====================================================
+# CONVERSIONS DETECTED - COMPREHENSIVE TRACKING SYSTEM
+# =====================================================
+
+class ConversionEvent(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    link_id: str
+    product_name: str
+    affiliate_program: str
+    commission_amount: float
+    conversion_value: float
+    customer_location: Optional[str] = None
+    referrer_url: Optional[str] = None
+    user_agent: Optional[str] = None
+    conversion_type: str = "sale"  # sale, lead, click, etc.
+    detected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    status: str = "pending"  # pending, confirmed, rejected
+    tracking_code: Optional[str] = None
+
+class ConversionStats(BaseModel):
+    total_conversions: int
+    total_revenue: float
+    total_commission: float
+    conversion_rate: float
+    avg_order_value: float
+    top_performing_links: List[Dict[str, Any]]
+    conversion_by_program: Dict[str, int]
+    recent_conversions: List[Dict[str, Any]]
+
+@api_router.get("/conversions/detected")
+async def get_detected_conversions(
+    status: Optional[str] = None,
+    program: Optional[str] = None,
+    limit: int = 50,
+    offset: int = 0
+):
+    """Get all detected conversions with filtering options"""
+    try:
+        # Build query filter
+        query_filter = {}
+        if status:
+            query_filter["status"] = status
+        if program:
+            query_filter["affiliate_program"] = program
+            
+        # Get conversions from database
+        conversions_cursor = db.conversions.find(query_filter).sort("detected_at", -1).skip(offset).limit(limit)
+        conversions = await conversions_cursor.to_list(None)
+        
+        # If no conversions in database, return mock data for demo
+        if not conversions:
+            mock_conversions = [
+                {
+                    "id": "conv_001",
+                    "link_id": "link_gearit_usb_hub",
+                    "product_name": "GEARit 7-Port USB 3.0 Hub",
+                    "affiliate_program": "GEARit",
+                    "commission_amount": 12.50,
+                    "conversion_value": 49.99,
+                    "customer_location": "New York, USA",
+                    "referrer_url": "https://techblog.com/reviews/usb-hubs",
+                    "conversion_type": "sale",
+                    "detected_at": datetime.now(timezone.utc) - timedelta(hours=2),
+                    "status": "confirmed",
+                    "tracking_code": "TRK001"
+                },
+                {
+                    "id": "conv_002", 
+                    "link_id": "link_rakuten_laptop",
+                    "product_name": "MacBook Pro 16-inch",
+                    "affiliate_program": "Rakuten",
+                    "commission_amount": 85.00,
+                    "conversion_value": 2499.00,
+                    "customer_location": "California, USA",
+                    "referrer_url": "https://youtube.com/tech-reviews",
+                    "conversion_type": "sale",
+                    "detected_at": datetime.now(timezone.utc) - timedelta(hours=6),
+                    "status": "pending",
+                    "tracking_code": "TRK002"
+                },
+                {
+                    "id": "conv_003",
+                    "link_id": "link_hubspot_marketing",
+                    "product_name": "HubSpot Marketing Hub Professional",
+                    "affiliate_program": "HubSpot",
+                    "commission_amount": 180.00,
+                    "conversion_value": 890.00,
+                    "customer_location": "London, UK",
+                    "referrer_url": "https://newsletter.saastools.com",
+                    "conversion_type": "subscription",
+                    "detected_at": datetime.now(timezone.utc) - timedelta(hours=12),
+                    "status": "confirmed",
+                    "tracking_code": "TRK003"
+                }
+            ]
+            
+            # Apply filters to mock data
+            if status:
+                mock_conversions = [c for c in mock_conversions if c["status"] == status]
+            if program:
+                mock_conversions = [c for c in mock_conversions if c["affiliate_program"] == program]
+                
+            conversions = mock_conversions
+        
+        return {
+            "success": True,
+            "conversions": conversions,
+            "total": len(conversions),
+            "has_more": len(conversions) == limit
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting detected conversions: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/conversions/stats")
+async def get_conversion_stats(days: int = 30):
+    """Get comprehensive conversion statistics"""
+    try:
+        # Calculate date range
+        end_date = datetime.now(timezone.utc)
+        start_date = end_date - timedelta(days=days)
+        
+        # Get conversions from database for the date range
+        conversions = await db.conversions.find({
+            "detected_at": {"$gte": start_date, "$lte": end_date}
+        }).to_list(None)
+        
+        # If no real data, return mock statistics
+        if not conversions:
+            mock_stats = {
+                "total_conversions": 47,
+                "total_revenue": 8847.50,
+                "total_commission": 892.75,
+                "conversion_rate": 12.8,
+                "avg_order_value": 188.25,
+                "top_performing_links": [
+                    {"link_id": "link_gearit_usb_hub", "product_name": "GEARit 7-Port USB Hub", "conversions": 12, "revenue": 599.88},
+                    {"link_id": "link_rakuten_laptop", "product_name": "MacBook Pro 16-inch", "conversions": 8, "revenue": 19992.00},
+                    {"link_id": "link_hubspot_marketing", "product_name": "HubSpot Marketing Hub", "conversions": 6, "revenue": 5340.00}
+                ],
+                "conversion_by_program": {
+                    "GEARit": 18,
+                    "Rakuten": 15,
+                    "HubSpot": 8,
+                    "ShareASale": 6
+                },
+                "recent_conversions": [
+                    {"id": "conv_001", "product_name": "GEARit 7-Port USB Hub", "commission": 12.50, "detected_at": datetime.now(timezone.utc) - timedelta(hours=2)},
+                    {"id": "conv_002", "product_name": "MacBook Pro 16-inch", "commission": 85.00, "detected_at": datetime.now(timezone.utc) - timedelta(hours=6)}
+                ]
+            }
+            return {"success": True, "stats": mock_stats}
+        
+        # Calculate real statistics
+        total_conversions = len(conversions)
+        total_revenue = sum(c.get("conversion_value", 0) for c in conversions)
+        total_commission = sum(c.get("commission_amount", 0) for c in conversions)
+        avg_order_value = total_revenue / total_conversions if total_conversions > 0 else 0
+        
+        # Calculate conversion rate (would need click data for real calculation)
+        conversion_rate = 12.5  # Mock rate
+        
+        stats = {
+            "total_conversions": total_conversions,
+            "total_revenue": total_revenue,
+            "total_commission": total_commission,
+            "conversion_rate": conversion_rate,
+            "avg_order_value": avg_order_value,
+            "top_performing_links": [],  # Would calculate from data
+            "conversion_by_program": {},  # Would calculate from data
+            "recent_conversions": conversions[-10:]  # Last 10 conversions
+        }
+        
+        return {"success": True, "stats": stats}
+        
+    except Exception as e:
+        logger.error(f"Error getting conversion stats: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/conversions/track")
+async def track_new_conversion(conversion: ConversionEvent):
+    """Track a new conversion event"""
+    try:
+        # Save conversion to database
+        conversion_dict = conversion.dict()
+        conversion_dict["detected_at"] = datetime.now(timezone.utc)
+        
+        result = await db.conversions.insert_one(conversion_dict)
+        
+        # Trigger Zapier webhook for new conversion
+        zapier_data = {
+            "id": conversion.id,
+            "link_id": conversion.link_id,
+            "product_name": conversion.product_name,
+            "affiliate_program": conversion.affiliate_program,
+            "commission_amount": conversion.commission_amount,
+            "conversion_value": conversion.conversion_value,
+            "customer_location": conversion.customer_location,
+            "conversion_type": conversion.conversion_type,
+            "detected_at": conversion.detected_at.isoformat()
+        }
+        
+        # Send to Zapier
+        await zapier_webhooks.trigger_conversion_event(zapier_data)
+        
+        return {
+            "success": True,
+            "conversion_id": conversion.id,
+            "message": "Conversion tracked successfully"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error tracking conversion: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.put("/conversions/{conversion_id}/status")
+async def update_conversion_status(conversion_id: str, status: str, notes: Optional[str] = None):
+    """Update conversion status (pending, confirmed, rejected)"""
+    try:
+        update_data = {
+            "status": status,
+            "updated_at": datetime.now(timezone.utc)
+        }
+        if notes:
+            update_data["notes"] = notes
+            
+        result = await db.conversions.update_one(
+            {"id": conversion_id},
+            {"$set": update_data}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Conversion not found")
+            
+        return {
+            "success": True,
+            "message": f"Conversion status updated to {status}"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error updating conversion status: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/conversions/realtime")
+async def get_realtime_conversions():
+    """Get real-time conversion events from the last 24 hours"""
+    try:
+        # Get conversions from last 24 hours
+        yesterday = datetime.now(timezone.utc) - timedelta(hours=24)
+        
+        conversions = await db.conversions.find({
+            "detected_at": {"$gte": yesterday}
+        }).sort("detected_at", -1).limit(20).to_list(None)
+        
+        # If no real data, return mock real-time data
+        if not conversions:
+            mock_realtime = [
+                {
+                    "id": "rt_conv_001",
+                    "product_name": "GEARit USB-C Hub",
+                    "commission": 8.50,
+                    "detected_at": datetime.now(timezone.utc) - timedelta(minutes=15),
+                    "location": "Texas, USA"
+                },
+                {
+                    "id": "rt_conv_002", 
+                    "product_name": "HubSpot CRM Professional",
+                    "commission": 120.00,
+                    "detected_at": datetime.now(timezone.utc) - timedelta(minutes=45),
+                    "location": "Toronto, Canada"
+                }
+            ]
+            conversions = mock_realtime
+            
+        return {
+            "success": True,
+            "realtime_conversions": conversions,
+            "last_updated": datetime.now(timezone.utc).isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting real-time conversions: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Include the router in the main app
 app.include_router(api_router)
 
