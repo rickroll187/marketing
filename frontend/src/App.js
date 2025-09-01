@@ -2862,6 +2862,160 @@ https://affiliate-site.com"
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* PHASE 3 - TECH PLATFORM INTEGRATIONS TAB */}
+          <TabsContent value="tech-integrations" className="space-y-6">
+            <TechPlatformIntegrations />
+          </TabsContent>
+
+          {/* PHASE 3 - FRAUD DETECTION ALERTS TAB */}
+          <TabsContent value="fraud-detection" className="space-y-6">
+            <FraudDetectionAlerts />
+          </TabsContent>
+
+          {/* PHASE 3 - SINGLE USER ENGAGEMENT TAB */}
+          <TabsContent value="user-engagement" className="space-y-6">
+            <SingleUserEngagement />
+          </TabsContent>
+
+          {/* PHASE 3 - AFFILIATE NETWORKS TAB */}
+          <TabsContent value="affiliate-networks" className="space-y-6">
+            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Network className="h-5 w-5" />
+                  Direct Affiliate Network Access
+                </CardTitle>
+                <p className="text-gray-600 text-sm">
+                  Browse and manage programs from CJ Affiliate, ShareASale, and Awin
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {/* Network Program Search */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Search Affiliate Programs</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">Category</label>
+                          <Select>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="electronics">Electronics</SelectItem>
+                              <SelectItem value="software">Software</SelectItem>
+                              <SelectItem value="saas">SaaS</SelectItem>
+                              <SelectItem value="marketing">Marketing</SelectItem>
+                              <SelectItem value="development">Development Tools</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">Keywords</label>
+                          <Input placeholder="Search for programs..." />
+                        </div>
+                      </div>
+                      <Button className="w-full">
+                        <Search className="h-4 w-4 mr-2" />
+                        Search All Networks
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  {/* Mock Network Results */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {[
+                      {
+                        network: 'CJ Affiliate',
+                        name: 'TechGear Pro',
+                        category: 'Electronics',
+                        commission: '5-8%',
+                        cookie: '30 days',
+                        color: 'blue'
+                      },
+                      {
+                        network: 'ShareASale',
+                        name: 'SaaS Startup Tools',
+                        category: 'SaaS/Software',
+                        commission: '20%',
+                        cookie: '60 days',
+                        color: 'green'
+                      },
+                      {
+                        network: 'Awin',
+                        name: 'WebDev Tools Co',
+                        category: 'Development Tools',
+                        commission: '12%',
+                        cookie: '45 days',
+                        color: 'purple'
+                      }
+                    ].map((program, index) => (
+                      <Card key={index} className="hover:shadow-lg transition-shadow">
+                        <CardContent className="p-4">
+                          <div className="space-y-3">
+                            <div>
+                              <Badge className={`bg-${program.color}-100 text-${program.color}-800 mb-2`}>
+                                {program.network}
+                              </Badge>
+                              <h3 className="font-semibold">{program.name}</h3>
+                              <p className="text-sm text-gray-600">{program.category}</p>
+                            </div>
+                            
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span>Commission:</span>
+                                <span className="font-medium text-green-600">{program.commission}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Cookie:</span>
+                                <span>{program.cookie}</span>
+                              </div>
+                            </div>
+                            
+                            <Button size="sm" className="w-full" variant="outline">
+                              <ExternalLink className="h-3 w-3 mr-1" />
+                              View Program
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+
+                  {/* Commission Summary */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Commission Summary (Last 30 Days)</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="text-center p-4 bg-green-50 rounded-lg">
+                          <p className="text-2xl font-bold text-green-600">$342.56</p>
+                          <p className="text-sm text-gray-600">Total Earnings</p>
+                        </div>
+                        <div className="text-center p-4 bg-blue-50 rounded-lg">
+                          <p className="text-2xl font-bold text-blue-600">$198.34</p>
+                          <p className="text-sm text-gray-600">Confirmed</p>
+                        </div>
+                        <div className="text-center p-4 bg-orange-50 rounded-lg">
+                          <p className="text-2xl font-bold text-orange-600">$144.22</p>
+                          <p className="text-sm text-gray-600">Pending</p>
+                        </div>
+                        <div className="text-center p-4 bg-purple-50 rounded-lg">
+                          <p className="text-2xl font-bold text-purple-600">18</p>
+                          <p className="text-sm text-gray-600">Transactions</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
       <Toaster />
