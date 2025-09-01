@@ -30,7 +30,7 @@ const TechPlatformIntegrations = () => {
     {
       id: 'wordpress',
       name: 'WordPress',
-      icon: <Wordpress className="h-8 w-8" />,
+      icon: <Globe className="h-8 w-8" />,
       status: 'disconnected',
       description: 'Auto-inject affiliate links in posts and pages',
       features: ['Elementor integration', 'Auto-link insertion', 'Performance tracking'],
