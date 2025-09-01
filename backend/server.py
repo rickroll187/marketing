@@ -2548,15 +2548,100 @@ async def get_fraud_detection_stats():
         logger.error(f"Error getting fraud detection stats: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.post("/fraud-detection/block-ip")
-async def block_suspicious_ip(ip_address: str, reason: str = ""):
-    """Block a suspicious IP address"""
+# Database Cleanup Endpoints
+@api_router.delete("/cleanup/mock-data")
+async def cleanup_mock_data():
+    """Remove mock/test data from database to keep it clean for real use"""
     try:
-        # In real app, this would add IP to blocklist
-        logger.info(f"IP blocked: {ip_address} - Reason: {reason}")
-        return {"success": True, "message": f"IP {ip_address} has been blocked"}
+        cleanup_stats = {
+            "products_removed": 0,
+            "content_removed": 0,
+            "urls_removed": 0,
+            "campaigns_removed": 0
+        }
+        
+        # Remove mock products (those with test/mock data)
+        mock_product_patterns = [
+            {"name": {"$regex": "mock", "$options": "i"}},
+            {"name": {"$regex": "test", "$options": "i"}},
+            {"external_id": {"$regex": "^rakuten_mock", "$options": "i"}},
+            {"source": "test"},
+            {"description": {"$regex": "mock", "$options": "i"}}
+        ]
+        
+        for pattern in mock_product_patterns:
+            result = await db.products.delete_many(pattern)
+            cleanup_stats["products_removed"] += result.deleted_count
+        
+        # Remove test content
+        mock_content_patterns = [
+            {"title": {"$regex": "test", "$options": "i"}},
+            {"content": {"$regex": "mock", "$options": "i"}},
+            {"product_name": {"$regex": "test", "$options": "i"}}
+        ]
+        
+        for pattern in mock_content_patterns:
+            result = await db.content.delete_many(pattern)
+            cleanup_stats["content_removed"] += result.deleted_count
+        
+        # Remove test URLs
+        test_url_patterns = [
+            {"url": {"$regex": "example.com", "$options": "i"}},
+            {"url": {"$regex": "test", "$options": "i"}},
+            {"category": "test"}
+        ]
+        
+        for pattern in test_url_patterns:
+            result = await db.saved_urls.delete_many(pattern)
+            cleanup_stats["urls_removed"] += result.deleted_count
+        
+        # Remove test email campaigns
+        test_campaign_patterns = [
+            {"subject": {"$regex": "test", "$options": "i"}},
+            {"content": {"$regex": "test", "$options": "i"}}
+        ]
+        
+        for pattern in test_campaign_patterns:
+            result = await db.email_campaigns.delete_many(pattern)
+            cleanup_stats["campaigns_removed"] += result.deleted_count
+        
+        logger.info(f"Database cleanup completed: {cleanup_stats}")
+        
+        return {
+            "success": True,
+            "message": "Mock/test data cleaned from database",
+            "cleanup_stats": cleanup_stats,
+            "total_removed": sum(cleanup_stats.values())
+        }
+        
     except Exception as e:
-        logger.error(f"Error blocking IP: {e}")
+        logger.error(f"Error during database cleanup: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/cleanup/database-stats")
+async def get_database_stats():
+    """Get current database statistics"""
+    try:
+        stats = {
+            "products": await db.products.count_documents({}),
+            "content": await db.content.count_documents({}),
+            "saved_urls": await db.saved_urls.count_documents({}),
+            "email_campaigns": await db.email_campaigns.count_documents({})
+        }
+        
+        # Get sample data to identify what might be mock data
+        sample_products = await db.products.find({}).limit(5).to_list(5)
+        sample_urls = await db.saved_urls.find({}).limit(5).to_list(5)
+        
+        return {
+            "success": True,
+            "database_stats": stats,
+            "sample_products": [{"id": str(p.get("_id")), "name": p.get("name", ""), "source": p.get("source", "")} for p in sample_products],
+            "sample_urls": [{"id": str(u.get("_id")), "url": u.get("url", "")[:50], "category": u.get("category", "")} for u in sample_urls]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting database stats: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # Include the router in the main app
