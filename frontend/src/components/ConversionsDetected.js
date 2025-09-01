@@ -306,7 +306,7 @@ const ConversionsDetected = () => {
                   <SelectValue placeholder="All programs" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All programs</SelectItem>
+                  <SelectItem value="all">All programs</SelectItem>
                   <SelectItem value="GEARit">GEARit</SelectItem>
                   <SelectItem value="Rakuten">Rakuten</SelectItem>
                   <SelectItem value="HubSpot">HubSpot</SelectItem>
