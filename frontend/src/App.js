@@ -1388,6 +1388,22 @@ function App() {
               <BarChart3 className="h-3 w-3" />
               Stats
             </TabsTrigger>
+            <TabsTrigger value="tech-integrations" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <Settings className="h-3 w-3" />
+              Integrations
+            </TabsTrigger>
+            <TabsTrigger value="fraud-detection" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <Shield className="h-3 w-3" />
+              Security
+            </TabsTrigger>
+            <TabsTrigger value="user-engagement" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <Award className="h-3 w-3" />
+              Journey
+            </TabsTrigger>
+            <TabsTrigger value="affiliate-networks" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <Network className="h-3 w-3" />
+              Networks
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="url-manager" className="space-y-6">
