@@ -1453,9 +1453,26 @@ async def export_social_media_content(platform: str):
 
 @api_router.post("/email-campaigns", response_model=EmailCampaign)
 async def create_email_campaign(campaign_data: dict):
-    """Create email marketing campaign"""
+    """Create email marketing campaign and trigger Zapier webhook"""
     campaign = EmailCampaign(**campaign_data)
-    await db.email_campaigns.insert_one(campaign.dict())
+    result = await db.email_campaigns.insert_one(campaign.dict())
+    
+    if result.inserted_id:
+        # Trigger Zapier webhook for email campaign
+        try:
+            campaign_webhook_data = {
+                'id': campaign.id,
+                'subject': campaign.subject,
+                'recipients': campaign.recipient_list,
+                'content_type': 'html',
+                'sent_at': campaign.sent_at.isoformat() if campaign.sent_at else None,
+                'campaign_name': campaign.name,
+                'recipient_count': len(campaign.recipient_list)
+            }
+            await zapier_webhooks.trigger_email_campaign_sent(campaign_webhook_data)
+            logging.info(f"Zapier webhook triggered for email campaign: {campaign.subject}")
+        except Exception as zapier_error:
+            logging.warning(f"Zapier email webhook failed: {zapier_error}")
     
     # Schedule campaign if needed
     if campaign.scheduled_for:
