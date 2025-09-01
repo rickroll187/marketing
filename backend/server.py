@@ -2896,7 +2896,7 @@ async def get_detected_conversions(
                     "customer_location": "London, UK",
                     "referrer_url": "https://newsletter.saastools.com",
                     "conversion_type": "subscription",
-                    "detected_at": datetime.now(timezone.utc) - timedelta(hours=12),
+                    "detected_at": (datetime.now(timezone.utc) - timedelta(hours=12)).isoformat(),
                     "status": "confirmed",
                     "tracking_code": "TRK003"
                 }
