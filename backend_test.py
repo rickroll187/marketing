@@ -731,6 +731,303 @@ class AffiliateMarketingAPITester:
         else:
             self.log_test("Trigger Workflow", False, "No workflow ID available for trigger test")
 
+    def test_phase3_google_analytics_endpoints(self):
+        """Test Phase 3 Google Analytics Integration endpoints"""
+        print("\n📊 Testing Phase 3 Google Analytics Integration Endpoints...")
+        
+        # Test Google Analytics performance endpoint
+        success, response = self.make_request('GET', 'integrations/google-analytics/performance')
+        if success:
+            expected_keys = ['sessions', 'pageviews', 'bounce_rate', 'avg_session_duration', 'conversion_rate', 'revenue']
+            has_all_keys = all(key in response for key in expected_keys)
+            
+            if has_all_keys:
+                self.log_test("Google Analytics Performance", True, 
+                    f"Sessions: {response['sessions']}, Revenue: ${response['revenue']}, Conversion: {response['conversion_rate']}%")
+            else:
+                missing_keys = [key for key in expected_keys if key not in response]
+                self.log_test("Google Analytics Performance", False, f"Missing keys: {missing_keys}")
+        else:
+            self.log_test("Google Analytics Performance", False, f"Performance request failed: {response}")
+        
+        # Test Google Analytics realtime endpoint
+        success, response = self.make_request('GET', 'integrations/google-analytics/realtime')
+        if success:
+            expected_keys = ['active_users', 'active_sessions', 'page_views_per_minute', 'top_pages', 'traffic_sources']
+            has_all_keys = all(key in response for key in expected_keys)
+            
+            if has_all_keys:
+                self.log_test("Google Analytics Realtime", True, 
+                    f"Active Users: {response['active_users']}, Sessions: {response['active_sessions']}")
+            else:
+                missing_keys = [key for key in expected_keys if key not in response]
+                self.log_test("Google Analytics Realtime", False, f"Missing keys: {missing_keys}")
+        else:
+            self.log_test("Google Analytics Realtime", False, f"Realtime request failed: {response}")
+        
+        # Test Google Analytics track conversion endpoint
+        conversion_data = {
+            "event_name": "affiliate_click",
+            "product_id": self.created_products[0] if self.created_products else "test-product-id",
+            "value": 29.99,
+            "currency": "USD"
+        }
+        
+        success, response = self.make_request('POST', 'integrations/google-analytics/track-conversion', conversion_data, 200)
+        if success and 'message' in response:
+            self.log_test("Google Analytics Track Conversion", True, f"Conversion tracked: {response['message']}")
+        else:
+            self.log_test("Google Analytics Track Conversion", False, f"Conversion tracking failed: {response}")
+
+    def test_phase3_affiliate_networks_endpoints(self):
+        """Test Phase 3 Affiliate Network API endpoints"""
+        print("\n🤝 Testing Phase 3 Affiliate Network API Endpoints...")
+        
+        # Test affiliate networks programs endpoint
+        success, response = self.make_request('GET', 'affiliate-networks/programs?category=electronics&limit=10')
+        if success:
+            expected_keys = ['programs', 'total_count', 'networks_searched']
+            has_all_keys = all(key in response for key in expected_keys)
+            
+            if has_all_keys and isinstance(response['programs'], list):
+                programs_count = len(response['programs'])
+                networks_count = len(response['networks_searched'])
+                self.log_test("Affiliate Networks Programs", True, 
+                    f"Found {programs_count} programs across {networks_count} networks")
+            else:
+                self.log_test("Affiliate Networks Programs", False, f"Invalid response structure: {response}")
+        else:
+            self.log_test("Affiliate Networks Programs", False, f"Programs request failed: {response}")
+        
+        # Test affiliate networks commissions endpoint
+        success, response = self.make_request('GET', 'affiliate-networks/commissions')
+        if success:
+            expected_keys = ['total_commissions', 'pending_commissions', 'confirmed_commissions', 'commission_breakdown', 'recent_transactions']
+            has_all_keys = all(key in response for key in expected_keys)
+            
+            if has_all_keys:
+                total = response['total_commissions']
+                pending = response['pending_commissions']
+                confirmed = response['confirmed_commissions']
+                self.log_test("Affiliate Networks Commissions", True, 
+                    f"Total: ${total}, Pending: ${pending}, Confirmed: ${confirmed}")
+            else:
+                missing_keys = [key for key in expected_keys if key not in response]
+                self.log_test("Affiliate Networks Commissions", False, f"Missing keys: {missing_keys}")
+        else:
+            self.log_test("Affiliate Networks Commissions", False, f"Commissions request failed: {response}")
+
+    def test_phase3_user_engagement_endpoints(self):
+        """Test Phase 3 User Engagement API endpoints"""
+        print("\n🎮 Testing Phase 3 User Engagement API Endpoints...")
+        
+        # Test user progress endpoint
+        success, response = self.make_request('GET', 'engagement/user-progress')
+        if success:
+            expected_keys = ['level', 'xp', 'xp_to_next_level', 'achievements', 'streak_days', 'total_actions']
+            has_all_keys = all(key in response for key in expected_keys)
+            
+            if has_all_keys:
+                level = response['level']
+                xp = response['xp']
+                achievements = len(response['achievements'])
+                self.log_test("User Engagement Progress", True, 
+                    f"Level: {level}, XP: {xp}, Achievements: {achievements}")
+            else:
+                missing_keys = [key for key in expected_keys if key not in response]
+                self.log_test("User Engagement Progress", False, f"Missing keys: {missing_keys}")
+        else:
+            self.log_test("User Engagement Progress", False, f"Progress request failed: {response}")
+        
+        # Test daily challenges endpoint
+        success, response = self.make_request('GET', 'engagement/daily-challenges')
+        if success:
+            expected_keys = ['challenges', 'completed_today', 'streak_bonus']
+            has_all_keys = all(key in response for key in expected_keys)
+            
+            if has_all_keys and isinstance(response['challenges'], list):
+                challenges_count = len(response['challenges'])
+                completed = response['completed_today']
+                self.log_test("User Engagement Daily Challenges", True, 
+                    f"Available: {challenges_count} challenges, Completed today: {completed}")
+            else:
+                self.log_test("User Engagement Daily Challenges", False, f"Invalid response structure: {response}")
+        else:
+            self.log_test("User Engagement Daily Challenges", False, f"Challenges request failed: {response}")
+        
+        # Test complete challenge endpoint
+        challenge_data = {
+            "challenge_id": "content_creation_challenge",
+            "completion_data": {
+                "content_pieces": 3,
+                "quality_score": 85
+            }
+        }
+        
+        success, response = self.make_request('POST', 'engagement/complete-challenge', challenge_data, 200)
+        if success:
+            expected_keys = ['xp_earned', 'new_level', 'achievement_unlocked', 'message']
+            has_all_keys = all(key in response for key in expected_keys)
+            
+            if has_all_keys:
+                xp_earned = response['xp_earned']
+                new_level = response['new_level']
+                self.log_test("User Engagement Complete Challenge", True, 
+                    f"XP earned: {xp_earned}, New level: {new_level}")
+            else:
+                self.log_test("User Engagement Complete Challenge", False, f"Invalid response structure: {response}")
+        else:
+            self.log_test("User Engagement Complete Challenge", False, f"Challenge completion failed: {response}")
+        
+        # Test motivational notifications endpoint
+        success, response = self.make_request('GET', 'engagement/motivational-notifications')
+        if success and isinstance(response, list):
+            notifications_count = len(response)
+            if notifications_count > 0:
+                # Check if notifications have required structure
+                first_notification = response[0]
+                if 'type' in first_notification and 'message' in first_notification:
+                    self.log_test("User Engagement Motivational Notifications", True, 
+                        f"Retrieved {notifications_count} motivational notifications")
+                else:
+                    self.log_test("User Engagement Motivational Notifications", False, 
+                        "Notifications missing required fields")
+            else:
+                self.log_test("User Engagement Motivational Notifications", True, 
+                    "No notifications available (valid response)")
+        else:
+            self.log_test("User Engagement Motivational Notifications", False, f"Notifications request failed: {response}")
+
+    def test_phase3_fraud_detection_endpoints(self):
+        """Test Phase 3 Enhanced Fraud Detection API endpoints"""
+        print("\n🛡️ Testing Phase 3 Enhanced Fraud Detection API Endpoints...")
+        
+        # Test fraud detection alerts endpoint
+        success, response = self.make_request('GET', 'fraud-detection/alerts?severity=high&limit=20')
+        if success:
+            expected_keys = ['alerts', 'total_count', 'severity_breakdown']
+            has_all_keys = all(key in response for key in expected_keys)
+            
+            if has_all_keys and isinstance(response['alerts'], list):
+                alerts_count = len(response['alerts'])
+                total_count = response['total_count']
+                self.log_test("Fraud Detection Alerts", True, 
+                    f"Retrieved {alerts_count} alerts, Total: {total_count}")
+                
+                # Check alert structure if alerts exist
+                if alerts_count > 0:
+                    first_alert = response['alerts'][0]
+                    required_fields = ['id', 'type', 'severity', 'ip_address', 'confidence_score']
+                    if all(field in first_alert for field in required_fields):
+                        self.log_test("Fraud Detection Alert Structure", True, 
+                            f"Alert structure valid: {first_alert['type']} - {first_alert['severity']}")
+                    else:
+                        missing_fields = [field for field in required_fields if field not in first_alert]
+                        self.log_test("Fraud Detection Alert Structure", False, f"Missing fields: {missing_fields}")
+            else:
+                self.log_test("Fraud Detection Alerts", False, f"Invalid response structure: {response}")
+        else:
+            self.log_test("Fraud Detection Alerts", False, f"Alerts request failed: {response}")
+        
+        # Test fraud detection stats endpoint
+        success, response = self.make_request('GET', 'fraud-detection/stats')
+        if success:
+            expected_keys = ['total_blocked_attempts', 'blocked_ips', 'suspicious_patterns_detected', 
+                           'protection_rules_active', 'threat_level', 'recent_activity']
+            has_all_keys = all(key in response for key in expected_keys)
+            
+            if has_all_keys:
+                blocked_attempts = response['total_blocked_attempts']
+                blocked_ips = response['blocked_ips']
+                threat_level = response['threat_level']
+                self.log_test("Fraud Detection Stats", True, 
+                    f"Blocked attempts: {blocked_attempts}, Blocked IPs: {blocked_ips}, Threat level: {threat_level}")
+            else:
+                missing_keys = [key for key in expected_keys if key not in response]
+                self.log_test("Fraud Detection Stats", False, f"Missing keys: {missing_keys}")
+        else:
+            self.log_test("Fraud Detection Stats", False, f"Stats request failed: {response}")
+        
+        # Test fraud detection block IP endpoint
+        block_ip_data = {
+            "ip_address": "192.168.1.100",
+            "reason": "Suspicious click patterns detected",
+            "duration_hours": 24,
+            "severity": "high"
+        }
+        
+        success, response = self.make_request('POST', 'fraud-detection/block-ip', block_ip_data, 200)
+        if success:
+            expected_keys = ['message', 'blocked_ip', 'rule_id', 'expires_at']
+            has_all_keys = all(key in response for key in expected_keys)
+            
+            if has_all_keys:
+                blocked_ip = response['blocked_ip']
+                rule_id = response['rule_id']
+                self.log_test("Fraud Detection Block IP", True, 
+                    f"IP {blocked_ip} blocked, Rule ID: {rule_id}")
+            else:
+                self.log_test("Fraud Detection Block IP", False, f"Invalid response structure: {response}")
+        else:
+            self.log_test("Fraud Detection Block IP", False, f"IP blocking failed: {response}")
+
+    def run_phase3_tests_only(self):
+        """Run only Phase 3 endpoint tests as requested in review"""
+        print("🚀 Starting Phase 3 Backend API Testing")
+        print(f"🌐 Testing against: {self.base_url}")
+        print("=" * 80)
+        
+        start_time = time.time()
+        
+        # Create a test product for endpoints that need product_id
+        print("\n📦 Setting up test data...")
+        created_product_id = self.test_create_product()
+        
+        # Phase 3 specific tests
+        print("\n" + "🎯" * 50)
+        print("🎯 PHASE 3 ENDPOINT TESTING")
+        print("🎯" * 50)
+        
+        # Test all Phase 3 endpoints
+        self.test_phase3_google_analytics_endpoints()
+        self.test_phase3_affiliate_networks_endpoints()
+        self.test_phase3_user_engagement_endpoints()
+        self.test_phase3_fraud_detection_endpoints()
+        
+        # Final results
+        end_time = time.time()
+        duration = end_time - start_time
+        
+        print("\n" + "=" * 80)
+        print("📊 PHASE 3 TEST RESULTS SUMMARY")
+        print("=" * 80)
+        print(f"⏱️ Total Duration: {duration:.2f} seconds")
+        print(f"🧪 Tests Run: {self.tests_run}")
+        print(f"✅ Tests Passed: {self.tests_passed}")
+        print(f"❌ Tests Failed: {self.tests_run - self.tests_passed}")
+        print(f"📈 Success Rate: {(self.tests_passed/self.tests_run)*100:.1f}%")
+        
+        # Print Phase 3 features summary
+        print(f"\n🎯 PHASE 3 FEATURES TESTED:")
+        print(f"   ✅ Google Analytics Integration (performance, realtime, conversion tracking)")
+        print(f"   ✅ Affiliate Network APIs (programs, commissions)")
+        print(f"   ✅ User Engagement APIs (progress, challenges, notifications)")
+        print(f"   ✅ Enhanced Fraud Detection (alerts, stats, IP blocking)")
+        
+        if self.tests_passed == self.tests_run:
+            print("\n🎉 ALL PHASE 3 TESTS PASSED! The new Phase 3 endpoints are working correctly.")
+            return 0
+        else:
+            print(f"\n⚠️ {self.tests_run - self.tests_passed} tests failed. Check the details above.")
+            
+            # Print failed tests
+            print("\n❌ FAILED TESTS:")
+            for result in self.test_results:
+                if not result['success']:
+                    print(f"   • {result['name']}: {result['details']}")
+            
+            return 1
+
     def run_comprehensive_test(self):
         """Run all tests in sequence including NEW competitive features"""
         print("🚀 Starting Comprehensive API Testing for COMPETITIVE Affiliate Marketing Platform")
