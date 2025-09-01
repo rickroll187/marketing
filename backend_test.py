@@ -920,6 +920,131 @@ class AffiliateMarketingAPITester:
         else:
             self.log_test("Fraud Detection Block IP", False, f"IP blocking failed: {response}")
 
+    def test_conversions_detected_endpoints(self):
+        """Test NEW Conversions Detected feature endpoints"""
+        print("\n💰 Testing NEW Conversions Detected Feature Endpoints...")
+        
+        # Test 1: GET /api/conversions/detected - Get all conversions with filtering
+        print("\n📊 Testing Get Detected Conversions...")
+        success, response = self.make_request('GET', 'conversions/detected')
+        if success and 'success' in response and response['success']:
+            if 'conversions' in response and isinstance(response['conversions'], list):
+                conversions_count = len(response['conversions'])
+                total_count = response.get('total', conversions_count)
+                has_more = response.get('has_more', False)
+                self.log_test("Get Detected Conversions", True, 
+                    f"Retrieved {conversions_count} conversions, Total: {total_count}, Has more: {has_more}")
+                
+                # Check conversion structure if conversions exist
+                if conversions_count > 0:
+                    first_conversion = response['conversions'][0]
+                    required_fields = ['id', 'link_id', 'product_name', 'affiliate_program', 'commission_amount', 'conversion_value', 'status']
+                    if all(field in first_conversion for field in required_fields):
+                        self.log_test("Conversion Structure Validation", True, 
+                            f"Conversion: {first_conversion['product_name']} - ${first_conversion['commission_amount']} commission")
+                    else:
+                        missing_fields = [field for field in required_fields if field not in first_conversion]
+                        self.log_test("Conversion Structure Validation", False, f"Missing fields: {missing_fields}")
+            else:
+                self.log_test("Get Detected Conversions", False, f"Invalid conversions structure: {response}")
+        else:
+            self.log_test("Get Detected Conversions", False, f"Conversions request failed: {response}")
+        
+        # Test 2: GET /api/conversions/detected with filters
+        print("\n🔍 Testing Conversion Filtering...")
+        success, response = self.make_request('GET', 'conversions/detected?status=confirmed&limit=10')
+        if success and 'success' in response and response['success']:
+            conversions = response.get('conversions', [])
+            self.log_test("Filter Conversions by Status", True, 
+                f"Found {len(conversions)} confirmed conversions")
+        else:
+            self.log_test("Filter Conversions by Status", False, f"Filtering failed: {response}")
+        
+        # Test 3: GET /api/conversions/stats - Get conversion statistics
+        print("\n📈 Testing Conversion Statistics...")
+        success, response = self.make_request('GET', 'conversions/stats')
+        if success and 'success' in response and response['success']:
+            if 'stats' in response:
+                stats = response['stats']
+                required_stats = ['total_conversions', 'total_revenue', 'total_commission', 'conversion_rate', 'avg_order_value']
+                if all(field in stats for field in required_stats):
+                    self.log_test("Get Conversion Statistics", True, 
+                        f"Total conversions: {stats['total_conversions']}, Revenue: ${stats['total_revenue']}, Commission: ${stats['total_commission']}")
+                else:
+                    missing_stats = [field for field in required_stats if field not in stats]
+                    self.log_test("Get Conversion Statistics", False, f"Missing stats: {missing_stats}")
+            else:
+                self.log_test("Get Conversion Statistics", False, f"Missing stats field in response")
+        else:
+            self.log_test("Get Conversion Statistics", False, f"Stats request failed: {response}")
+        
+        # Test 4: POST /api/conversions/track - Track new conversion
+        print("\n📝 Testing Track New Conversion...")
+        new_conversion = {
+            "link_id": "test_link_001",
+            "product_name": "Test Gaming Headset Pro",
+            "affiliate_program": "TestAffiliate",
+            "commission_amount": 25.50,
+            "conversion_value": 149.99,
+            "customer_location": "Seattle, USA",
+            "referrer_url": "https://techblog.example.com/headset-review",
+            "conversion_type": "sale",
+            "status": "pending",
+            "tracking_code": "TEST001"
+        }
+        
+        success, response = self.make_request('POST', 'conversions/track', new_conversion, 200)
+        conversion_id = None
+        if success and 'success' in response and response['success']:
+            if 'conversion_id' in response and 'message' in response:
+                conversion_id = response['conversion_id']
+                self.log_test("Track New Conversion", True, 
+                    f"Conversion tracked successfully: {conversion_id} - {response['message']}")
+            else:
+                self.log_test("Track New Conversion", False, f"Missing conversion_id or message in response")
+        else:
+            self.log_test("Track New Conversion", False, f"Conversion tracking failed: {response}")
+        
+        # Test 5: PUT /api/conversions/{conversion_id}/status - Update conversion status
+        if conversion_id:
+            print(f"\n✅ Testing Update Conversion Status (ID: {conversion_id[:8]}...)...")
+            success, response = self.make_request('PUT', f'conversions/{conversion_id}/status?status=confirmed&notes=Verified by affiliate network', expected_status=200)
+            if success and 'success' in response and response['success']:
+                if 'message' in response:
+                    self.log_test("Update Conversion Status", True, 
+                        f"Status updated successfully: {response['message']}")
+                else:
+                    self.log_test("Update Conversion Status", False, f"Missing message in response")
+            else:
+                self.log_test("Update Conversion Status", False, f"Status update failed: {response}")
+        else:
+            self.log_test("Update Conversion Status", False, "No conversion ID available for status update test")
+        
+        # Test 6: GET /api/conversions/realtime - Get real-time conversions
+        print("\n⚡ Testing Real-time Conversions...")
+        success, response = self.make_request('GET', 'conversions/realtime')
+        if success and 'success' in response and response['success']:
+            if 'realtime_conversions' in response and 'last_updated' in response:
+                realtime_conversions = response['realtime_conversions']
+                last_updated = response['last_updated']
+                self.log_test("Get Real-time Conversions", True, 
+                    f"Retrieved {len(realtime_conversions)} real-time conversions, Last updated: {last_updated}")
+                
+                # Check real-time conversion structure if conversions exist
+                if len(realtime_conversions) > 0:
+                    first_rt_conversion = realtime_conversions[0]
+                    rt_required_fields = ['id', 'product_name', 'commission', 'detected_at']
+                    if all(field in first_rt_conversion for field in rt_required_fields):
+                        self.log_test("Real-time Conversion Structure", True, 
+                            f"RT Conversion: {first_rt_conversion['product_name']} - ${first_rt_conversion['commission']}")
+                    else:
+                        missing_rt_fields = [field for field in rt_required_fields if field not in first_rt_conversion]
+                        self.log_test("Real-time Conversion Structure", False, f"Missing RT fields: {missing_rt_fields}")
+            else:
+                self.log_test("Get Real-time Conversions", False, f"Missing realtime_conversions or last_updated in response")
+        else:
+            self.log_test("Get Real-time Conversions", False, f"Real-time conversions request failed: {response}")
+
     def test_rakuten_api_endpoints(self):
         """Test NEW Rakuten API endpoints with real credentials"""
         print("\n🛒 Testing NEW Rakuten API Endpoints with Real Credentials...")
