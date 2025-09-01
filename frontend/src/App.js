@@ -35,6 +35,7 @@ import TechPlatformIntegrations from './components/TechPlatformIntegrations';
 import FraudDetectionAlerts from './components/FraudDetectionAlerts';
 import SingleUserEngagement from './components/SingleUserEngagement';
 import ConversionsDetected from './components/ConversionsDetected';
+import AffiliateProducts from './components/AffiliateProducts';
 import StableEmailForm from './components/StableEmailForm';
 import { applyGlobalInputFix } from './GlobalInputFix';
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
