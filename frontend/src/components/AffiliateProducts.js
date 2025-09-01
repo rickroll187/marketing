@@ -19,7 +19,8 @@ import {
   Plus,
   Eye,
   Heart,
-  TrendingUp
+  TrendingUp,
+  Settings
 } from 'lucide-react';
 import axios from 'axios';
 
