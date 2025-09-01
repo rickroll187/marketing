@@ -22,6 +22,8 @@ import json
 import csv
 import io
 from rakuten_client import RakutenAPIClient, transform_rakuten_product
+from google_analytics import google_analytics
+from affiliate_networks import affiliate_networks
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
