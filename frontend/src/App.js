@@ -1329,10 +1329,6 @@ function App() {
               <Bookmark className="h-3 w-3" />
               URLs
             </TabsTrigger>
-            <TabsTrigger value="products" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
-              <Package className="h-3 w-3" />
-              Products
-            </TabsTrigger>
             <TabsTrigger value="content" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
               <FileText className="h-3 w-3" />
               Content
@@ -1340,10 +1336,6 @@ function App() {
             <TabsTrigger value="scraper" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
               <Search className="h-3 w-3" />
               Scraper
-            </TabsTrigger>
-            <TabsTrigger value="rakuten" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
-              <Zap className="h-3 w-3" />
-              Rakuten
             </TabsTrigger>
             <TabsTrigger value="programs" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
               <Star className="h-3 w-3" />
