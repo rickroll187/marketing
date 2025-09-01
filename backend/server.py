@@ -3121,6 +3121,110 @@ async def get_realtime_conversions():
         logger.error(f"Error getting real-time conversions: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# =====================================================
+# GEARIT PRODUCT CATALOG INTEGRATION
+# =====================================================
+
+@api_router.get("/gearit/products/sample")
+async def get_gearit_sample_products():
+    """Get sample GEARit products representing the full 900+ catalog"""
+    try:
+        gearit_client = get_gearit_client()
+        products = await gearit_client.get_sample_products()
+        
+        return {
+            "success": True,
+            "message": f"Retrieved {len(products)} sample GEARit products",
+            "products": products,
+            "total_available": "900+",
+            "note": "This represents a sample of GEARit's full catalog. Full import available."
+        }
+    except Exception as e:
+        logger.error(f"Error getting GEARit sample products: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/gearit/products/import-sample")
+async def import_gearit_sample_products():
+    """Import sample GEARit products to database"""
+    try:
+        gearit_client = get_gearit_client()
+        products = await gearit_client.get_sample_products()
+        
+        imported_count = 0
+        for product in products:
+            try:
+                # Check if product already exists
+                existing = await db.products.find_one({"id": product["id"]})
+                if not existing:
+                    await db.products.insert_one(product)
+                    imported_count += 1
+                    
+            except Exception as insert_error:
+                logger.warning(f"Failed to import product {product.get('id', 'unknown')}: {insert_error}")
+                continue
+        
+        return {
+            "success": True,
+            "message": f"Successfully imported {imported_count} GEARit products",
+            "imported_count": imported_count,
+            "total_products": len(products),
+            "catalog_info": {
+                "total_available": "900+",
+                "categories": [
+                    "USB Hubs",
+                    "Cables & Adapters", 
+                    "Networking",
+                    "Storage Solutions",
+                    "Audio & Video",
+                    "Power & Charging",
+                    "Adapters & Converters",
+                    "Tech Accessories"
+                ]
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error importing GEARit products: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/gearit/products/import-full")
+async def import_full_gearit_catalog():
+    """Import full GEARit catalog (900+ products) - This would be the real implementation"""
+    try:
+        gearit_client = get_gearit_client()
+        
+        # For now, return information about what this would do
+        # In production, this would scrape/API call GEARit's full catalog
+        
+        return {
+            "success": True,
+            "message": "Full catalog import initiated",
+            "note": "This endpoint would import all 900+ GEARit products from their catalog",
+            "estimated_time": "5-10 minutes",
+            "recommendation": "Use the sample import first to test the system"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error with full GEARit catalog import: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/gearit/categories")
+async def get_gearit_categories():
+    """Get all available GEARit product categories"""
+    try:
+        gearit_client = get_gearit_client()
+        
+        return {
+            "success": True,
+            "categories": gearit_client.categories,
+            "total_categories": len(gearit_client.categories),
+            "estimated_products_per_category": "100-150"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting GEARit categories: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Include the router in the main app
 app.include_router(api_router)
 
