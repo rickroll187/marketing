@@ -29,7 +29,7 @@ import IsolatedScraperInput from './IsolatedScraperInput';
 import StableEmailInput from './StableEmailInput';
 import TechSaasPrograms from './components/TechSaasPrograms';
 import RealTimeTrackingDashboard from './components/RealTimeTrackingDashboard';
-import SimplifiedLinkManager from './components/SimplifiedLinkManager';
+import StableLinkManager from './components/StableLinkManager';
 import CommissionTracker from './components/CommissionTracker';
 import TechPlatformIntegrations from './components/TechPlatformIntegrations';
 import FraudDetectionAlerts from './components/FraudDetectionAlerts';
