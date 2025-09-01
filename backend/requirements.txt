@@ -32,3 +32,8 @@ apscheduler>=3.10.0
 python-multipart>=0.0.6
 httpx
 authlib
+google-analytics-reporting>=0.7.0
+google-auth>=2.29.0
+google-auth-oauthlib>=1.2.0
+google-auth-httplib2>=0.2.0
+google-api-python-client>=2.133.0
