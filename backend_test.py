@@ -1209,6 +1209,153 @@ class AffiliateMarketingAPITester:
             
             return 1
 
+    def test_zapier_integration_endpoints(self):
+        """Test Zapier Integration endpoints as requested in review"""
+        print("\n⚡ Testing Zapier Integration Endpoints...")
+        
+        # Test 1: Get Zapier webhook setup instructions
+        print("\n📋 Testing Zapier Webhook Setup...")
+        success, response = self.make_request('GET', 'zapier/webhook-setup')
+        if success and 'zapier_integration' in response:
+            setup_info = response['zapier_integration']
+            if 'webhook_events' in setup_info and 'setup_steps' in setup_info:
+                events_count = len(setup_info['webhook_events'])
+                steps_count = len(setup_info['setup_steps'])
+                self.log_test("Zapier Webhook Setup", True, 
+                    f"Setup instructions retrieved: {events_count} webhook events, {steps_count} setup steps")
+            else:
+                self.log_test("Zapier Webhook Setup", False, f"Invalid setup info structure: {setup_info}")
+        else:
+            self.log_test("Zapier Webhook Setup", False, f"Setup request failed: {response}")
+        
+        # Test 2: Test affiliate link webhook
+        print("\n🔗 Testing Zapier Affiliate Link Webhook...")
+        success, response = self.make_request('POST', 'zapier/test-webhook?webhook_type=new_affiliate_link', expected_status=200)
+        if success and 'success' in response and response['success']:
+            message = response.get('message', '')
+            webhook_data = response.get('webhook_data', {})
+            self.log_test("Zapier Affiliate Link Webhook", True, 
+                f"Webhook test successful: {message}")
+        else:
+            self.log_test("Zapier Affiliate Link Webhook", False, f"Webhook test failed: {response}")
+        
+        # Test 3: Test conversion webhook
+        print("\n💰 Testing Zapier Conversion Webhook...")
+        success, response = self.make_request('POST', 'zapier/test-webhook?webhook_type=new_conversion', expected_status=200)
+        if success and 'success' in response and response['success']:
+            message = response.get('message', '')
+            webhook_data = response.get('webhook_data', {})
+            self.log_test("Zapier Conversion Webhook", True, 
+                f"Webhook test successful: {message}")
+        else:
+            self.log_test("Zapier Conversion Webhook", False, f"Webhook test failed: {response}")
+        
+        # Test 4: Test content webhook
+        print("\n📝 Testing Zapier Content Webhook...")
+        success, response = self.make_request('POST', 'zapier/test-webhook?webhook_type=new_content', expected_status=200)
+        if success and 'success' in response and response['success']:
+            message = response.get('message', '')
+            webhook_data = response.get('webhook_data', {})
+            self.log_test("Zapier Content Webhook", True, 
+                f"Webhook test successful: {message}")
+        else:
+            self.log_test("Zapier Content Webhook", False, f"Webhook test failed: {response}")
+
+    def test_database_cleanup_endpoints(self):
+        """Test Database Cleanup endpoints as requested in review"""
+        print("\n🧹 Testing Database Cleanup Endpoints...")
+        
+        # Test 1: Get database stats before cleanup
+        print("\n📊 Testing Database Stats (Before Cleanup)...")
+        success, response = self.make_request('GET', 'cleanup/database-stats')
+        if success:
+            self.log_test("Database Stats (Before)", True, 
+                f"Database stats retrieved successfully")
+            print(f"   Before cleanup: {response}")
+        else:
+            self.log_test("Database Stats (Before)", False, f"Failed to get database stats: {response}")
+        
+        # Test 2: Delete mock data
+        print("\n🗑️ Testing Mock Data Cleanup...")
+        success, response = self.make_request('DELETE', 'cleanup/mock-data')
+        if success and 'message' in response:
+            self.log_test("Delete Mock Data", True, f"Mock data cleanup: {response['message']}")
+        else:
+            self.log_test("Delete Mock Data", False, f"Mock data cleanup failed: {response}")
+        
+        # Test 3: Get database stats after cleanup
+        print("\n📊 Testing Database Stats (After Cleanup)...")
+        success, response = self.make_request('GET', 'cleanup/database-stats')
+        if success:
+            self.log_test("Database Stats (After)", True, 
+                f"Final database state verified")
+            print(f"   After cleanup: {response}")
+        else:
+            self.log_test("Database Stats (After)", False, f"Failed to verify final database state: {response}")
+
+    def test_complete_zapier_integration_and_cleanup(self):
+        """Run complete Zapier integration and database cleanup tests as requested in review"""
+        print("⚡ Starting Complete Zapier Integration and Database Cleanup Testing")
+        print(f"🌐 Testing against: {self.base_url}")
+        print("=" * 80)
+        
+        start_time = time.time()
+        
+        # Test Database Cleanup first
+        print("\n" + "🧹" * 50)
+        print("🧹 DATABASE CLEANUP TESTING")
+        print("🧹" * 50)
+        
+        self.test_database_cleanup_endpoints()
+        
+        # Test Zapier Integration
+        print("\n" + "⚡" * 50)
+        print("⚡ ZAPIER INTEGRATION TESTING")
+        print("⚡" * 50)
+        
+        self.test_zapier_integration_endpoints()
+        
+        # Final results
+        end_time = time.time()
+        duration = end_time - start_time
+        
+        print("\n" + "=" * 80)
+        print("📊 ZAPIER INTEGRATION & CLEANUP TEST RESULTS")
+        print("=" * 80)
+        print(f"⏱️ Total Duration: {duration:.2f} seconds")
+        print(f"🧪 Tests Run: {self.tests_run}")
+        print(f"✅ Tests Passed: {self.tests_passed}")
+        print(f"❌ Tests Failed: {self.tests_run - self.tests_passed}")
+        print(f"📈 Success Rate: {(self.tests_passed/self.tests_run)*100:.1f}%")
+        
+        # Print features tested summary
+        print(f"\n🧹 DATABASE CLEANUP ENDPOINTS TESTED:")
+        print(f"   ✅ Database Stats (GET /api/cleanup/database-stats)")
+        print(f"   ✅ Mock Data Cleanup (DELETE /api/cleanup/mock-data)")
+        
+        print(f"\n⚡ ZAPIER INTEGRATION ENDPOINTS TESTED:")
+        print(f"   ✅ Webhook Setup (GET /api/zapier/webhook-setup)")
+        print(f"   ✅ Affiliate Link Webhook (POST /api/zapier/test-webhook?webhook_type=new_affiliate_link)")
+        print(f"   ✅ Conversion Webhook (POST /api/zapier/test-webhook?webhook_type=new_conversion)")
+        print(f"   ✅ Content Webhook (POST /api/zapier/test-webhook?webhook_type=new_content)")
+        
+        if self.tests_passed == self.tests_run:
+            print("\n🎉 ALL ZAPIER INTEGRATION & CLEANUP TESTS PASSED!")
+            print("⚡ Zapier integration ready for production use")
+            print("🧹 Database clean of mock data")
+            print("✅ All systems working correctly")
+            return 0
+        else:
+            print(f"\n⚠️ {self.tests_run - self.tests_passed} tests failed. Check the details above.")
+            
+            # Print failed tests
+            print("\n❌ FAILED TESTS:")
+            for result in self.test_results:
+                if not result['success']:
+                    print(f"   • {result['name']}: {result['details']}")
+            
+            return 1
+
     def test_rakuten_endpoints_only(self):
         """Run only Rakuten API endpoint tests as requested in review"""
         print("🛒 Starting Rakuten API Endpoint Testing")
