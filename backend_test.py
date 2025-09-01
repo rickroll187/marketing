@@ -1554,6 +1554,7 @@ class AffiliateMarketingAPITester:
         self.test_phase3_affiliate_networks_endpoints()
         self.test_phase3_user_engagement_endpoints()
         self.test_phase3_fraud_detection_endpoints()
+        self.test_conversions_detected_endpoints()
         
         # Final results
         end_time = time.time()
