@@ -131,7 +131,7 @@ function App() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   
   // Tab state management
-  const [activeTab, setActiveTab] = useState('url-manager');
+  const [activeTab, setActiveTab] = useState('products');
   
   // Scraping state
   const [scrapeUrls, setScrapeUrls] = useState('');
