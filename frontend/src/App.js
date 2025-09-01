@@ -1327,9 +1327,13 @@ function App() {
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="flex w-full bg-white shadow-lg rounded-xl p-2 overflow-x-auto space-x-1">
+            <TabsTrigger value="products" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <Package className="h-3 w-3" />
+              Products
+            </TabsTrigger>
             <TabsTrigger value="url-manager" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
               <Bookmark className="h-3 w-3" />
-              URLs
+              URL Manager
             </TabsTrigger>
             <TabsTrigger value="content" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
               <FileText className="h-3 w-3" />
