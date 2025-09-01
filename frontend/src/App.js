@@ -48,6 +48,7 @@ import {
   Search, 
   Plus, 
   ExternalLink, 
+  Link,
   Sparkles, 
   BarChart3, 
   Package,
