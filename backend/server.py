@@ -2954,8 +2954,8 @@ async def get_conversion_stats(days: int = 30):
                     "ShareASale": 6
                 },
                 "recent_conversions": [
-                    {"id": "conv_001", "product_name": "GEARit 7-Port USB Hub", "commission": 12.50, "detected_at": datetime.now(timezone.utc) - timedelta(hours=2)},
-                    {"id": "conv_002", "product_name": "MacBook Pro 16-inch", "commission": 85.00, "detected_at": datetime.now(timezone.utc) - timedelta(hours=6)}
+                    {"id": "conv_001", "product_name": "GEARit 7-Port USB Hub", "commission": 12.50, "detected_at": (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat()},
+                    {"id": "conv_002", "product_name": "MacBook Pro 16-inch", "commission": 85.00, "detected_at": (datetime.now(timezone.utc) - timedelta(hours=6)).isoformat()}
                 ]
             }
             return {"success": True, "stats": mock_stats}
