@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 
 class ZapierWebhookTester:
-    def __init__(self, base_url: str = "https://saasmate.preview.emergentagent.com"):
+    def __init__(self, base_url: str = "https://techaffiliator.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.tests_run = 0
@@ -339,7 +339,7 @@ def main():
     if len(sys.argv) > 1:
         base_url = sys.argv[1]
     else:
-        base_url = "https://saasmate.preview.emergentagent.com"
+        base_url = "https://techaffiliator.preview.emergentagent.com"
     
     tester = ZapierWebhookTester(base_url)
     return tester.run_comprehensive_zapier_test()
