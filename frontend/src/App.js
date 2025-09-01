@@ -1398,6 +1398,10 @@ function App() {
               <Network className="h-3 w-3" />
               Networks
             </TabsTrigger>
+            <TabsTrigger value="conversions-detected" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
+              <Target className="h-3 w-3" />
+              Conversions
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="url-manager" className="space-y-6">
