@@ -489,34 +489,132 @@ const AffiliateProducts = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Zap className="h-5 w-5" />
-                GEARit Products
+                GEARit Product Catalog (900+ Products)
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
+              <div className="text-center py-8">
                 <Zap className="h-16 w-16 text-blue-500 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">GEARit Integration Ready</h3>
-                <p className="text-gray-600 mb-4">
-                  Browse premium tech accessories and USB hubs with 5-8% commission rates
+                <h3 className="text-lg font-semibold mb-2">Import Your GEARit Affiliate Catalog</h3>
+                <p className="text-gray-600 mb-6">
+                  As a GEARit affiliate partner, you have access to their complete catalog of 900+ premium tech products
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-medium">USB Hubs</h4>
-                    <p className="text-sm text-gray-600">7-port USB 3.0 hubs starting at $39.99</p>
+                
+                {/* Category Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
+                  <div className="p-4 border rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50">
+                    <Package className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                    <h4 className="font-semibold text-sm">USB Hubs</h4>
+                    <p className="text-xs text-gray-600">150+ products</p>
+                    <p className="text-xs text-blue-600 font-medium">$12.99 - $89.99</p>
                   </div>
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-medium">Adapters</h4>
-                    <p className="text-sm text-gray-600">USB-C to HDMI adapters from $24.99</p>
+                  <div className="p-4 border rounded-lg bg-gradient-to-br from-green-50 to-emerald-50">
+                    <Zap className="h-8 w-8 text-green-600 mx-auto mb-2" />
+                    <h4 className="font-semibold text-sm">Cables & Adapters</h4>
+                    <p className="text-xs text-gray-600">200+ products</p>
+                    <p className="text-xs text-green-600 font-medium">$8.99 - $49.99</p>
                   </div>
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-medium">Cables</h4>
-                    <p className="text-sm text-gray-600">Premium ethernet cables starting at $12.99</p>
+                  <div className="p-4 border rounded-lg bg-gradient-to-br from-purple-50 to-pink-50">
+                    <Star className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+                    <h4 className="font-semibold text-sm">Networking</h4>
+                    <p className="text-xs text-gray-600">120+ products</p>
+                    <p className="text-xs text-purple-600 font-medium">$15.99 - $129.99</p>
+                  </div>
+                  <div className="p-4 border rounded-lg bg-gradient-to-br from-orange-50 to-red-50">
+                    <DollarSign className="h-8 w-8 text-orange-600 mx-auto mb-2" />
+                    <h4 className="font-semibold text-sm">Power & Charging</h4>
+                    <p className="text-xs text-gray-600">100+ products</p>
+                    <p className="text-xs text-orange-600 font-medium">$19.99 - $79.99</p>
+                  </div>
+                  <div className="p-4 border rounded-lg bg-gradient-to-br from-teal-50 to-cyan-50">
+                    <Package className="h-8 w-8 text-teal-600 mx-auto mb-2" />
+                    <h4 className="font-semibold text-sm">Storage Solutions</h4>
+                    <p className="text-xs text-gray-600">80+ products</p>
+                    <p className="text-xs text-teal-600 font-medium">$24.99 - $199.99</p>
+                  </div>
+                  <div className="p-4 border rounded-lg bg-gradient-to-br from-indigo-50 to-blue-50">
+                    <Eye className="h-8 w-8 text-indigo-600 mx-auto mb-2" />
+                    <h4 className="font-semibold text-sm">Audio & Video</h4>
+                    <p className="text-xs text-gray-600">75+ products</p>
+                    <p className="text-xs text-indigo-600 font-medium">$16.99 - $149.99</p>
+                  </div>
+                  <div className="p-4 border rounded-lg bg-gradient-to-br from-pink-50 to-rose-50">
+                    <Zap className="h-8 w-8 text-pink-600 mx-auto mb-2" />
+                    <h4 className="font-semibold text-sm">Adapters & Converters</h4>
+                    <p className="text-xs text-gray-600">90+ products</p>
+                    <p className="text-xs text-pink-600 font-medium">$11.99 - $69.99</p>
+                  </div>
+                  <div className="p-4 border rounded-lg bg-gradient-to-br from-yellow-50 to-amber-50">
+                    <Star className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
+                    <h4 className="font-semibold text-sm">Tech Accessories</h4>
+                    <p className="text-xs text-gray-600">75+ products</p>
+                    <p className="text-xs text-yellow-600 font-medium">$9.99 - $59.99</p>
                   </div>
                 </div>
-                <Button className="mt-6">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Browse GEARit Catalog
-                </Button>
+
+                {/* Commission Info */}
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 max-w-2xl mx-auto">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <DollarSign className="h-5 w-5 text-green-600" />
+                    <span className="font-semibold text-green-800">Affiliate Commission: 5-8%</span>
+                  </div>
+                  <p className="text-sm text-green-700">
+                    Average commission rate across all categories. Higher rates for premium products.
+                  </p>
+                </div>
+
+                {/* Import Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button 
+                    onClick={async () => {
+                      setLoading(true);
+                      try {
+                        const response = await axios.post(`${API}/gearit/products/import-sample`);
+                        alert(`✅ Successfully imported ${response.data.imported_count} GEARit products!\n\nYou can now browse and create affiliate links for all imported products.`);
+                        fetchProducts(); // Refresh the products list
+                      } catch (error) {
+                        console.error('Import failed:', error);
+                        alert('❌ Failed to import GEARit products. Please try again.');
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                    disabled={loading}
+                    className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader className="h-4 w-4 mr-2 animate-spin" />
+                        Importing Products...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Import Sample Catalog (108 Products)
+                      </>
+                    )}
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={async () => {
+                      try {
+                        const response = await axios.get(`${API}/gearit/products/sample`);
+                        alert(`📋 GEARit Catalog Preview:\n\n${response.data.message}\n\nTotal Available: ${response.data.total_available} products\n\nClick "Import Sample Catalog" to add them to your library.`);
+                      } catch (error) {
+                        console.error('Preview failed:', error);
+                        alert('❌ Failed to load catalog preview.');
+                      }
+                    }}
+                    disabled={loading}
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    Preview Catalog
+                  </Button>
+                </div>
+
+                <p className="text-xs text-gray-500 mt-4">
+                  This will import a representative sample of GEARit's catalog. Contact support for full 900+ product import.
+                </p>
               </div>
             </CardContent>
           </Card>
