@@ -190,6 +190,19 @@ const TECH_SAAS_PROGRAMS = [
     features: ['Two-sided marketplace', 'Buyer & seller commissions', 'Broad services']
   },
   {
+    id: 'gearit',
+    name: 'GEARit',
+    category: 'Electronics & Tech',
+    commission: 'Up to 8% commission',
+    cookieDuration: '30 days',
+    signupUrl: 'https://rakuten.advertiser.com/gearit',
+    description: 'Computer accessories, cables, and tech gear',
+    payoutType: 'per-sale',
+    minPayout: '$25',
+    difficulty: 'beginner',
+    features: ['Electronics niche', 'Wide product range', 'Rakuten network', 'YOU ARE APPROVED! ✅']
+  },
+  {
     id: 'udemy',
     name: 'Udemy',
     category: 'Education & Training',
