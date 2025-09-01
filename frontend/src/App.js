@@ -34,6 +34,7 @@ import CommissionTracker from './components/CommissionTracker';
 import TechPlatformIntegrations from './components/TechPlatformIntegrations';
 import FraudDetectionAlerts from './components/FraudDetectionAlerts';
 import SingleUserEngagement from './components/SingleUserEngagement';
+import StableEmailForm from './components/StableEmailForm';
 import { applyGlobalInputFix } from './GlobalInputFix';
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
 import { Button } from './components/ui/button';
