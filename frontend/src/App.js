@@ -2604,6 +2604,11 @@ https://affiliate-site.com"
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* CONVERSIONS DETECTED TAB */}
+          <TabsContent value="conversions-detected" className="space-y-6">
+            <ConversionsDetected />
+          </TabsContent>
         </Tabs>
       </div>
       <Toaster />
