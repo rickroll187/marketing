@@ -46,22 +46,54 @@ class RakutenAPIClient:
                 response = await client.get(url, params=params)
                 
                 if response.status_code == 200:
-                    data = response.json()
-                    products = []
+                    # Parse XML response
+                    import xml.etree.ElementTree as ET
                     
-                    # Parse response based on Rakuten API format
-                    if isinstance(data, dict) and 'result' in data:
-                        items = data.get('result', [])
-                    else:
-                        items = data if isinstance(data, list) else []
-                    
-                    for item in items[:max_results]:
-                        product = self._transform_product(item)
-                        if product:
-                            products.append(product)
-                    
-                    logger.info(f"Found {len(products)} products for keyword: {keyword}")
-                    return products
+                    try:
+                        root = ET.fromstring(response.text)
+                        products = []
+                        
+                        # Extract total matches info
+                        total_matches = root.findtext('TotalMatches', '0')
+                        logger.info(f"Rakuten API found {total_matches} total matches for '{keyword}'")
+                        
+                        # Process each product item
+                        for item in root.findall('item'):
+                            try:
+                                # Extract product data from XML
+                                product_data = {
+                                    'id': item.findtext('linkid', ''),
+                                    'sku': item.findtext('sku', ''),
+                                    'name': item.findtext('productname', ''),
+                                    'merchantname': item.findtext('merchantname', ''),
+                                    'description': item.findtext('description/short', ''),
+                                    'price': float(item.findtext('saleprice', item.findtext('price', '0')).replace(' USD', '').replace('currency="USD">', '').strip()),
+                                    'originalPrice': float(item.findtext('price', '0').replace(' USD', '').replace('currency="USD">', '').strip()),
+                                    'imageUrl': item.findtext('imageurl', ''),
+                                    'linkUrl': item.findtext('linkurl', ''),
+                                    'category': item.findtext('category/primary', 'General'),
+                                    'upccode': item.findtext('upccode', ''),
+                                    'keywords': item.findtext('keywords', ''),
+                                    'createdon': item.findtext('createdon', '')
+                                }
+                                
+                                # Transform to our format
+                                product = self._transform_product(product_data)
+                                if product:
+                                    products.append(product)
+                                    
+                            except Exception as item_error:
+                                logger.warning(f"Error parsing product item: {item_error}")
+                                continue
+                        
+                        logger.info(f"Successfully parsed {len(products)} products from Rakuten XML response")
+                        return products
+                        
+                    except ET.ParseError as xml_error:
+                        logger.error(f"Error parsing Rakuten XML response: {xml_error}")
+                        logger.error(f"Response text: {response.text[:500]}...")
+                        return self._get_mock_products(keyword)
+                        
                 else:
                     logger.error(f"Rakuten API error: {response.status_code} - {response.text}")
                     return self._get_mock_products(keyword)
