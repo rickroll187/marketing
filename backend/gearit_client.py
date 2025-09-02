@@ -379,20 +379,20 @@ class GEARitClient:
                 'tags': ['cables', 'gearit', 'usb-c', 'hdmi', '4k']
             },
             {
-                'id': 'gearit_displayport_cable_6ft',
-                'name': 'GEARit DisplayPort Cable 6ft - 4K 60Hz Support',
-                'price': 16.99,
-                'original_price': 24.99,
-                'description': 'Premium DisplayPort cable supporting 4K resolution at 60Hz with secure locking connectors',
+                'id': 'gearit_lifestyle_silicone_cable',
+                'name': 'GEARit Lifestyle Series - 4-in-1 Silicone 100W USB-C Cable Fast Charging, 4 Feet',
+                'price': 18.99,
+                'original_price': 25.99,
+                'description': 'Features intelligent IC chip technology that automatically optimizes current and voltage for devices, supporting up to 100W fast charging.',
                 'image_url': 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400',
-                'affiliate_url': f'https://www.gearit.com/affiliate-redirect?id={self.affiliate_id}&product=displayport-cable-6ft',
+                'affiliate_url': self._generate_affiliate_url('https://www.gearit.com/products/lifestyle-series-4-in-1-silicone-100w-usb-c-cable-fast-charging-4-feet', 'Lifestyle Series 4-in-1 Silicone 100W USB-C Cable Fast Charging 4 Feet'),
                 'source': 'gearit',
                 'category': 'Cables & Adapters',
                 'rating': 4.5,
                 'reviews_count': 112,
                 'scraped_at': datetime.now(timezone.utc).isoformat(),
-                'features': ['DisplayPort', '4K 60Hz Support', '6ft Length', 'Locking Connectors', 'Gold-Plated'],
-                'tags': ['cables', 'gearit', 'displayport', '4k']
+                'features': ['Intelligent IC Chip', '100W Fast Charging', 'Silicone Design', '4-in-1 Functionality', 'Auto Optimization'],
+                'tags': ['cables', 'gearit', 'silicone', '4-in-1', 'fast-charging']
             }
         ]
         
