@@ -347,20 +347,20 @@ class GEARitClient:
                 'tags': ['cables', 'gearit', 'usb-c', '4-in-1', 'fast-charging']
             },
             {
-                'id': 'gearit_wireless_charger_15w',
-                'name': 'GEARit 15W Fast Wireless Charger with LED Indicator',
-                'price': 22.99,
-                'original_price': 31.99,
-                'description': '15W fast wireless charging pad with LED status indicator and universal compatibility',
+                'id': 'gearit_usb_c_type_a_cable',
+                'name': 'GEARit USB-C Cable, USB Type-C to USB-A 2.0 Male Fast Charging',
+                'price': 14.99,
+                'original_price': 19.99,
+                'description': 'Fast charging cable compatible with USB-C phones, tablets, cameras, and other electronic products. Features Qualcomm Quick Charge 3.0 compatibility, allowing devices to charge up to 80% in 30 minutes.',
                 'image_url': 'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400',
-                'affiliate_url': f'https://www.gearit.com/affiliate-redirect?id={self.affiliate_id}&product=15w-wireless-charger',
+                'affiliate_url': self._generate_affiliate_url('https://www.gearit.com/products/usb-c-cable-usb-type-c-to-usb-a-2-0-male-fast-charging', 'USB-C Cable USB Type-C to USB-A 2.0 Male Fast Charging'),
                 'source': 'gearit',
-                'category': 'Power & Charging',
-                'rating': 4.2,
+                'category': 'Cables & Adapters',
+                'rating': 4.4,
                 'reviews_count': 134,
                 'scraped_at': datetime.now(timezone.utc).isoformat(),
-                'features': ['15W Fast Charging', 'LED Indicator', 'Universal Compatibility', 'Anti-Slip Design'],
-                'tags': ['power', 'gearit', 'wireless', 'charging']
+                'features': ['Quick Charge 3.0', 'USB-C to USB-A', 'Fast Charging', '80% in 30min', 'Universal Compatibility'],
+                'tags': ['cables', 'gearit', 'usb-c', 'fast-charging', 'quick-charge']
             },
             {
                 'id': 'gearit_usb_extension_cable_10ft',
