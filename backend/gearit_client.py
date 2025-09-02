@@ -299,20 +299,20 @@ class GEARitClient:
                 'tags': ['cables', 'gearit', 'usb-c', 'fast-charging', '65w']
             },
             {
-                'id': 'gearit_usb_c_cable_100w',
-                'name': 'GEARit Braided USB-C to USB-C Cable 100W, 3.3 Feet',
-                'price': 19.99,
-                'original_price': 24.99,
-                'description': 'Supports 100W fast charging and sync, capable of powering up a MacBook 16" to 30% in 30 minutes. Also supports 4K HD video output at 60Hz.',
+                'id': 'gearit_4k_dash_cam',
+                'name': 'GEARit 3-Channel 4K Dash Cam - Front, Inside & Rear with GPS & Night Vision, 64GB Included',
+                'price': 149.99,
+                'original_price': 199.99,
+                'description': 'A comprehensive dash cam system offering 4K recording for front, inside, and rear views, equipped with GPS and night vision capabilities.',
                 'image_url': 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400',
-                'affiliate_url': self._generate_affiliate_url('https://www.gearit.com/products/braided-usb-c-to-usb-c-cable-100w-3-3-feet', 'Braided USB-C to USB-C Cable 100W 3.3 Feet'),
+                'affiliate_url': self._generate_affiliate_url('https://www.gearit.com/products/gearit-4k-dual-dash-cam-front-rear-with-wifi-gps-night-vision-64gb-included-copy', 'GEARit 3-Channel 4K Dash Cam with GPS'),
                 'source': 'gearit',
-                'category': 'Cables & Adapters',
-                'rating': 4.6,
+                'category': 'Electronics',
+                'rating': 4.8,
                 'reviews_count': 256,
                 'scraped_at': datetime.now(timezone.utc).isoformat(),
-                'features': ['100W Fast Charging', 'Braided Design', '4K Video Support', 'MacBook Compatible', 'USB-C to USB-C'],
-                'tags': ['cables', 'gearit', 'usb-c', 'fast-charging', '100w']
+                'features': ['4K Recording', '3-Channel System', 'GPS Tracking', 'Night Vision', '64GB Included'],
+                'tags': ['electronics', 'gearit', 'dash-cam', '4k', 'gps']
             },
             {
                 'id': 'gearit_usb4_cable_40gbps',
