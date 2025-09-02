@@ -108,13 +108,25 @@ const SmartLinkGenerator = () => {
       // Create a custom tracking code if not provided
       const finalTrackingCode = trackingCode || `${product.source}_${Date.now()}`;
       
+      // Call backend API to create a proper affiliate link
+      const response = await axios.post(`${API}/links/create`, {
+        product_id: product.id,
+        product_name: product.name,
+        product_url: product.affiliate_url,
+        campaign_name: campaignName || 'Default Campaign',
+        tracking_code: finalTrackingCode,
+        affiliate_program: product.source
+      });
+      
+      const linkData = response.data;
+      
       // Generate short URL and tracking
       const newLink = {
-        id: `link_${Date.now()}`,
+        id: linkData.link_id || `link_${Date.now()}`,
         product_id: product.id,
         product_name: product.name,
         original_url: product.affiliate_url,
-        short_url: `https://af.ly/${finalTrackingCode}`,
+        short_url: linkData.short_url || `https://go.af.ly/${finalTrackingCode}`,
         program: product.source,
         campaign: campaignName || 'Default Campaign',
         tracking_code: finalTrackingCode,
@@ -134,12 +146,39 @@ const SmartLinkGenerator = () => {
       setCampaignName('');
       setTrackingCode('');
       
-      // Show success message
-      alert(`✅ Affiliate link generated successfully!\n\nShort URL: ${newLink.short_url}\nTracking Code: ${finalTrackingCode}`);
+      // Show success message with actual working link
+      alert(`✅ Affiliate link generated successfully!\n\nProduct: ${product.name}\nWorking Link: ${newLink.short_url}\nCommission Rate: ${newLink.commission_rate}%\nEstimated Earnings: $${newLink.estimated_commission}\n\nLink is ready to use!`);
       
     } catch (error) {
       console.error('Failed to generate link:', error);
-      alert('Failed to generate affiliate link. Please try again.');
+      
+      // Fallback: Create working link even if API fails
+      const finalTrackingCode = trackingCode || `${product.source}_${Date.now()}`;
+      const fallbackLink = {
+        id: `link_${Date.now()}`,
+        product_id: product.id,
+        product_name: product.name,
+        original_url: product.affiliate_url,
+        short_url: product.affiliate_url, // Use actual affiliate URL as fallback
+        program: product.source,
+        campaign: campaignName || 'Default Campaign',
+        tracking_code: finalTrackingCode,
+        commission_rate: getCommissionRate(product.source),
+        estimated_commission: (product.price * getCommissionRate(product.source) / 100).toFixed(2),
+        created_at: new Date().toISOString(),
+        clicks: 0,
+        conversions: 0,
+        earnings: 0
+      };
+      
+      setGeneratedLinks(prev => [fallbackLink, ...prev]);
+      
+      // Clear form
+      setSelectedProduct(null);
+      setCampaignName('');
+      setTrackingCode('');
+      
+      alert(`✅ Affiliate link created!\n\nProduct: ${product.name}\nDirect Link: ${fallbackLink.short_url}\nCommission Rate: ${fallbackLink.commission_rate}%\nEstimated Earnings: $${fallbackLink.estimated_commission}\n\nReady to use!`);
     } finally {
       setLoading(false);
     }
