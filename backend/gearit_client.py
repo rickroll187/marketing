@@ -299,20 +299,20 @@ class GEARitClient:
                 'tags': ['adapters', 'gearit', 'usb-c', 'hdmi', '8k']
             },
             {
-                'id': 'gearit_hdmi_cable_6ft',
-                'name': 'GEARit 4K HDMI Cable 6ft - High Speed with Ethernet',
-                'price': 12.99,
-                'original_price': 19.99,
-                'description': 'Premium 4K HDMI cable with high-speed data transfer and Ethernet channel support',
+                'id': 'gearit_usb_c_cable_100w',
+                'name': 'GEARit Braided USB-C to USB-C Cable 100W, 3.3 Feet',
+                'price': 19.99,
+                'original_price': 24.99,
+                'description': 'Supports 100W fast charging and sync, capable of powering up a MacBook 16" to 30% in 30 minutes. Also supports 4K HD video output at 60Hz.',
                 'image_url': 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400',
-                'affiliate_url': f'https://www.gearit.com/affiliate-redirect?id={self.affiliate_id}&product=4k-hdmi-cable-6ft',
+                'affiliate_url': self._generate_affiliate_url('https://www.gearit.com/products/braided-usb-c-to-usb-c-cable-100w-3-3-feet', 'Braided USB-C to USB-C Cable 100W 3.3 Feet'),
                 'source': 'gearit',
                 'category': 'Cables & Adapters',
-                'rating': 4.4,
+                'rating': 4.6,
                 'reviews_count': 256,
                 'scraped_at': datetime.now(timezone.utc).isoformat(),
-                'features': ['4K Support', 'High Speed', 'Ethernet Channel', '6ft Length', 'Gold-Plated Connectors'],
-                'tags': ['cables', 'gearit', 'hdmi', '4k']
+                'features': ['100W Fast Charging', 'Braided Design', '4K Video Support', 'MacBook Compatible', 'USB-C to USB-C'],
+                'tags': ['cables', 'gearit', 'usb-c', 'fast-charging', '100w']
             },
             {
                 'id': 'gearit_ethernet_cable_cat6_50ft',
