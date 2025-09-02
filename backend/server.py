@@ -3262,6 +3262,23 @@ async def cleanup_fake_products():
         logger.error(f"Error cleaning up fake products: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/rakuten/advertisers")
+async def get_rakuten_advertisers():
+    """Find GearIT's advertiser/merchant ID in Rakuten"""
+    try:
+        rakuten_client = get_rakuten_client()
+        advertisers = await rakuten_client.get_advertiser_programs()
+        
+        return {
+            "success": True,
+            "advertisers": advertisers,
+            "gearit_programs": [adv for adv in advertisers if 'gearit' in adv.get('name', '').lower()]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting Rakuten advertisers: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/rakuten/gearit/import-all")
 async def import_all_gearit_products():
     """Import ALL GearIT products from Rakuten using comprehensive search"""
