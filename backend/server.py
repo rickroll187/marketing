@@ -3225,6 +3225,43 @@ async def get_gearit_categories():
         logger.error(f"Error getting GEARit categories: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.post("/products/cleanup-fake")
+async def cleanup_fake_products():
+    """Remove fake/placeholder products and keep only real affiliate products"""
+    try:
+        # Remove products with $0.00 price or fake URLs
+        fake_criteria = {
+            "$or": [
+                {"price": 0.0},
+                {"affiliate_url": {"$regex": "affiliate-redirect"}},
+                {"affiliate_url": {"$regex": "example.com"}},
+                {"source": "test-store.com"},
+                {"source": "zapier-test.com"},
+                {"description": {"$regex": "Price and details need manual verification"}}
+            ]
+        }
+        
+        # Count fake products before deletion
+        fake_count = await db.products.count_documents(fake_criteria)
+        
+        # Delete fake products
+        delete_result = await db.products.delete_many(fake_criteria)
+        
+        # Count remaining products
+        remaining_count = await db.products.count_documents({})
+        
+        return {
+            "success": True,
+            "message": f"Cleaned up {delete_result.deleted_count} fake products",
+            "fake_products_removed": delete_result.deleted_count,
+            "total_products_remaining": remaining_count,
+            "cleanup_criteria": "Removed $0.00 products, fake URLs, and placeholder products"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error cleaning up fake products: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Include the router in the main app
 app.include_router(api_router)
 
