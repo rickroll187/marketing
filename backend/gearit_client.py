@@ -283,20 +283,20 @@ class GEARitClient:
                 'tags': ['usb-hubs', 'gearit', 'tech', 'electronics', 'thunderbolt']
             },
             {
-                'id': 'gearit_usb_c_hub_8in1',
-                'name': 'GEARit 8-in-1 USB-C Hub with HDMI, Ethernet, and SD Card Reader',
+                'id': 'gearit_usb_c_hdmi_8k',
+                'name': 'GEARit USB-C to HDMI Adapter - 8K@60Hz Thunderbolt 3/4 Compatible',
                 'price': 49.99,
                 'original_price': 69.99,
-                'description': 'All-in-one USB-C hub with HDMI 4K output, Gigabit Ethernet, USB 3.0 ports, and SD/microSD card readers',
-                'image_url': 'https://images.unsplash.com/photo-1625842268584-8f3296236761?w=400',
-                'affiliate_url': f'https://www.gearit.com/affiliate-redirect?id={self.affiliate_id}&product=8in1-usbc-hub',
+                'description': 'Supports crystal-clear 8K HDR videos and is backward compatible with 5K, 4K, and 1080p resolutions. Built with corrosion-resistant connectors and strain relief for durability.',
+                'image_url': 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
+                'affiliate_url': self._generate_affiliate_url('https://www.gearit.com/products/usb-c-to-hdmi-adapter-8k-60hz-thunderbolt-3-4-compatible', 'USB-C to HDMI Adapter - 8K@60Hz Thunderbolt 3/4 Compatible'),
                 'source': 'gearit',
-                'category': 'USB Hubs',
+                'category': 'Adapters & Converters',
                 'rating': 4.7,
                 'reviews_count': 89,
                 'scraped_at': datetime.now(timezone.utc).isoformat(),
-                'features': ['USB-C', '8-in-1 Design', '4K HDMI Output', 'Gigabit Ethernet', 'SD Card Reader', 'USB 3.0 Ports'],
-                'tags': ['usb-hubs', 'gearit', 'usb-c', 'hdmi']
+                'features': ['8K@60Hz Support', 'Thunderbolt 3/4 Compatible', 'HDR Support', 'Corrosion-Resistant', 'Strain Relief'],
+                'tags': ['adapters', 'gearit', 'usb-c', 'hdmi', '8k']
             },
             {
                 'id': 'gearit_hdmi_cable_6ft',
