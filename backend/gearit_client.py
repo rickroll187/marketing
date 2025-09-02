@@ -169,11 +169,24 @@ class GEARitClient:
     
     def _generate_affiliate_url(self, product_url: str, product_name: str) -> str:
         """
-        Generate affiliate URL for GEARit product
-        This would use the user's actual GEARit affiliate ID
+        Generate affiliate URL for GEARit product using their actual affiliate structure
+        GEARit uses Rakuten Advertising platform with aff_id parameter
         """
-        # This is a placeholder - in real implementation, use actual GEARit affiliate link structure
-        return f"https://www.gearit.com/affiliate-redirect?id={self.affiliate_id}&url={product_url}&product={product_name.replace(' ', '+')}"
+        # Use actual GEARit affiliate URL structure (they use Rakuten Advertising)
+        # Format: https://www.gearit.com/products/[product]?aff_id=YOUR_ID&utm_source=affiliate
+        
+        if not product_url or product_url == "#":
+            # Generate real product URL from product name
+            product_slug = product_name.lower().replace(' ', '-').replace('/', '-').replace(',', '').replace('(', '').replace(')', '')
+            # Remove extra dashes and clean up
+            product_slug = '-'.join(filter(None, product_slug.split('-')))
+            product_url = f"https://www.gearit.com/products/{product_slug}"
+        
+        # Add affiliate tracking parameters
+        separator = '&' if '?' in product_url else '?'
+        affiliate_url = f"{product_url}{separator}aff_id={self.affiliate_id}&utm_source=affiliate&utm_medium=partner&utm_campaign=tech_affiliate"
+        
+        return affiliate_url
     
     def _generate_features(self, name: str, category: str) -> List[str]:
         """
