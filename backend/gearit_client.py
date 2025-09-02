@@ -315,20 +315,20 @@ class GEARitClient:
                 'tags': ['electronics', 'gearit', 'dash-cam', '4k', 'gps']
             },
             {
-                'id': 'gearit_usb4_cable_40gbps',
-                'name': 'GEARit USB-IF Certified USB4 40Gbps Data 100W Charging Cable',
-                'price': 34.99,
-                'original_price': 44.99,
-                'description': 'Ensures up to 40Gbps transfer speed, 8K video support, and 100W Power Delivery. Compatible with USB-C, Thunderbolt 3, and Thunderbolt 4.',
+                'id': 'gearit_3in1_gan_charger',
+                'name': 'GEARit 3-in-1 65W GaN Charger, 10000mAh Power Bank with Built-in USB-C Cable',
+                'price': 89.99,
+                'original_price': 119.99,
+                'description': 'A versatile device combining a 65W GaN wall charger, a 10,000mAh power bank, and a built-in USB-C cable.',
                 'image_url': 'https://images.unsplash.com/photo-1606868306217-dbf5046868d2?w=400',
-                'affiliate_url': self._generate_affiliate_url('https://www.gearit.com/products/usb-if-certified-usb4-40gbps-data-100w-charging-cable', 'USB-IF Certified USB4 40Gbps Data 100W Charging Cable'),
+                'affiliate_url': self._generate_affiliate_url('https://www.gearit.com/products/gearit-10000mah-qi2-wireless-charging-magsafe-power-bank-with-built-in-usb-c-cable-copy', 'GEARit 3-in-1 65W GaN Charger 10000mAh Power Bank'),
                 'source': 'gearit',
-                'category': 'Cables & Adapters',
-                'rating': 4.8,
+                'category': 'Power & Charging',
+                'rating': 4.7,
                 'reviews_count': 178,
                 'scraped_at': datetime.now(timezone.utc).isoformat(),
-                'features': ['USB4 Certified', '40Gbps Transfer Speed', '8K Video Support', '100W Power Delivery', 'Thunderbolt Compatible'],
-                'tags': ['cables', 'gearit', 'usb4', '40gbps', 'thunderbolt']
+                'features': ['65W GaN Charger', '10000mAh Power Bank', 'Built-in USB-C Cable', '3-in-1 Design', 'Wireless Charging'],
+                'tags': ['power', 'gearit', 'gan-charger', 'power-bank', 'wireless']
             },
             {
                 'id': 'gearit_lifestyle_4in1_cable',
