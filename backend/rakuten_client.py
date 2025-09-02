@@ -248,6 +248,32 @@ class RakutenAPIClient:
         ]
 
 def transform_rakuten_product(product_data: Dict) -> Dict:
-    """Legacy function for backward compatibility"""
-    client = RakutenAPIClient()
-    return client._transform_product(product_data) or product_data
+    """Transform raw Rakuten product data to our standard format"""
+    try:
+        return {
+            'id': f"rakuten_{product_data.get('id', '')}",
+            'name': product_data.get('name', ''),
+            'description': product_data.get('description', ''),
+            'price': float(product_data.get('price', 0)),
+            'original_price': float(product_data.get('originalPrice', product_data.get('price', 0))),
+            'image_url': product_data.get('imageUrl', ''),
+            'affiliate_url': product_data.get('linkUrl', ''),
+            'retailer': product_data.get('merchant', 'Rakuten'),
+            'category': product_data.get('category', 'General'),
+            'rating': float(product_data.get('rating', 0)),
+            'source': 'rakuten',
+            'tags': product_data.get('keywords', '').split(',') if product_data.get('keywords') else []
+        }
+    except Exception as e:
+        logger.error(f"Error transforming Rakuten product: {e}")
+        return None
+
+# Singleton instance
+rakuten_client = None
+
+def get_rakuten_client() -> RakutenAPIClient:
+    """Get Rakuten client singleton"""
+    global rakuten_client
+    if rakuten_client is None:
+        rakuten_client = RakutenAPIClient()
+    return rakuten_client
