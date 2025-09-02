@@ -169,22 +169,23 @@ class GEARitClient:
     
     def _generate_affiliate_url(self, product_url: str, product_name: str) -> str:
         """
-        Generate affiliate URL for GEARit product using their actual affiliate structure
-        GEARit uses Rakuten Advertising platform with aff_id parameter
+        Generate affiliate URL for GEARit product using Rakuten Advertising
+        GEARit affiliate program works through Rakuten Advertising network
         """
-        # Use actual GEARit affiliate URL structure (they use Rakuten Advertising)
-        # Format: https://www.gearit.com/products/[product]?aff_id=YOUR_ID&utm_source=affiliate
+        # GEARit uses Rakuten Advertising for affiliate tracking
+        # Format: https://click.linksynergy.com/deeplink?id=YOUR_SID&mid=MERCHANT_ID&murl=PRODUCT_URL
         
-        if not product_url or product_url == "#":
-            # Generate real product URL from product name
-            product_slug = product_name.lower().replace(' ', '-').replace('/', '-').replace(',', '').replace('(', '').replace(')', '')
-            # Remove extra dashes and clean up
-            product_slug = '-'.join(filter(None, product_slug.split('-')))
-            product_url = f"https://www.gearit.com/products/{product_slug}"
+        if not product_url or "gearit.com" not in product_url:
+            logger.warning(f"Invalid product URL for affiliate generation: {product_url}")
+            return product_url  # Return original URL as fallback
         
-        # Add affiliate tracking parameters
-        separator = '&' if '?' in product_url else '?'
-        affiliate_url = f"{product_url}{separator}aff_id={self.affiliate_id}&utm_source=affiliate&utm_medium=partner&utm_campaign=tech_affiliate"
+        # Rakuten Advertising deep link structure for GEARit
+        # The user needs to replace 'YOUR_RAKUTEN_SID' with their actual Rakuten SID
+        rakuten_base_url = "https://click.linksynergy.com/deeplink"
+        merchant_id = "12345"  # GEARit's Rakuten merchant ID (user needs to get the real one)
+        
+        # Build the affiliate URL
+        affiliate_url = f"{rakuten_base_url}?id={self.affiliate_id}&mid={merchant_id}&murl={product_url}"
         
         return affiliate_url
     
