@@ -3262,6 +3262,106 @@ async def cleanup_fake_products():
         logger.error(f"Error cleaning up fake products: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.post("/rakuten/gearit/import-all")
+async def import_all_gearit_products():
+    """Import ALL GearIT products from Rakuten using comprehensive search"""
+    try:
+        rakuten_client = get_rakuten_client()
+        all_gearit_products = []
+        
+        # Search strategies to find all GearIT products
+        search_terms = [
+            "gearit",
+            "GEARIT", 
+            "GEARit",
+            "gear it",
+            "gearit usb",
+            "gearit cable",
+            "gearit adapter",
+            "gearit hub",
+            "gearit hdmi",
+            "gearit ethernet",
+            "gearit displayport",
+            "gearit charging",
+            "gearit power",
+            "gearit wireless",
+            "gearit bluetooth",
+            "gearit audio",
+            "gearit video",
+            "gearit dash cam",
+            "gearit lifestyle",
+            "gearit braided",
+            "gearit silicone"
+        ]
+        
+        logger.info(f"Starting comprehensive GearIT product search with {len(search_terms)} search terms...")
+        
+        imported_count = 0
+        unique_products = {}  # To avoid duplicates
+        
+        for search_term in search_terms:
+            try:
+                logger.info(f"Searching for: {search_term}")
+                
+                # Search with high limit to get all results
+                products = await rakuten_client.search_products(search_term, max_results=100)
+                
+                logger.info(f"Found {len(products)} products for '{search_term}'")
+                
+                for product in products:
+                    # Only keep products that are actually from GearIT
+                    retailer = product.get('retailer', '').lower()
+                    name = product.get('name', '').lower()
+                    
+                    if 'gearit' in retailer or 'gearit' in name:
+                        product_id = product.get('id')
+                        if product_id not in unique_products:
+                            unique_products[product_id] = product
+                            
+                            # Try to import to database
+                            try:
+                                # Check if already exists
+                                existing = await db.products.find_one({"id": product_id})
+                                if not existing:
+                                    # Enhance product data
+                                    enhanced_product = {
+                                        **product,
+                                        'source': 'rakuten',
+                                        'scraped_at': datetime.now(timezone.utc).isoformat(),
+                                        'program': 'GearIT',
+                                        'commission_rate': 8.0  # Typical GearIT commission rate
+                                    }
+                                    
+                                    await db.products.insert_one(enhanced_product)
+                                    imported_count += 1
+                                    logger.info(f"Imported: {product.get('name')}")
+                                    
+                            except Exception as import_error:
+                                logger.warning(f"Failed to import product {product_id}: {import_error}")
+                                continue
+                
+                # Add delay between searches to avoid rate limiting
+                await asyncio.sleep(0.5)
+                
+            except Exception as search_error:
+                logger.warning(f"Search failed for '{search_term}': {search_error}")
+                continue
+        
+        logger.info(f"GearIT product import completed: {imported_count} products imported, {len(unique_products)} unique products found")
+        
+        return {
+            "success": True,
+            "message": f"Successfully imported {imported_count} GearIT products from Rakuten",
+            "imported_count": imported_count,
+            "unique_products_found": len(unique_products),
+            "search_terms_used": len(search_terms),
+            "products": list(unique_products.values())[:10]  # Return first 10 as sample
+        }
+        
+    except Exception as e:
+        logger.error(f"Error importing all GearIT products: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Include the router in the main app
 app.include_router(api_router)
 
