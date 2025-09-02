@@ -397,38 +397,7 @@ class GEARitClient:
             }
         ]
         
-        # Add more sample products to reach closer to the 900+ they have
-        additional_categories = [
-            ('Audio & Video', 'audio-video'),
-            ('Storage Solutions', 'storage'),
-            ('Tech Accessories', 'accessories'),
-            ('Power & Charging', 'power')
-        ]
-        
-        base_products = len(sample_products)
-        
-        # Generate more products for each category
-        for category_name, category_slug in additional_categories:
-            for i in range(25):  # Add 25 more products per category
-                product_id = f'gearit_{category_slug}_{i+1}'
-                sample_products.append({
-                    'id': product_id,
-                    'name': f'GEARit {category_name} Product #{i+1}',
-                    'price': round(15.99 + (i * 2.5), 2),
-                    'original_price': round(22.99 + (i * 3.0), 2),
-                    'description': f'Premium {category_name.lower()} product from GEARit with professional-grade quality',
-                    'image_url': 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=400',
-                    'affiliate_url': f'https://www.gearit.com/affiliate-redirect?id={self.affiliate_id}&product={product_id}',
-                    'source': 'gearit',
-                    'category': category_name,
-                    'rating': round(4.0 + (i % 10) * 0.05, 1),
-                    'reviews_count': 45 + (i * 3),
-                    'scraped_at': datetime.now(timezone.utc).isoformat(),
-                    'features': ['Professional Grade', 'High Quality', 'Durable Design'],
-                    'tags': [category_slug, 'gearit', 'tech', 'electronics']
-                })
-        
-        logger.info(f"Generated {len(sample_products)} GEARit sample products")
+        logger.info(f"Generated {len(sample_products)} real GEARit products with working URLs")
         return sample_products
     
     async def close(self):
