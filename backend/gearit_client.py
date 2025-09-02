@@ -331,20 +331,20 @@ class GEARitClient:
                 'tags': ['cables', 'gearit', 'usb4', '40gbps', 'thunderbolt']
             },
             {
-                'id': 'gearit_usb_c_to_hdmi_adapter',
-                'name': 'GEARit USB-C to HDMI Adapter - 4K 60Hz Support',
-                'price': 19.99,
-                'original_price': 29.99,
-                'description': 'High-performance USB-C to HDMI adapter supporting 4K resolution at 60Hz',
+                'id': 'gearit_lifestyle_4in1_cable',
+                'name': 'GEARit Lifestyle Series - 4-in-1 100W Flat USB-C Cable Fast Charging, 4.6 Feet',
+                'price': 24.99,
+                'original_price': 32.99,
+                'description': 'A versatile 4-in-1 charging cable that seamlessly switches between USB-C, USB-A, and Lightning types with flip-tip connectors.',
                 'image_url': 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
-                'affiliate_url': f'https://www.gearit.com/affiliate-redirect?id={self.affiliate_id}&product=usbc-hdmi-adapter',
+                'affiliate_url': self._generate_affiliate_url('https://www.gearit.com/products/lifestyle-series-4-in-1-100w-flat-usb-c-cable-fast-charging-4-6-feet', 'Lifestyle Series 4-in-1 100W Flat USB-C Cable Fast Charging 4.6 Feet'),
                 'source': 'gearit',
-                'category': 'Adapters & Converters',
-                'rating': 4.3,
+                'category': 'Cables & Adapters',
+                'rating': 4.5,
                 'reviews_count': 95,
                 'scraped_at': datetime.now(timezone.utc).isoformat(),
-                'features': ['USB-C Compatible', '4K 60Hz Support', 'Plug & Play', 'Aluminum Housing'],
-                'tags': ['adapters', 'gearit', 'usb-c', 'hdmi']
+                'features': ['4-in-1 Design', '100W Fast Charging', 'Flip-tip Connectors', 'USB-C/USB-A/Lightning', 'Flat Cable Design'],
+                'tags': ['cables', 'gearit', 'usb-c', '4-in-1', 'fast-charging']
             },
             {
                 'id': 'gearit_wireless_charger_15w',
