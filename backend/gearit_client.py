@@ -315,20 +315,20 @@ class GEARitClient:
                 'tags': ['cables', 'gearit', 'usb-c', 'fast-charging', '100w']
             },
             {
-                'id': 'gearit_ethernet_cable_cat6_50ft',
-                'name': 'GEARit Cat6 Ethernet Cable 50ft - Gigabit Network Cable',
-                'price': 24.99,
-                'original_price': 34.99,
-                'description': 'Professional-grade Cat6 Ethernet cable for gigabit network connections, 50ft length',
+                'id': 'gearit_usb4_cable_40gbps',
+                'name': 'GEARit USB-IF Certified USB4 40Gbps Data 100W Charging Cable',
+                'price': 34.99,
+                'original_price': 44.99,
+                'description': 'Ensures up to 40Gbps transfer speed, 8K video support, and 100W Power Delivery. Compatible with USB-C, Thunderbolt 3, and Thunderbolt 4.',
                 'image_url': 'https://images.unsplash.com/photo-1606868306217-dbf5046868d2?w=400',
-                'affiliate_url': f'https://www.gearit.com/affiliate-redirect?id={self.affiliate_id}&product=cat6-ethernet-50ft',
+                'affiliate_url': self._generate_affiliate_url('https://www.gearit.com/products/usb-if-certified-usb4-40gbps-data-100w-charging-cable', 'USB-IF Certified USB4 40Gbps Data 100W Charging Cable'),
                 'source': 'gearit',
-                'category': 'Networking',
-                'rating': 4.6,
+                'category': 'Cables & Adapters',
+                'rating': 4.8,
                 'reviews_count': 178,
                 'scraped_at': datetime.now(timezone.utc).isoformat(),
-                'features': ['Cat6', 'Gigabit Speed', '50ft Length', 'Professional Grade', 'RJ45 Connectors'],
-                'tags': ['networking', 'gearit', 'ethernet', 'cat6']
+                'features': ['USB4 Certified', '40Gbps Transfer Speed', '8K Video Support', '100W Power Delivery', 'Thunderbolt Compatible'],
+                'tags': ['cables', 'gearit', 'usb4', '40gbps', 'thunderbolt']
             },
             {
                 'id': 'gearit_usb_c_to_hdmi_adapter',
