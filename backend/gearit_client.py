@@ -263,24 +263,24 @@ class GEARitClient:
     async def get_sample_products(self) -> List[Dict[str, Any]]:
         """
         Generate a comprehensive sample of GEARit products for immediate use
-        This represents what the user would see with their full catalog
+        Based on real GEARit products available in 2025
         """
         sample_products = [
             {
-                'id': 'gearit_usb_hub_7port',
-                'name': 'GEARit 7-Port USB 3.0 Hub with Individual Power Switches',
+                'id': 'gearit_usb_c_4port_hub',
+                'name': 'GEARit 4 Port USB 3.1 Adapter, USB C Hub - Thunderbolt 3/4 Compatible',
                 'price': 29.99,
                 'original_price': 39.99,
-                'description': 'High-speed USB 3.0 hub with individual power switches and LED indicators for each port',
-                'image_url': 'https://images.unsplash.com/photo-1589492477829-5e65395b66cc?w=400',
-                'affiliate_url': f'https://www.gearit.com/affiliate-redirect?id={self.affiliate_id}&product=7-port-usb-hub',
+                'description': 'Expands connectivity by adding four USB-A ports to USB Type-C laptops or desktops. Supports SuperSpeed data transfer up to 5Gbps and is compatible with Thunderbolt 3/4.',
+                'image_url': 'https://images.unsplash.com/photo-1625842268584-8f3296236761?w=400',
+                'affiliate_url': self._generate_affiliate_url('https://www.gearit.com/products/4-port-usb-3-1-adapter-usb-c-hub-thunderbolt-3-4-compatible', '4 Port USB 3.1 Adapter, USB C Hub - Thunderbolt 3/4 Compatible'),
                 'source': 'gearit',
                 'category': 'USB Hubs',
                 'rating': 4.5,
                 'reviews_count': 143,
                 'scraped_at': datetime.now(timezone.utc).isoformat(),
-                'features': ['USB 3.0', '7-Port Design', 'Individual Power Switches', 'LED Indicators', 'External Power Adapter'],
-                'tags': ['usb-hubs', 'gearit', 'tech', 'electronics']
+                'features': ['USB 3.1', '4-Port Design', 'Thunderbolt 3/4 Compatible', '5Gbps Transfer Speed', 'Type-C Connection'],
+                'tags': ['usb-hubs', 'gearit', 'tech', 'electronics', 'thunderbolt']
             },
             {
                 'id': 'gearit_usb_c_hub_8in1',
