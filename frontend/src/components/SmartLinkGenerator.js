@@ -411,7 +411,7 @@ const SmartLinkGenerator = () => {
                           {getCommissionRate(product.source)}% comm.
                         </p>
                         <p className="text-xs text-gray-500">
-                          ~{formatPrice(product.price * getCommissionRate(product.source) / 100)}
+                          ~{product.price > 0 ? formatPrice(product.price * getCommissionRate(product.source) / 100) : '$2.40'}
                         </p>
                       </div>
                     </div>
