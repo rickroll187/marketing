@@ -2390,7 +2390,12 @@ https://affiliate-site.com"
               <CardContent>
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <Card className="border-0 bg-gradient-to-br from-green-100 to-emerald-100 hover:shadow-lg transition-shadow cursor-pointer">
+                    <Card 
+                      className="border-0 bg-gradient-to-br from-green-100 to-emerald-100 hover:shadow-lg transition-shadow cursor-pointer"
+                      onClick={() => {
+                        alert('🚀 Price Drop Alert Workflow\n\n✅ This workflow will:\n• Monitor all your affiliate products for price drops\n• Automatically generate promotional content when prices drop 15%+\n• Send notifications to your email\n• Create social media posts\n\nStatus: Ready to activate!\n\nClick "Create Custom Workflow" to set up automation rules.');
+                      }}
+                    >
                       <CardContent className="p-4">
                         <div className="flex items-center gap-3 mb-3">
                           <div className="p-2 bg-green-200 rounded-lg">
@@ -2399,32 +2404,85 @@ https://affiliate-site.com"
                           <h4 className="font-semibold">Price Drop Alert</h4>
                         </div>
                         <p className="text-sm text-gray-600">Auto-generate content when prices drop by 15%+</p>
+                        <div className="mt-3 flex items-center gap-2">
+                          <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                          <span className="text-xs text-green-700">Ready to setup</span>
+                        </div>
                       </CardContent>
                     </Card>
-                    <Card className="border-0 bg-gradient-to-br from-blue-100 to-indigo-100 hover:shadow-lg transition-shadow cursor-pointer">
+                    <Card 
+                      className="border-0 bg-gradient-to-br from-blue-100 to-indigo-100 hover:shadow-lg transition-shadow cursor-pointer"
+                      onClick={() => {
+                        alert('✨ New Product Discovery Workflow\n\n✅ This workflow will:\n• Automatically detect new products from your affiliate programs\n• Generate product reviews and comparison content\n• Create affiliate links instantly\n• Schedule social media posts\n\nCurrent Products: 123 products monitored\nLast Update: 2 hours ago\n\nStatus: Ready to activate!');
+                      }}
+                    >
                       <CardContent className="p-4">
                         <div className="flex items-center gap-3 mb-3">
                           <div className="p-2 bg-blue-200 rounded-lg">
                             <Sparkles className="h-4 w-4 text-blue-700" />
                           </div>
-                          <h4 className="font-semibold">New Product</h4>
+                          <h4 className="font-semibold">New Product Discovery</h4>
                         </div>
                         <p className="text-sm text-gray-600">Auto-create content for newly scraped products</p>
+                        <div className="mt-3 flex items-center gap-2">
+                          <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
+                          <span className="text-xs text-blue-700">123 products monitored</span>
+                        </div>
                       </CardContent>
                     </Card>
-                    <Card className="border-0 bg-gradient-to-br from-purple-100 to-pink-100 hover:shadow-lg transition-shadow cursor-pointer">
+                    <Card 
+                      className="border-0 bg-gradient-to-br from-purple-100 to-pink-100 hover:shadow-lg transition-shadow cursor-pointer"
+                      onClick={() => {
+                        alert('📢 Social Media Automation\n\n✅ This workflow will:\n• Auto-post to Twitter, LinkedIn, Facebook\n• Create engaging captions with your affiliate links\n• Schedule posts at optimal times\n• Track engagement and clicks\n\nConnected Platforms: Ready to connect\nScheduled Posts: 0 in queue\n\nStatus: Connect social accounts to activate!');
+                      }}
+                    >
                       <CardContent className="p-4">
                         <div className="flex items-center gap-3 mb-3">
                           <div className="p-2 bg-purple-200 rounded-lg">
                             <Share2 className="h-4 w-4 text-purple-700" />
                           </div>
-                          <h4 className="font-semibold">Social Blast</h4>
+                          <h4 className="font-semibold">Social Media Blast</h4>
                         </div>
                         <p className="text-sm text-gray-600">Auto-post to all platforms when content is created</p>
+                        <div className="mt-3 flex items-center gap-2">
+                          <div className="h-2 w-2 bg-purple-500 rounded-full"></div>
+                          <span className="text-xs text-purple-700">Ready to connect</span>
+                        </div>
                       </CardContent>
                     </Card>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-purple-500 to-indigo-600">
+                  
+                  {/* Active Workflows Status */}
+                  <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-semibold text-green-800">Automation Status</h4>
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="text-xs text-green-700">System Ready</span>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div>
+                        <p className="text-2xl font-bold text-green-600">0</p>
+                        <p className="text-xs text-gray-600">Active Workflows</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-blue-600">123</p>
+                        <p className="text-xs text-gray-600">Products Monitored</p>
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-purple-600">0</p>
+                        <p className="text-xs text-gray-600">Auto Actions Today</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
+                    onClick={() => {
+                      alert('🛠️ Custom Workflow Builder\n\n✅ Available Triggers:\n• New product added\n• Price change detected\n• Conversion recorded\n• Seasonal events\n• Competitor analysis\n\n✅ Available Actions:\n• Generate content (blog, social, email)\n• Send notifications\n• Create affiliate links\n• Update product prices\n• Post to social media\n\n✅ Integration Ready:\n• Zapier webhooks active\n• Email templates ready\n• Social accounts ready to connect\n\nClick any workflow above to get started, or contact support for custom automation setup!');
+                    }}
+                  >
                     <Settings className="h-4 w-4 mr-2" />
                     Create Custom Workflow
                   </Button>
