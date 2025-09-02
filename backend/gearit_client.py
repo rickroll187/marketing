@@ -23,7 +23,7 @@ class GEARitClient:
     
     def __init__(self):
         self.base_url = "https://www.gearit.com"
-        self.affiliate_id = "affiliate_partner"  # User's GEARit affiliate ID
+        self.affiliate_id = "USER_AFFILIATE_ID"  # User's actual GEARit affiliate ID - to be updated with real ID
         self.session = None
         
         # GEARit product categories
