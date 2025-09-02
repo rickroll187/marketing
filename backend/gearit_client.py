@@ -331,20 +331,20 @@ class GEARitClient:
                 'tags': ['power', 'gearit', 'gan-charger', 'power-bank', 'wireless']
             },
             {
-                'id': 'gearit_lifestyle_4in1_cable',
-                'name': 'GEARit Lifestyle Series - 4-in-1 100W Flat USB-C Cable Fast Charging, 4.6 Feet',
-                'price': 24.99,
-                'original_price': 32.99,
-                'description': 'A versatile 4-in-1 charging cable that seamlessly switches between USB-C, USB-A, and Lightning types with flip-tip connectors.',
+                'id': 'gearit_displayport_4k_cable',
+                'name': '4K DisplayPort Cable - 4K@60Hz / QHD 1440p@144Hz / FHD 1080p@144Hz',
+                'price': 19.99,
+                'original_price': 26.99,
+                'description': 'A high-quality DisplayPort cable supporting various resolutions and refresh rates, suitable for gaming and professional use.',
                 'image_url': 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
-                'affiliate_url': self._generate_affiliate_url('https://www.gearit.com/products/lifestyle-series-4-in-1-100w-flat-usb-c-cable-fast-charging-4-6-feet', 'Lifestyle Series 4-in-1 100W Flat USB-C Cable Fast Charging 4.6 Feet'),
+                'affiliate_url': self._generate_affiliate_url('https://www.gearit.com/products/gearit-displayport-to-displayport-cable-dp-to-dp-gold-plated-4k-ready-black', 'GEARit DisplayPort 4K Cable'),
                 'source': 'gearit',
                 'category': 'Cables & Adapters',
-                'rating': 4.5,
+                'rating': 4.6,
                 'reviews_count': 95,
                 'scraped_at': datetime.now(timezone.utc).isoformat(),
-                'features': ['4-in-1 Design', '100W Fast Charging', 'Flip-tip Connectors', 'USB-C/USB-A/Lightning', 'Flat Cable Design'],
-                'tags': ['cables', 'gearit', 'usb-c', '4-in-1', 'fast-charging']
+                'features': ['4K@60Hz Support', '144Hz Gaming Ready', 'Gold-Plated Connectors', 'DisplayPort to DisplayPort', 'Professional Grade'],
+                'tags': ['cables', 'gearit', 'displayport', '4k', 'gaming']
             },
             {
                 'id': 'gearit_usb_c_type_a_cable',
