@@ -363,20 +363,20 @@ class GEARitClient:
                 'tags': ['cables', 'gearit', 'usb-c', 'fast-charging', 'quick-charge']
             },
             {
-                'id': 'gearit_usb_extension_cable_10ft',
-                'name': 'GEARit USB 3.0 Extension Cable 10ft - Male to Female',
-                'price': 14.99,
-                'original_price': 21.99,
-                'description': 'High-speed USB 3.0 extension cable, 10ft length with gold-plated connectors',
+                'id': 'gearit_usb_c_hdmi_cable',
+                'name': 'GEARit USB-C to HDMI Cable - 4K@60Hz Direct Connection',
+                'price': 22.99,
+                'original_price': 29.99,
+                'description': 'Enables direct streaming of Ultra HD 4K (3840x2160) at 60Hz to HDMI-equipped HDTVs, monitors, or projectors from USB-C laptops or devices. Compatible with MacBook Pro, MacBook Air, iPad Pro, and more.',
                 'image_url': 'https://images.unsplash.com/photo-1587831990711-23ca6441447b?w=400',
-                'affiliate_url': f'https://www.gearit.com/affiliate-redirect?id={self.affiliate_id}&product=usb3-extension-10ft',
+                'affiliate_url': self._generate_affiliate_url('https://www.gearit.com/products/usb-c-to-hdmi-cable-4k-60hz-direct-connection', 'USB-C to HDMI Cable 4K 60Hz Direct Connection'),
                 'source': 'gearit',
                 'category': 'Cables & Adapters',
-                'rating': 4.4,
-                'reviews_count': 67,
+                'rating': 4.6,
+                'reviews_count': 167,
                 'scraped_at': datetime.now(timezone.utc).isoformat(),
-                'features': ['USB 3.0', '10ft Length', 'Gold-Plated Connectors', 'Male to Female'],
-                'tags': ['cables', 'gearit', 'usb', 'extension']
+                'features': ['4K@60Hz Support', 'Direct Connection', 'MacBook Compatible', 'iPad Pro Compatible', 'Ultra HD Streaming'],
+                'tags': ['cables', 'gearit', 'usb-c', 'hdmi', '4k']
             },
             {
                 'id': 'gearit_displayport_cable_6ft',
