@@ -283,20 +283,20 @@ class GEARitClient:
                 'tags': ['cables', 'gearit', 'usb-c', 'smart-display', '100w']
             },
             {
-                'id': 'gearit_usb_c_hdmi_8k',
-                'name': 'GEARit USB-C to HDMI Adapter - 8K@60Hz Thunderbolt 3/4 Compatible',
-                'price': 49.99,
-                'original_price': 69.99,
-                'description': 'Supports crystal-clear 8K HDR videos and is backward compatible with 5K, 4K, and 1080p resolutions. Built with corrosion-resistant connectors and strain relief for durability.',
+                'id': 'gearit_lifestyle_65w_usb_c',
+                'name': 'GEARit Lifestyle Series - 65W USB-C to USB-C Cable Fast Charging, 4 Feet',
+                'price': 24.99,
+                'original_price': 32.99,
+                'description': 'A durable USB-C to USB-C cable supporting up to 65W fast charging, suitable for various devices.',
                 'image_url': 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
-                'affiliate_url': self._generate_affiliate_url('https://www.gearit.com/products/usb-c-to-hdmi-adapter-8k-60hz-thunderbolt-3-4-compatible', 'USB-C to HDMI Adapter - 8K@60Hz Thunderbolt 3/4 Compatible'),
+                'affiliate_url': self._generate_affiliate_url('https://www.gearit.com/collections/power/products/gearit-lifestyle-series-65w-usb-c-to-usb-c-cable-fast-charging', 'GEARit Lifestyle Series 65W USB-C Cable'),
                 'source': 'gearit',
-                'category': 'Adapters & Converters',
-                'rating': 4.7,
+                'category': 'Cables & Adapters',
+                'rating': 4.6,
                 'reviews_count': 89,
                 'scraped_at': datetime.now(timezone.utc).isoformat(),
-                'features': ['8K@60Hz Support', 'Thunderbolt 3/4 Compatible', 'HDR Support', 'Corrosion-Resistant', 'Strain Relief'],
-                'tags': ['adapters', 'gearit', 'usb-c', 'hdmi', '8k']
+                'features': ['65W Fast Charging', 'USB-C to USB-C', 'Durable Design', '4 Feet Length', 'Device Compatible'],
+                'tags': ['cables', 'gearit', 'usb-c', 'fast-charging', '65w']
             },
             {
                 'id': 'gearit_usb_c_cable_100w',
