@@ -2491,7 +2491,7 @@ https://affiliate-site.com"
             </Card>
           </TabsContent>
 
-          <TabsContent value="links" className="space-y-6">
+          <TabsContent value="links" className="space-y-6" style={{pointerEvents: 'all'}}>
             <SmartLinkGenerator />
           </TabsContent>
 
