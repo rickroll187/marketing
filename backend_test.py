@@ -1334,6 +1334,178 @@ class AffiliateMarketingAPITester:
             
             return 1
 
+    def test_review_request_apis(self):
+        """Test specific APIs mentioned in the review request after pointer-events fixes"""
+        print("\n🎯 Testing Review Request APIs - Post Pointer-Events Fixes")
+        print("=" * 80)
+        
+        # 1. Core URL Management APIs
+        print("\n🔗 Testing Core URL Management APIs...")
+        
+        # POST /api/saved-urls/bulk (used by URL Manager tab)
+        bulk_urls = {
+            "urls": [
+                "https://www.amazon.com/dp/B08N5WRWNW",
+                "https://www.bestbuy.com/site/apple-macbook-pro/6418599.p",
+                "https://www.newegg.com/asus-rog-strix/p/N82E16834235398"
+            ],
+            "category": "electronics",
+            "priority": "high",
+            "notes": "Test URLs for review request validation"
+        }
+        
+        success, response = self.make_request('POST', 'saved-urls/bulk', bulk_urls, 200)
+        if success and isinstance(response, list) and len(response) > 0:
+            saved_count = len(response)
+            self.log_test("POST /api/saved-urls/bulk", True, f"Saved {saved_count} URLs successfully")
+            saved_url_ids = [url['id'] for url in response if 'id' in url]
+        else:
+            self.log_test("POST /api/saved-urls/bulk", False, f"Bulk save failed: {response}")
+            saved_url_ids = []
+        
+        # GET /api/saved-urls (retrieve saved URLs)
+        success, response = self.make_request('GET', 'saved-urls')
+        if success and isinstance(response, list):
+            self.log_test("GET /api/saved-urls", True, f"Retrieved {len(response)} saved URLs")
+        else:
+            self.log_test("GET /api/saved-urls", False, f"Failed to retrieve URLs: {response}")
+        
+        # PUT /api/saved-urls/{id} (select URLs)
+        if saved_url_ids:
+            url_id = saved_url_ids[0]
+            update_data = {"selected": True}
+            success, response = self.make_request('PUT', f'saved-urls/{url_id}', update_data, 200)
+            if success and 'id' in response:
+                self.log_test("PUT /api/saved-urls/{id}", True, f"URL {url_id[:8]}... selected successfully")
+            else:
+                self.log_test("PUT /api/saved-urls/{id}", False, f"URL selection failed: {response}")
+        else:
+            self.log_test("PUT /api/saved-urls/{id}", False, "No URL IDs available for selection test")
+        
+        # POST /api/saved-urls/scrape-selected (scrape selected URLs)
+        success, response = self.make_request('POST', 'saved-urls/scrape-selected', expected_status=200)
+        if success and 'scraped_products' in response:
+            scraped_count = len(response['scraped_products'])
+            self.log_test("POST /api/saved-urls/scrape-selected", True, f"Scraped {scraped_count} products from selected URLs")
+            # Store scraped product IDs for later tests
+            for product in response['scraped_products']:
+                if 'id' in product:
+                    self.created_products.append(product['id'])
+        else:
+            self.log_test("POST /api/saved-urls/scrape-selected", False, f"Scraping failed: {response}")
+        
+        # 2. Product Management APIs
+        print("\n📦 Testing Product Management APIs...")
+        
+        # GET /api/products (product listing)
+        success, response = self.make_request('GET', 'products')
+        if success and isinstance(response, list):
+            self.log_test("GET /api/products", True, f"Retrieved {len(response)} products")
+        else:
+            self.log_test("GET /api/products", False, f"Failed to get products: {response}")
+        
+        # PUT /api/products/{id}/price (update product prices)
+        if self.created_products:
+            product_id = self.created_products[0]
+            price_update = {
+                "price": 899.99,
+                "original_price": 1099.99,
+                "name": "Updated Product Name"
+            }
+            success, response = self.make_request('PUT', f'products/{product_id}/price', price_update, 200)
+            if success and 'id' in response:
+                self.log_test("PUT /api/products/{id}/price", True, f"Updated product price to ${response.get('price', 'N/A')}")
+            else:
+                self.log_test("PUT /api/products/{id}/price", False, f"Price update failed: {response}")
+        else:
+            self.log_test("PUT /api/products/{id}/price", False, "No products available for price update test")
+        
+        # DELETE /api/products/{id} (delete products)
+        if len(self.created_products) > 1:
+            product_id = self.created_products[-1]  # Use last product to avoid affecting other tests
+            success, response = self.make_request('DELETE', f'products/{product_id}', expected_status=200)
+            if success and 'message' in response:
+                self.log_test("DELETE /api/products/{id}", True, f"Product deleted: {response['message']}")
+                self.created_products.remove(product_id)
+            else:
+                self.log_test("DELETE /api/products/{id}", False, f"Product deletion failed: {response}")
+        else:
+            self.log_test("DELETE /api/products/{id}", False, "Insufficient products for deletion test")
+        
+        # 3. Smart Link Generation APIs (if available)
+        print("\n🔗 Testing Smart Link Generation APIs...")
+        
+        # Check if smart link endpoints exist
+        success, response = self.make_request('GET', 'smart-links/generate', expected_status=200)
+        if success:
+            self.log_test("Smart Link Generation API", True, "Smart link generation endpoint available")
+        else:
+            # Try alternative endpoint
+            success, response = self.make_request('GET', 'links/generate', expected_status=200)
+            if success:
+                self.log_test("Smart Link Generation API", True, "Alternative link generation endpoint available")
+            else:
+                self.log_test("Smart Link Generation API", False, "No smart link generation endpoints found")
+        
+        # 4. Rakuten Integration APIs
+        print("\n🛒 Testing Rakuten Integration APIs...")
+        
+        # GET /api/rakuten/test-connection
+        success, response = self.make_request('GET', 'rakuten/test-connection')
+        if success and 'connected' in response:
+            is_connected = response['connected']
+            sid = response.get('sid', 'N/A')
+            self.log_test("GET /api/rakuten/test-connection", True, f"Connection status: {is_connected}, SID: {sid}")
+        else:
+            self.log_test("GET /api/rakuten/test-connection", False, f"Connection test failed: {response}")
+        
+        # POST /api/rakuten/search
+        search_data = {"keyword": "laptop", "max_results": 3}
+        success, response = self.make_request('POST', 'rakuten/search', search_data, 200)
+        if success and 'success' in response and response['success']:
+            products = response.get('products', [])
+            self.log_test("POST /api/rakuten/search", True, f"Found {len(products)} products")
+        else:
+            self.log_test("POST /api/rakuten/search", False, f"Search failed: {response}")
+        
+        # GET /api/rakuten/products/search
+        success, response = self.make_request('GET', 'rakuten/products/search?keyword=laptop&limit=3')
+        if success and 'products' in response:
+            products = response['products']
+            self.log_test("GET /api/rakuten/products/search", True, f"Found {len(products)} products via GET")
+        else:
+            self.log_test("GET /api/rakuten/products/search", False, f"GET search failed: {response}")
+        
+        # 5. Content and Analytics APIs
+        print("\n📊 Testing Content and Analytics APIs...")
+        
+        # GET /api/content
+        success, response = self.make_request('GET', 'content')
+        if success and isinstance(response, list):
+            self.log_test("GET /api/content", True, f"Retrieved {len(response)} content items")
+        else:
+            self.log_test("GET /api/content", False, f"Failed to get content: {response}")
+        
+        # GET /api/stats
+        success, response = self.make_request('GET', 'stats')
+        if success and 'total_products' in response:
+            stats = {
+                'products': response.get('total_products', 0),
+                'content': response.get('total_content', 0),
+                'campaigns': response.get('total_campaigns', 0)
+            }
+            self.log_test("GET /api/stats", True, f"Stats retrieved: {stats}")
+        else:
+            self.log_test("GET /api/stats", False, f"Stats request failed: {response}")
+        
+        # GET /api/analytics
+        success, response = self.make_request('GET', 'analytics')
+        if success and 'analytics' in response:
+            analytics_count = len(response['analytics'])
+            self.log_test("GET /api/analytics", True, f"Analytics retrieved with {analytics_count} metric types")
+        else:
+            self.log_test("GET /api/analytics", False, f"Analytics request failed: {response}")
+
     def test_zapier_integration_endpoints(self):
         """Test Zapier Integration endpoints as requested in review"""
         print("\n⚡ Testing Zapier Integration Endpoints...")
