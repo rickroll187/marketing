@@ -3279,104 +3279,220 @@ async def get_rakuten_advertisers():
         logger.error(f"Error getting Rakuten advertisers: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.post("/rakuten/gearit/import-all")
-async def import_all_gearit_products():
-    """Import ALL GearIT products from Rakuten using comprehensive search"""
+@api_router.post("/rakuten/partners/import-all")
+async def import_all_partner_products():
+    """Import products from all your Rakuten affiliate partners"""
     try:
         rakuten_client = get_rakuten_client()
-        all_gearit_products = []
         
-        # Search strategies to find all GearIT products
-        search_terms = [
-            "gearit",
-            "GEARIT", 
-            "GEARit",
-            "gear it",
-            "gearit usb",
-            "gearit cable",
-            "gearit adapter",
-            "gearit hub",
-            "gearit hdmi",
-            "gearit ethernet",
-            "gearit displayport",
-            "gearit charging",
-            "gearit power",
-            "gearit wireless",
-            "gearit bluetooth",
-            "gearit audio",
-            "gearit video",
-            "gearit dash cam",
-            "gearit lifestyle",
-            "gearit braided",
-            "gearit silicone"
-        ]
+        # Your actual Rakuten affiliate partners
+        partners = {
+            "GearIT": {
+                "search_terms": ["gearit", "gear it"],
+                "commission_rate": 8.0,
+                "category": "Electronics"
+            },
+            "NordVPN APAC": {
+                "search_terms": ["nordvpn", "nord vpn"],
+                "commission_rate": 35.0,
+                "category": "Software & Security"
+            },
+            "Sharper Image": {
+                "search_terms": ["sharper image"],
+                "commission_rate": 12.0,
+                "category": "Electronics & Gadgets"
+            },
+            "Wondershare": {
+                "search_terms": ["wondershare", "filmora", "pdfelement"],
+                "commission_rate": 25.0,
+                "category": "Software"
+            }
+        }
         
-        logger.info(f"Starting comprehensive GearIT product search with {len(search_terms)} search terms...")
+        total_imported = 0
+        partner_results = {}
         
+        for partner_name, partner_info in partners.items():
+            logger.info(f"Starting import for {partner_name}...")
+            
+            partner_imported = 0
+            unique_products = {}
+            
+            for search_term in partner_info["search_terms"]:
+                try:
+                    logger.info(f"Searching {partner_name} for: {search_term}")
+                    
+                    # Search with high limit to get comprehensive results
+                    products = await rakuten_client.search_products(search_term, max_results=100)
+                    
+                    logger.info(f"Found {len(products)} products for '{search_term}'")
+                    
+                    for product in products:
+                        # Filter by merchant name matching partner
+                        retailer = product.get('retailer', '').lower()
+                        name = product.get('name', '').lower()
+                        
+                        # Check if product is from this partner
+                        is_partner_product = False
+                        if partner_name == "GearIT" and 'gearit' in retailer:
+                            is_partner_product = True
+                        elif partner_name == "NordVPN APAC" and ('nordvpn' in retailer or 'nord' in retailer):
+                            is_partner_product = True
+                        elif partner_name == "Sharper Image" and 'sharper' in retailer:
+                            is_partner_product = True
+                        elif partner_name == "Wondershare" and ('wondershare' in retailer or 'wondershare' in name):
+                            is_partner_product = True
+                        
+                        if is_partner_product:
+                            product_id = product.get('id')
+                            if product_id not in unique_products:
+                                unique_products[product_id] = product
+                                
+                                # Try to import to database
+                                try:
+                                    # Check if already exists
+                                    existing = await db.products.find_one({"id": product_id})
+                                    if not existing:
+                                        # Enhance product data
+                                        enhanced_product = {
+                                            **product,
+                                            'source': 'rakuten',
+                                            'scraped_at': datetime.now(timezone.utc).isoformat(),
+                                            'program': partner_name,
+                                            'commission_rate': partner_info["commission_rate"],
+                                            'category': partner_info["category"]
+                                        }
+                                        
+                                        await db.products.insert_one(enhanced_product)
+                                        partner_imported += 1
+                                        total_imported += 1
+                                        logger.info(f"Imported {partner_name}: {product.get('name')}")
+                                        
+                                except Exception as import_error:
+                                    logger.warning(f"Failed to import {partner_name} product {product_id}: {import_error}")
+                                    continue
+                    
+                    # Rate limiting
+                    await asyncio.sleep(0.5)
+                    
+                except Exception as search_error:
+                    logger.warning(f"Search failed for {partner_name} '{search_term}': {search_error}")
+                    continue
+            
+            partner_results[partner_name] = {
+                "imported": partner_imported,
+                "unique_found": len(unique_products),
+                "commission_rate": partner_info["commission_rate"]
+            }
+            
+            logger.info(f"{partner_name} import completed: {partner_imported} products imported")
+        
+        return {
+            "success": True,
+            "message": f"Successfully imported {total_imported} products from all Rakuten partners",
+            "total_imported": total_imported,
+            "partner_results": partner_results,
+            "partners": list(partners.keys())
+        }
+        
+    except Exception as e:
+        logger.error(f"Error importing partner products: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/rakuten/partners/{partner_name}/import")
+async def import_single_partner_products(partner_name: str):
+    """Import products from a specific Rakuten affiliate partner"""
+    try:
+        rakuten_client = get_rakuten_client()
+        
+        # Partner configurations
+        partner_configs = {
+            "gearit": {
+                "name": "GearIT",
+                "search_terms": ["gearit", "gear it", "usb hub gearit", "gearit cable", "gearit adapter"],
+                "commission_rate": 8.0,
+                "merchant_filter": "gearit"
+            },
+            "nordvpn": {
+                "name": "NordVPN APAC", 
+                "search_terms": ["nordvpn", "nord vpn", "vpn nord"],
+                "commission_rate": 35.0,
+                "merchant_filter": "nord"
+            },
+            "sharper-image": {
+                "name": "Sharper Image",
+                "search_terms": ["sharper image", "sharperimage"],
+                "commission_rate": 12.0,
+                "merchant_filter": "sharper"
+            },
+            "wondershare": {
+                "name": "Wondershare",
+                "search_terms": ["wondershare", "filmora", "pdfelement", "dr.fone"],
+                "commission_rate": 25.0,
+                "merchant_filter": "wondershare"
+            }
+        }
+        
+        partner_key = partner_name.lower().replace(" ", "-")
+        if partner_key not in partner_configs:
+            raise HTTPException(status_code=404, detail=f"Partner '{partner_name}' not found in your affiliate programs")
+        
+        config = partner_configs[partner_key]
         imported_count = 0
-        unique_products = {}  # To avoid duplicates
+        unique_products = {}
         
-        for search_term in search_terms:
+        logger.info(f"Starting comprehensive import for {config['name']}...")
+        
+        for search_term in config["search_terms"]:
             try:
-                logger.info(f"Searching for: {search_term}")
+                logger.info(f"Searching {config['name']} for: '{search_term}'")
                 
-                # Search with high limit to get all results
                 products = await rakuten_client.search_products(search_term, max_results=100)
                 
-                logger.info(f"Found {len(products)} products for '{search_term}'")
-                
                 for product in products:
-                    # Only keep products that are actually from GearIT
                     retailer = product.get('retailer', '').lower()
-                    name = product.get('name', '').lower()
                     
-                    if 'gearit' in retailer or 'gearit' in name:
+                    if config["merchant_filter"] in retailer:
                         product_id = product.get('id')
                         if product_id not in unique_products:
                             unique_products[product_id] = product
                             
-                            # Try to import to database
                             try:
-                                # Check if already exists
                                 existing = await db.products.find_one({"id": product_id})
                                 if not existing:
-                                    # Enhance product data
                                     enhanced_product = {
                                         **product,
                                         'source': 'rakuten',
                                         'scraped_at': datetime.now(timezone.utc).isoformat(),
-                                        'program': 'GearIT',
-                                        'commission_rate': 8.0  # Typical GearIT commission rate
+                                        'program': config['name'],
+                                        'commission_rate': config["commission_rate"]
                                     }
                                     
                                     await db.products.insert_one(enhanced_product)
                                     imported_count += 1
-                                    logger.info(f"Imported: {product.get('name')}")
                                     
                             except Exception as import_error:
-                                logger.warning(f"Failed to import product {product_id}: {import_error}")
+                                logger.warning(f"Failed to import product: {import_error}")
                                 continue
                 
-                # Add delay between searches to avoid rate limiting
-                await asyncio.sleep(0.5)
+                await asyncio.sleep(0.3)  # Rate limiting
                 
             except Exception as search_error:
                 logger.warning(f"Search failed for '{search_term}': {search_error}")
                 continue
         
-        logger.info(f"GearIT product import completed: {imported_count} products imported, {len(unique_products)} unique products found")
-        
         return {
             "success": True,
-            "message": f"Successfully imported {imported_count} GearIT products from Rakuten",
+            "message": f"Successfully imported {imported_count} {config['name']} products",
+            "partner": config['name'],
             "imported_count": imported_count,
             "unique_products_found": len(unique_products),
-            "search_terms_used": len(search_terms),
-            "products": list(unique_products.values())[:10]  # Return first 10 as sample
+            "commission_rate": config["commission_rate"],
+            "sample_products": list(unique_products.values())[:5]
         }
         
     except Exception as e:
-        logger.error(f"Error importing all GearIT products: {e}")
+        logger.error(f"Error importing {partner_name} products: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # Include the router in the main app
