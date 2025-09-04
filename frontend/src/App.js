@@ -1410,11 +1410,11 @@ function App() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="products" className="space-y-6">
+          <TabsContent value="products" className="space-y-6" style={{pointerEvents: 'all'}}>
             <AffiliateProducts />
           </TabsContent>
 
-          <TabsContent value="url-manager" className="space-y-6">
+          <TabsContent value="url-manager" className="space-y-6" style={{pointerEvents: 'all'}}>
             <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
               <CardHeader>
                 <div className="flex items-center justify-between">
