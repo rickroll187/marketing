@@ -259,8 +259,7 @@ function App() {
   useEffect(() => {
     if (isInitialized) return;
     
-    // Apply global input focus fix immediately
-    applyGlobalInputFix();
+    // GlobalInputFix removed - it was causing input bouncing issues
     
     // Initialize Google Analytics
     try {
