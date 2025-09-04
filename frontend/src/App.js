@@ -2668,6 +2668,7 @@ https://affiliate-site.com"
             <ConversionsDetected />
           </TabsContent>
         </Tabs>
+        </div>
       </div>
       <Toaster />
     </div>
