@@ -20,7 +20,9 @@ import {
   Eye,
   Heart,
   TrendingUp,
-  Settings
+  Settings,
+  Shield,
+  Download
 } from 'lucide-react';
 import axios from 'axios';
 
