@@ -38,7 +38,7 @@ import ConversionsDetected from './components/ConversionsDetected';
 import AffiliateProducts from './components/AffiliateProducts';
 import SmartLinkGenerator from './components/SmartLinkGenerator';
 import StableEmailForm from './components/StableEmailForm';
-import { applyGlobalInputFix } from './GlobalInputFix';
+// Removed GlobalInputFix - it was causing input bouncing issues
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
