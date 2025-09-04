@@ -1613,7 +1613,7 @@ Paste as many URLs as you want! No limits - 50, 100, 500+ URLs supported!"
             </Card>
           </TabsContent>
 
-          <TabsContent value="content" className="space-y-6">
+          <TabsContent value="content" className="space-y-6" style={{pointerEvents: 'all'}}>
             <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
               <CardHeader>
                 <div className="flex items-center justify-between">
