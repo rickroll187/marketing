@@ -1228,7 +1228,7 @@ function App() {
 
   const Dashboard = () => (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto p-6" style={{pointerEvents: 'none'}}>
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
