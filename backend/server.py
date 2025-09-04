@@ -26,6 +26,7 @@ from gearit_client import get_gearit_client
 from google_analytics import google_analytics
 from affiliate_networks import affiliate_networks
 from zapier_integration import zapier_webhooks
+from real_affiliate_system import get_real_affiliate_system
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
