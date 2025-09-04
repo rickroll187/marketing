@@ -1326,7 +1326,7 @@ function App() {
 
         {/* Main Content */}
         <div style={{pointerEvents: 'auto'}}>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6" key={`tabs-${activeTab}`}>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="flex w-full bg-white shadow-lg rounded-xl p-2 overflow-x-auto space-x-1">
             <TabsTrigger value="products" className="flex items-center gap-1 rounded-lg text-xs whitespace-nowrap">
               <Package className="h-3 w-3" />
