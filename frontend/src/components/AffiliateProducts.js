@@ -819,25 +819,67 @@ const AffiliateProducts = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ShoppingCart className="h-5 w-5" />
-                Amazon Associates
+                Amazon Associates - Waiting for API Keys
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-center py-12">
                 <ShoppingCart className="h-16 w-16 text-orange-500 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Amazon Integration Available</h3>
-                <p className="text-gray-600 mb-4">
-                  Connect your Amazon Product Advertising API to browse millions of products
+                <h3 className="text-lg font-semibold mb-2">Amazon Integration Ready</h3>
+                <p className="text-gray-600 mb-6">
+                  Once you receive your Amazon Product Advertising API keys, you'll have access to millions of products
                 </p>
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 max-w-md mx-auto">
-                  <p className="text-sm text-yellow-800">
-                    <strong>API Keys Required:</strong> You need Amazon Product Advertising API credentials to access products
+                
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-6 max-w-lg mx-auto">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-orange-500 rounded-lg">
+                      <ShoppingCart className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="text-left">
+                      <h4 className="font-semibold text-orange-800">Amazon Associates Program</h4>
+                      <p className="text-sm text-orange-700">Product Advertising API Required</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2 text-sm text-orange-800 text-left">
+                    <div className="flex justify-between">
+                      <span>Commission Rate:</span>
+                      <span className="font-semibold">1-10%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Available Products:</span>
+                      <span className="font-semibold">Millions</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Categories:</span>
+                      <span className="font-semibold">All Amazon Products</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>API Status:</span>
+                      <span className="font-semibold text-orange-600">Pending Keys</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 max-w-md mx-auto">
+                  <h4 className="font-semibold text-blue-800 mb-2">What You Need:</h4>
+                  <ul className="text-sm text-blue-700 space-y-1 text-left">
+                    <li>• Access Key ID</li>
+                    <li>• Secret Access Key</li>
+                    <li>• Associate Tag (Tracking ID)</li>
+                    <li>• Host (marketplace region)</li>
+                  </ul>
+                </div>
+
+                <div className="space-y-3">
+                  <Button variant="outline" disabled>
+                    <Settings className="h-4 w-4 mr-2" />
+                    Configure Amazon API (Waiting for Keys)
+                  </Button>
+                  <p className="text-xs text-gray-500">
+                    Once you receive your Amazon API credentials, contact support to activate integration
                   </p>
                 </div>
-                <Button variant="outline">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Configure Amazon API
-                </Button>
               </div>
             </CardContent>
           </Card>
