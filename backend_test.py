@@ -2027,8 +2027,12 @@ def main():
     """Main function to run the tests"""
     import sys
     
+    # Check if we should run review request tests
+    if len(sys.argv) > 1 and sys.argv[1] == "--review":
+        tester = AffiliateMarketingAPITester()
+        return tester.run_review_request_tests()
     # Check if we should run only Conversions Detected tests
-    if len(sys.argv) > 1 and sys.argv[1] == "--conversions":
+    elif len(sys.argv) > 1 and sys.argv[1] == "--conversions":
         tester = AffiliateMarketingAPITester()
         return tester.run_conversions_tests_only()
     # Check if we should run only Phase 3 tests
