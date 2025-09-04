@@ -1948,6 +1948,81 @@ class AffiliateMarketingAPITester:
             
             return 1
 
+    def run_review_request_tests(self):
+        """Run tests specifically requested in the review after pointer-events fixes"""
+        print("🎯 Starting Review Request API Testing - Post Pointer-Events Fixes")
+        print(f"🌐 Testing against: {self.base_url}")
+        print("=" * 80)
+        
+        start_time = time.time()
+        
+        # Run the specific review request tests
+        self.test_review_request_apis()
+        
+        # Also test Phase 3 features that need retesting based on test_result.md
+        print("\n🚀 Testing Phase 3 Features That Need Retesting...")
+        
+        # Create a test product for endpoints that need product_id
+        created_product_id = self.test_create_product()
+        
+        # Test Phase 3 features marked as needs_retesting: true
+        self.test_phase3_user_engagement_endpoints()
+        self.test_phase3_fraud_detection_endpoints()
+        self.test_phase3_affiliate_networks_endpoints()
+        
+        # Final results
+        end_time = time.time()
+        duration = end_time - start_time
+        
+        print("\n" + "=" * 80)
+        print("📊 REVIEW REQUEST TEST RESULTS")
+        print("=" * 80)
+        print(f"⏱️ Total Duration: {duration:.2f} seconds")
+        print(f"🧪 Tests Run: {self.tests_run}")
+        print(f"✅ Tests Passed: {self.tests_passed}")
+        print(f"❌ Tests Failed: {self.tests_run - self.tests_passed}")
+        print(f"📈 Success Rate: {(self.tests_passed/self.tests_run)*100:.1f}%")
+        
+        # Print specific APIs tested
+        print(f"\n🎯 REVIEW REQUEST APIS TESTED:")
+        print(f"   ✅ Core URL Management APIs:")
+        print(f"      • POST /api/saved-urls/bulk (URL Manager tab)")
+        print(f"      • GET /api/saved-urls (retrieve saved URLs)")
+        print(f"      • PUT /api/saved-urls/{{id}} (select URLs)")
+        print(f"      • POST /api/saved-urls/scrape-selected (scrape selected)")
+        print(f"   ✅ Product Management APIs:")
+        print(f"      • GET /api/products (product listing)")
+        print(f"      • PUT /api/products/{{id}}/price (update prices)")
+        print(f"      • DELETE /api/products/{{id}} (delete products)")
+        print(f"   ✅ Rakuten Integration APIs:")
+        print(f"      • GET /api/rakuten/test-connection")
+        print(f"      • POST /api/rakuten/search")
+        print(f"      • GET /api/rakuten/products/search")
+        print(f"   ✅ Content and Analytics APIs:")
+        print(f"      • GET /api/content")
+        print(f"      • GET /api/stats")
+        print(f"      • GET /api/analytics")
+        print(f"   ✅ Phase 3 Features Needing Retesting:")
+        print(f"      • User Engagement APIs")
+        print(f"      • Fraud Detection APIs")
+        print(f"      • Affiliate Network APIs")
+        
+        if self.tests_passed == self.tests_run:
+            print("\n🎉 ALL REVIEW REQUEST TESTS PASSED!")
+            print("✅ Backend APIs are fully functional after pointer-events fixes")
+            print("🚀 All requested endpoints are responsive and returning proper data")
+            return 0
+        else:
+            print(f"\n⚠️ {self.tests_run - self.tests_passed} tests failed. Check the details above.")
+            
+            # Print failed tests
+            print("\n❌ FAILED TESTS:")
+            for result in self.test_results:
+                if not result['success']:
+                    print(f"   • {result['name']}: {result['details']}")
+            
+            return 1
+
 def main():
     """Main function to run the tests"""
     import sys
