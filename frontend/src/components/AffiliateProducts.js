@@ -385,100 +385,291 @@ const AffiliateProducts = () => {
           </Card>
         </TabsContent>
 
-        {/* Rakuten Search Tab */}
+        {/* Your Rakuten Partners Tab */}
         <TabsContent value="rakuten" className="space-y-6">
           <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Search className="h-5 w-5" />
-                Rakuten Product Search
+                <Star className="h-5 w-5" />
+                Your Rakuten Affiliate Partners
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {/* Search Form */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <Input
-                  placeholder="Search keyword (e.g., 'laptop')"
-                  value={rakutenKeyword}
-                  onChange={(e) => setRakutenKeyword(e.target.value)}
-                />
-                <Input
-                  placeholder="Category (optional)"
-                  value={rakutenCategory}
-                  onChange={(e) => setRakutenCategory(e.target.value)}
-                />
-                <Input
-                  placeholder="Min Price"
-                  type="number"
-                  value={rakutenMinPrice}
-                  onChange={(e) => setRakutenMinPrice(e.target.value)}
-                />
-                <Input
-                  placeholder="Max Price"
-                  type="number"
-                  value={rakutenMaxPrice}
-                  onChange={(e) => setRakutenMaxPrice(e.target.value)}
-                />
+              <div className="text-center mb-8">
+                <h3 className="text-lg font-semibold mb-2">Import Products from Your Approved Partners</h3>
+                <p className="text-gray-600 mb-6">
+                  You're approved for these 4 Rakuten affiliate programs. Click to import their complete product catalogs.
+                </p>
               </div>
 
-              <div className="flex gap-2 mb-6">
-                <Button onClick={searchRakutenProducts} disabled={loading || !rakutenKeyword.trim()}>
-                  {loading ? <Loader className="h-4 w-4 mr-1 animate-spin" /> : <Search className="h-4 w-4 mr-1" />}
-                  Search Products
-                </Button>
-                <Button variant="outline" onClick={importRakutenProducts} disabled={loading || !rakutenKeyword.trim()}>
-                  <Plus className="h-4 w-4 mr-1" />
-                  Import to Library
-                </Button>
-              </div>
-
-              {/* Rakuten Results */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {rakutenProducts.map((product, index) => (
-                  <Card key={index} className="border border-gray-200 hover:border-green-300 transition-colors">
-                    <CardContent className="p-4">
-                      <div className="space-y-3">
-                        <div>
-                          <h3 className="font-semibold text-sm line-clamp-2">
-                            {product.name || 'Rakuten Product'}
-                          </h3>
-                          <Badge variant="secondary" className="text-xs mt-1">
-                            Rakuten
-                          </Badge>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <p className="text-lg font-bold text-green-600">
-                            {formatPrice(product.price || 0)}
-                          </p>
-                          <p className="text-sm text-blue-600 font-medium">
-                            5-8% comm.
-                          </p>
-                        </div>
-
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" className="flex-1">
-                            <ExternalLink className="h-3 w-3 mr-1" />
-                            View
-                          </Button>
-                          <Button size="sm" className="flex-1">
-                            <Plus className="h-3 w-3 mr-1" />
-                            Add
-                          </Button>
-                        </div>
+              {/* Partner Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                {/* GearIT */}
+                <Card className="border-2 border-blue-200 hover:border-blue-400 transition-colors cursor-pointer bg-gradient-to-br from-blue-50 to-indigo-50">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="p-3 bg-blue-500 rounded-lg">
+                        <Zap className="h-6 w-6 text-white" />
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      <div>
+                        <h3 className="font-bold text-lg">GearIT</h3>
+                        <p className="text-sm text-gray-600">Tech Accessories & Cables</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2 mb-4">
+                      <div className="flex justify-between text-sm">
+                        <span>Commission Rate:</span>
+                        <span className="font-semibold text-blue-600">8%</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Product Categories:</span>
+                        <span className="font-semibold">USB Hubs, Cables, Adapters</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Est. Products:</span>
+                        <span className="font-semibold text-green-600">900+</span>
+                      </div>
+                    </div>
+                    <Button 
+                      className="w-full bg-blue-500 hover:bg-blue-600"
+                      onClick={async () => {
+                        setLoading(true);
+                        try {
+                          const response = await axios.post(`${API}/rakuten/partners/gearit/import`);
+                          alert(`✅ Successfully imported ${response.data.imported_count} GearIT products!\n\nCommission Rate: ${response.data.commission_rate}%\nProducts now available in your library.`);
+                          fetchProducts(); // Refresh the products list
+                        } catch (error) {
+                          console.error('GearIT import failed:', error);
+                          alert('❌ Failed to import GearIT products. Please try again.');
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          Importing GearIT...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Import GearIT Products
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* NordVPN APAC */}
+                <Card className="border-2 border-green-200 hover:border-green-400 transition-colors cursor-pointer bg-gradient-to-br from-green-50 to-emerald-50">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="p-3 bg-green-500 rounded-lg">
+                        <Shield className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg">NordVPN APAC</h3>
+                        <p className="text-sm text-gray-600">VPN & Security Software</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2 mb-4">
+                      <div className="flex justify-between text-sm">
+                        <span>Commission Rate:</span>
+                        <span className="font-semibold text-green-600">35%</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Product Categories:</span>
+                        <span className="font-semibold">VPN Plans, Security Software</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Est. Commission:</span>
+                        <span className="font-semibold text-green-600">$15-50 per sale</span>
+                      </div>
+                    </div>
+                    <Button 
+                      className="w-full bg-green-500 hover:bg-green-600"
+                      onClick={async () => {
+                        setLoading(true);
+                        try {
+                          const response = await axios.post(`${API}/rakuten/partners/nordvpn/import`);
+                          alert(`✅ Successfully imported ${response.data.imported_count} NordVPN products!\n\nCommission Rate: ${response.data.commission_rate}%\nHigh-value security products now available.`);
+                          fetchProducts();
+                        } catch (error) {
+                          console.error('NordVPN import failed:', error);
+                          alert('❌ Failed to import NordVPN products. Please try again.');
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          Importing NordVPN...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Import NordVPN Products
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Sharper Image */}
+                <Card className="border-2 border-purple-200 hover:border-purple-400 transition-colors cursor-pointer bg-gradient-to-br from-purple-50 to-pink-50">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="p-3 bg-purple-500 rounded-lg">
+                        <Star className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg">Sharper Image</h3>
+                        <p className="text-sm text-gray-600">Innovative Gadgets & Electronics</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2 mb-4">
+                      <div className="flex justify-between text-sm">
+                        <span>Commission Rate:</span>
+                        <span className="font-semibold text-purple-600">12%</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Product Categories:</span>
+                        <span className="font-semibold">Gadgets, Health, Home</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Price Range:</span>
+                        <span className="font-semibold text-purple-600">$25-500</span>
+                      </div>
+                    </div>
+                    <Button 
+                      className="w-full bg-purple-500 hover:bg-purple-600"
+                      onClick={async () => {
+                        setLoading(true);
+                        try {
+                          const response = await axios.post(`${API}/rakuten/partners/sharper-image/import`);
+                          alert(`✅ Successfully imported ${response.data.imported_count} Sharper Image products!\n\nCommission Rate: ${response.data.commission_rate}%\nInnovative gadgets now available.`);
+                          fetchProducts();
+                        } catch (error) {
+                          console.error('Sharper Image import failed:', error);
+                          alert('❌ Failed to import Sharper Image products. Please try again.');
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          Importing Sharper Image...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Import Sharper Image Products
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Wondershare */}
+                <Card className="border-2 border-orange-200 hover:border-orange-400 transition-colors cursor-pointer bg-gradient-to-br from-orange-50 to-red-50">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="p-3 bg-orange-500 rounded-lg">
+                        <Package className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg">Wondershare</h3>
+                        <p className="text-sm text-gray-600">Creative Software Solutions</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2 mb-4">
+                      <div className="flex justify-between text-sm">
+                        <span>Commission Rate:</span>
+                        <span className="font-semibold text-orange-600">25%</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Product Categories:</span>
+                        <span className="font-semibold">Video Editing, PDF, Mobile</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Popular Products:</span>
+                        <span className="font-semibold text-orange-600">Filmora, PDFelement</span>
+                      </div>
+                    </div>
+                    <Button 
+                      className="w-full bg-orange-500 hover:bg-orange-600"
+                      onClick={async () => {
+                        setLoading(true);
+                        try {
+                          const response = await axios.post(`${API}/rakuten/partners/wondershare/import`);
+                          alert(`✅ Successfully imported ${response.data.imported_count} Wondershare products!\n\nCommission Rate: ${response.data.commission_rate}%\nHigh-commission software products available.`);
+                          fetchProducts();
+                        } catch (error) {
+                          console.error('Wondershare import failed:', error);
+                          alert('❌ Failed to import Wondershare products. Please try again.');
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          Importing Wondershare...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Import Wondershare Products
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
               </div>
 
-              {rakutenProducts.length === 0 && rakutenKeyword && !loading && (
-                <div className="text-center py-12">
-                  <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">No products found for "{rakutenKeyword}"</p>
-                  <p className="text-sm text-gray-400">Try different keywords or adjust price range</p>
-                </div>
-              )}
+              {/* Import All Button */}
+              <div className="text-center">
+                <Button 
+                  size="lg"
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                  onClick={async () => {
+                    setLoading(true);
+                    try {
+                      const response = await axios.post(`${API}/rakuten/partners/import-all`);
+                      alert(`🎉 Successfully imported ${response.data.total_imported} products from all partners!\n\n${Object.entries(response.data.partner_results).map(([partner, data]) => `${partner}: ${data.imported} products (${data.commission_rate}% commission)`).join('\n')}\n\nAll products now available in your library!`);
+                      fetchProducts();
+                    } catch (error) {
+                      console.error('All partners import failed:', error);
+                      alert('❌ Failed to import all partner products. Try importing individually.');
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                      Importing All Partners...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-4 w-4 mr-2" />
+                      Import All Partner Products
+                    </>
+                  )}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
