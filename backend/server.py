@@ -3496,6 +3496,96 @@ async def import_single_partner_products(partner_name: str):
         logger.error(f"Error importing {partner_name} products: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# =====================================================
+# REAL AFFILIATE SYSTEM - NO MOCK DATA
+# =====================================================
+
+@api_router.get("/affiliate/real-stats")
+async def get_real_affiliate_stats():
+    """Get real affiliate statistics - NO MOCK DATA"""
+    try:
+        real_system = get_real_affiliate_system(db, get_rakuten_client())
+        stats = await real_system.get_real_commission_data()
+        
+        return {
+            "success": True,
+            "stats": stats,
+            "data_source": "real_database_only"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting real affiliate stats: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/affiliate/real-analytics")
+async def get_real_analytics():
+    """Get real analytics data - NO MOCK DATA"""
+    try:
+        real_system = get_real_affiliate_system(db, get_rakuten_client())
+        analytics = await real_system.get_real_analytics_data()
+        
+        return {
+            "success": True,
+            "analytics": analytics,
+            "data_source": "real_database_only"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting real analytics: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/affiliate/real-programs")
+async def get_real_programs():
+    """Get real partner programs - NO MOCK DATA"""
+    try:
+        real_system = get_real_affiliate_system(db, get_rakuten_client())
+        programs = await real_system.get_real_partner_programs()
+        
+        return {
+            "success": True,
+            "programs": programs,
+            "data_source": "real_rakuten_partnerships"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting real programs: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/affiliate/real-link")
+async def create_real_affiliate_link(product_id: str, campaign_name: str = "Default"):
+    """Create real affiliate link - NO MOCK DATA"""
+    try:
+        real_system = get_real_affiliate_system(db, get_rakuten_client())
+        link = await real_system.create_real_affiliate_link(product_id, campaign_name)
+        
+        return {
+            "success": True,
+            "link": link,
+            "data_source": "real_rakuten_system"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error creating real affiliate link: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/affiliate/cleanup-mock-data")
+async def cleanup_all_mock_data():
+    """Remove ALL mock data from system"""
+    try:
+        real_system = get_real_affiliate_system(db, get_rakuten_client())
+        cleanup_results = await real_system.cleanup_all_mock_data()
+        
+        return {
+            "success": True,
+            "message": "All mock data removed from system",
+            "cleanup_results": cleanup_results,
+            "total_removed": sum(cleanup_results.values())
+        }
+        
+    except Exception as e:
+        logger.error(f"Error cleaning up mock data: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Include the router in the main app
 app.include_router(api_router)
 
